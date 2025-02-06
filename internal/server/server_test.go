@@ -12,6 +12,7 @@ import (
 
 	"github.com/dhaifley/apid/internal/config"
 	"github.com/dhaifley/apid/internal/errors"
+	"github.com/dhaifley/apid/internal/logger"
 	"github.com/dhaifley/apid/internal/request"
 	"github.com/dhaifley/apid/internal/server"
 	"github.com/dhaifley/apid/tests/mocks"
@@ -227,13 +228,15 @@ func TestNotFound(t *testing.T) {
 }
 
 func BenchmarkServerPostResource(b *testing.B) {
-	os.Setenv("AUTH_TOKEN_PUBLIC_KEY_FILE", "../certs/tls.crt")
+	l := logger.New(logger.LogOutStderr, logger.LogFmtJSON, logger.LvlInfo)
 
-	os.Setenv("AUTH_TOKEN_PRIVATE_KEY_FILE", "../certs/tls.key")
+	os.Setenv("AUTH_TOKEN_PUBLIC_KEY_FILE", "../../certs/tls.crt")
+
+	os.Setenv("AUTH_TOKEN_PRIVATE_KEY_FILE", "../../certs/tls.key")
 
 	c := config.NewDefault()
 
-	svr, err := server.NewServer(c, nil, nil, nil)
+	svr, err := server.NewServer(c, l, nil, nil)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -242,6 +245,10 @@ func BenchmarkServerPostResource(b *testing.B) {
 		svr.SetDB(&mocks.MockResourceDB{})
 	} else {
 		svr.ConnectSQL()
+
+		for svr.DB() == nil {
+			time.Sleep(time.Millisecond * 100)
+		}
 	}
 
 	authToken := ""
@@ -279,13 +286,17 @@ func BenchmarkServerPostResource(b *testing.B) {
 }
 
 func BenchmarkServerGetResource(b *testing.B) {
-	os.Setenv("AUTH_TOKEN_PUBLIC_KEY_FILE", "../certs/tls.crt")
+	l := logger.New(logger.LogOutStderr, logger.LogFmtJSON, logger.LvlInfo)
 
-	os.Setenv("AUTH_TOKEN_PRIVATE_KEY_FILE", "../certs/tls.key")
+	os.Setenv("AUTH_TOKEN_PUBLIC_KEY_FILE", "../../certs/tls.crt")
+
+	os.Setenv("AUTH_TOKEN_PUBLIC_KEY_FILE", "../../certs/tls.crt")
+
+	os.Setenv("AUTH_TOKEN_PRIVATE_KEY_FILE", "../../certs/tls.key")
 
 	c := config.NewDefault()
 
-	svr, err := server.NewServer(c, nil, nil, nil)
+	svr, err := server.NewServer(c, l, nil, nil)
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -294,6 +305,10 @@ func BenchmarkServerGetResource(b *testing.B) {
 		svr.SetDB(&mocks.MockResourceDB{})
 	} else {
 		svr.ConnectSQL()
+
+		for svr.DB() == nil {
+			time.Sleep(time.Millisecond * 100)
+		}
 	}
 
 	authToken := ""

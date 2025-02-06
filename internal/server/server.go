@@ -171,6 +171,14 @@ func (s *Server) Cache(r *http.Request) cache.Accessor {
 	return s.cache
 }
 
+// DB gets the database connection pool for the server.
+func (s *Server) DB() sqldb.SQLDB {
+	s.RLock()
+	defer s.RUnlock()
+
+	return s.db
+}
+
 // SetDB sets the database connection pool for the server.
 func (s *Server) SetDB(db sqldb.SQLDB) {
 	s.Lock()
