@@ -55,3 +55,7 @@ $ tests/stop-tests.sh
 
 While the local test environment is running, the test API service can be
 accessed at: `http://localhost:8080/v1/api`.
+
+## API Documentation
+
+* [OpenAPI spec documentation](api/openapi.yaml)
