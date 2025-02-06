@@ -257,6 +257,8 @@ func BenchmarkServerPostResource(b *testing.B) {
 	u := "https://localhost:8080/v1/api/resources"
 
 	for i := 0; i < b.N; i++ {
+		b.StopTimer()
+
 		buf := bytes.NewBufferString(`{"name":"test","key_field":"test"}`)
 
 		r, err := http.NewRequest(http.MethodPost, u, buf)
@@ -269,6 +271,8 @@ func BenchmarkServerPostResource(b *testing.B) {
 		} else {
 			r.Header.Set("Authorization", "test")
 		}
+
+		b.StartTimer()
 
 		svr.Mux(w, r)
 	}
