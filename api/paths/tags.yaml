@@ -1,0 +1,48 @@
+# paths/tags.yaml
+parameters:
+  - $ref: "../components/parameters/id.yaml"
+get:
+  tags:
+    - Tags
+  operationId: get_tags
+  summary: Get tags
+  description: Retrieves tags for a resource.
+  responses:
+    "200":
+      $ref: "../components/responses/tags.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+post:
+  tags:
+    - Tags
+  operationId: create_tags
+  summary: Create tags
+  description: Adds tags to a resource.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/tags.yaml"
+  responses:
+    "200":
+      $ref: "../components/responses/tags.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+delete:
+  tags:
+    - Tags
+  operationId: delete_tags
+  summary: Delete tags
+  description: Deletes tags for a specific resource.
+  responses:
+    "204":
+      description: No response body.
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

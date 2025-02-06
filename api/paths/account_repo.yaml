@@ -1,0 +1,35 @@
+# paths/account_repo.yaml
+get:
+  tags:
+    - Account
+  operationId: get_account_repo
+  summary: Get account import repository
+  description: Retrieves details for the account import repository.
+  responses:
+    "200":
+      $ref: "../components/responses/account_repo.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+post:
+  tags:
+    - Account
+  operationId: create_account_repo
+  summary: Create account import repository
+  description: >
+    Creates or updates details for the account import repository. Admin access
+    is required to perform this operation.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/account_repo.yaml"
+  responses:
+    "201":
+      $ref: "../components/responses/account_repo.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

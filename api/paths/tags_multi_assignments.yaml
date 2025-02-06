@@ -1,0 +1,39 @@
+# paths/tags_multi_assignments.yaml
+post:
+  tags:
+    - Tags
+  operationId: create_tags_multi_assignment
+  summary: Create tags_multi_assignment
+  description: Creates tags across multiple resources.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/tags_multi_assignment.yaml"
+  responses:
+    "201":
+      $ref: "../components/responses/tags_multi_assignment.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+delete:
+  tags:
+    - Tags
+  operationId: delete_tags_multi_assignment
+  summary: Delete tags_multi_assignment
+  description: Deletes tags across multiple resources.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/tags_multi_assignment.yaml"
+  responses:
+    "200":
+      $ref: "../components/responses/tags_multi_assignment.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

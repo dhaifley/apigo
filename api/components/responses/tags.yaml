@@ -1,0 +1,7 @@
+# components/responses/tags.yaml
+description: >
+  A response containing an array of tags.
+content:
+  application/json:
+    schema:
+      $ref: "../schemas/tags.yaml"

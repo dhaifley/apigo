@@ -1,0 +1,7 @@
+# components/parameters/summary.yaml
+name: summary
+in: query
+schema:
+  type: string
+description: >
+  A comma separated list of resource field names used to apply summarization.

@@ -1,0 +1,1017 @@
+openapi: 3.1.0
+info:
+  title: apid
+  version: 0.1.1
+  description: |
+    A service providing an application programming interface.
+  license:
+    name: No License
+    url: https://choosealicense.com/no-permission/
+servers:
+  - url: /v1/api
+security:
+  - Authorization: []
+tags:
+  - name: Account
+    description: Account information and services.
+  - name: Resources
+    description: Operations related to resources.
+  - name: Tags
+    description: Operations related to resource tags.
+  - name: Tokens
+    description: Operations related to API tokens.
+  - name: User
+    description: User information and services.
+paths:
+  /account:
+    get:
+      tags:
+        - Account
+      operationId: get_account
+      summary: Get account
+      description: Retrieves details for the current account.
+      responses:
+        '200':
+          $ref: '#/components/responses/account'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    patch:
+      tags:
+        - Account
+      operationId: update_account
+      summary: Update account
+      description: Updates details for the current account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account'
+      responses:
+        '200':
+          $ref: '#/components/responses/account'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    put:
+      tags:
+        - Account
+      operationId: replace_account
+      summary: Replace account
+      description: Updates details for the current account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account'
+      responses:
+        '200':
+          $ref: '#/components/responses/account'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /account/repo:
+    get:
+      tags:
+        - Account
+      operationId: get_account_repo
+      summary: Get account import repository
+      description: Retrieves details for the account import repository.
+      responses:
+        '200':
+          $ref: '#/components/responses/account_repo'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    post:
+      tags:
+        - Account
+      operationId: create_account_repo
+      summary: Create account import repository
+      description: |
+        Creates or updates details for the account import repository. Admin access is required to perform this operation.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/account_repo'
+      responses:
+        '201':
+          $ref: '#/components/responses/account_repo'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /resources:
+    parameters:
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/size'
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/summary'
+    get:
+      tags:
+        - Resources
+      operationId: search_resources
+      summary: Search resources
+      description: Retrieves resources based on a search query.
+      responses:
+        '200':
+          $ref: '#/components/responses/resources'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    post:
+      tags:
+        - Resources
+      operationId: create_resource
+      summary: Create resource
+      description: Creates a new resource and associated external access.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/resource'
+      responses:
+        '201':
+          $ref: '#/components/responses/resource'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /resources/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+    get:
+      tags:
+        - Resources
+      operationId: get_resource
+      summary: Get resource
+      description: Retrieves details for a specific resource.
+      responses:
+        '200':
+          $ref: '#/components/responses/resource'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    patch:
+      tags:
+        - Resources
+      operationId: update_resource
+      summary: Update resource
+      description: Updates details for a specific resource.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/resource'
+      responses:
+        '200':
+          $ref: '#/components/responses/resource'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    put:
+      tags:
+        - Resources
+      operationId: replace_resource
+      summary: Replace resource
+      description: Updates details for a specific resource.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/resource'
+      responses:
+        '200':
+          $ref: '#/components/responses/resource'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    delete:
+      tags:
+        - Resources
+      operationId: delete_resource
+      summary: Delete resource
+      description: Deletes a specific resource.
+      responses:
+        '204':
+          description: No response body.
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /resources/import:
+    post:
+      tags:
+        - Resources
+      operationId: create_resources_import
+      summary: Import resources
+      description: Imports resources from the import repository.
+      responses:
+        '204':
+          description: No response body.
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /resources/{id}/import:
+    parameters:
+      - $ref: '#/components/parameters/id'
+    post:
+      tags:
+        - Resources
+      operationId: create_resource_import
+      summary: Import resource
+      description: Imports a single resource from the import repository.
+      responses:
+        '204':
+          description: No response body.
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /resources/{id}/tags:
+    parameters:
+      - $ref: '#/components/parameters/id'
+    get:
+      tags:
+        - Tags
+      operationId: get_tags
+      summary: Get tags
+      description: Retrieves tags for a resource.
+      responses:
+        '200':
+          $ref: '#/components/responses/tags'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    post:
+      tags:
+        - Tags
+      operationId: create_tags
+      summary: Create tags
+      description: Adds tags to a resource.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tags'
+      responses:
+        '200':
+          $ref: '#/components/responses/tags'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    delete:
+      tags:
+        - Tags
+      operationId: delete_tags
+      summary: Delete tags
+      description: Deletes tags for a specific resource.
+      responses:
+        '204':
+          description: No response body.
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /resources/tags_multi_assignments:
+    post:
+      tags:
+        - Tags
+      operationId: create_tags_multi_assignment
+      summary: Create tags_multi_assignment
+      description: Creates tags across multiple resources.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tags_multi_assignment'
+      responses:
+        '201':
+          $ref: '#/components/responses/tags_multi_assignment'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    delete:
+      tags:
+        - Tags
+      operationId: delete_tags_multi_assignment
+      summary: Delete tags_multi_assignment
+      description: Deletes tags across multiple resources.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/tags_multi_assignment'
+      responses:
+        '200':
+          $ref: '#/components/responses/tags_multi_assignment'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /tokens:
+    parameters:
+      - $ref: '#/components/parameters/search'
+      - $ref: '#/components/parameters/size'
+      - $ref: '#/components/parameters/from'
+      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/summary'
+    get:
+      tags:
+        - Tokens
+      operationId: search_tokens
+      summary: Search tokens
+      description: Retrieves tokens based on a search query.
+      responses:
+        '200':
+          $ref: '#/components/responses/tokens'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    post:
+      tags:
+        - Tokens
+      operationId: create_token
+      summary: Create token
+      description: Creates a new token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/token'
+      responses:
+        '201':
+          $ref: '#/components/responses/token'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /tokens/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+    get:
+      tags:
+        - Tokens
+      operationId: get_token
+      summary: Get token
+      description: Retrieves details for a specific token.
+      responses:
+        '200':
+          $ref: '#/components/responses/token'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    patch:
+      tags:
+        - Tokens
+      operationId: update_token
+      summary: Update token
+      description: Updates details for a specific token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/token'
+      responses:
+        '200':
+          $ref: '#/components/responses/token'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    put:
+      tags:
+        - Tokens
+      operationId: replace_token
+      summary: Replace token
+      description: Updates details for a specific token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/token'
+      responses:
+        '200':
+          $ref: '#/components/responses/token'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    delete:
+      tags:
+        - Tokens
+      operationId: delete_token
+      summary: Delete token
+      description: Deletes a specific token.
+      responses:
+        '204':
+          description: No response body.
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+  /user:
+    get:
+      tags:
+        - User
+      operationId: get_user
+      summary: Get user
+      description: Retrieves details for the current user.
+      responses:
+        '200':
+          $ref: '#/components/responses/user'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    patch:
+      tags:
+        - User
+      operationId: update_user
+      summary: Update user
+      description: Updates details for the current user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '200':
+          $ref: '#/components/responses/user'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+    put:
+      tags:
+        - User
+      operationId: replace_user
+      summary: Replace user
+      description: Updates details for the current user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '200':
+          $ref: '#/components/responses/user'
+        '400':
+          $ref: '#/components/responses/user_error'
+        '500':
+          $ref: '#/components/responses/error'
+components:
+  securitySchemes:
+    Authorization:
+      in: header
+      name: Authorization
+      type: apiKey
+      description: A valid authentication token with valid authorization.
+  parameters:
+    search:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: A valid search query.
+    size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 10000
+        default: 100
+      description: |
+        The maximum number of results that should be returned by a single API request.
+    from:
+      name: from
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 10000
+        default: 0
+      description: |
+        The number of results that should be skipped before any size limit.
+    order:
+      name: order
+      in: query
+      schema:
+        type: string
+      description: |
+        A comma separated list of resource field names used to apply sorting.
+    summary:
+      name: summary
+      in: query
+      schema:
+        type: string
+      description: |
+        A comma separated list of resource field names used to apply summarization.
+    id:
+      name: id
+      in: path
+      description: The ID of the resource or object requested.
+      required: true
+      example: 11223344-5566-7788-9900-aabbccddeeff
+      schema:
+        type: string
+  schemas:
+    account:
+      type: object
+      description: An account.
+      properties:
+        account_id:
+          type: string
+          description: The ID of the account.
+          examples:
+            - 1234567890abcdef
+        name:
+          type: string
+          description: The unique name of the account.
+          examples:
+            - example-account
+        status:
+          type: string
+          description: The current status of the account.
+          enum:
+            - active
+            - inactive
+          examples:
+            - active
+        status_data:
+          type: object
+          description: Additional data related to the account status.
+        repo_status:
+          type: string
+          description: The current status of the import repository.
+          enum:
+            - active
+            - inactive
+            - importing
+            - error
+          examples:
+            - active
+        repo_status_data:
+          type: object
+          description: Additional data related to the import repository status.
+        data:
+          type: object
+          description: Additional data related to the account.
+        created_at:
+          type: integer
+          description: The Unix epoch timestamp for when the account was created.
+          examples:
+            - 1234567890
+        updated_at:
+          type: integer
+          description: The Unix epoch timestamp for when the account was last updated.
+          examples:
+            - 1234567890
+    user_error:
+      type: object
+      description: An error message and associated information.
+      properties:
+        code:
+          type: string
+          description: The name of the error code.
+          examples:
+            - InvalidRequest
+        status:
+          type: integer
+          description: The status code of the error.
+          examples:
+            - 400
+        message:
+          type: string
+          description: A message explaining the error details.
+          examples:
+            - invalid request
+    error:
+      type: object
+      description: An error message and associated information.
+      properties:
+        code:
+          type: string
+          description: The name of the error code.
+          examples:
+            - Server
+        status:
+          type: integer
+          description: The status code of the error.
+          examples:
+            - 500
+        message:
+          type: string
+          description: A message explaining the error details.
+          examples:
+            - server error
+    account_repo:
+      type: object
+      description: Account repository information.
+      properties:
+        repo:
+          type: string
+          description: The repository connection string.
+        repo_status:
+          type: string
+          description: The current status of the account repository.
+          enum:
+            - active
+            - inactive
+            - importing
+            - error
+          examples:
+            - active
+        repo_status_data:
+          type: object
+          description: Additional data related to the account repository status.
+    user_data:
+      type: object
+      description: |
+        Information about a user related to a resource. This information is only displayed when the resource is requested with ?user_details=true.
+      properties:
+        user_id:
+          type: string
+          description: The ID of the user.
+          examples:
+            - 11223344-5566-7788-9900-aabbccddeeff
+        email:
+          type: string
+          description: The email address of the user.
+          examples:
+            - test@test.com
+        last_name:
+          type: string
+          description: The last name of the user.
+          examples:
+            - Doe
+        first_name:
+          type: string
+          description: The first name of the user.
+          examples:
+            - Jane
+        status:
+          type: string
+          description: The current status of the user.
+          enum:
+            - active
+            - inactive
+          examples:
+            - active
+        data:
+          type: object
+          description: Additional data related to the user.
+    resource:
+      type: object
+      description: A resource connected to an external system.
+      properties:
+        resource_id:
+          type: string
+          description: The ID of the resource.
+          examples:
+            - 11223344-5566-7788-9900-aabbccddeeff
+        name:
+          type: string
+          description: The name of the resource.
+          examples:
+            - Test Resource
+        version:
+          type: string
+          description: The version of the resource.
+          examples:
+            - '1'
+        description:
+          type: string
+          description: A description of the resource.
+          examples:
+            - A test resource
+        status:
+          type: string
+          description: |
+            The current status of the resource. A `new` status indicates no resource data has been received yet from external system.s An `error` status indicates that there was a problem with resource data submitted by external systems.
+          enum:
+            - active
+            - inactive
+            - new
+            - error
+          examples:
+            - active
+        status_data:
+          type: object
+          description: Additional data related to the status.
+        key_field:
+          type: string
+          description: |
+            The field contained in resource data payloads submitted by the external system that will be used to "key" the resource data records. A payload received with the same key, will replace an resource data payload received earlier from external systems.
+          examples:
+            - resource_id
+        key_regex:
+          type: string
+          description: |
+            If not null, this regular expression will be applied to the value of the field specified by key_field in the resource data payload before it is used as the key for that resource data payload.
+          examples:
+            - '[^(.*resource_id:)]\d+'
+        clear_condition:
+          type: string
+          description: |
+            The clear condition for the resource.
+          examples:
+            - gt(cleared_on:0)
+        clear_after:
+          type: integer
+          description: |
+            The duration in seconds after which resource data payloads will be cleared automatically. The default is equivalent to 30 days.
+          examples:
+            - 2592000
+        clear_delay:
+          type: integer
+          description: |
+            The duration in seconds after which external resource data payloads meet a clear condition that the resource data record will actually be removed, thereby triggering any associated rule processing. The default is 0.
+          examples:
+            - 0
+        data:
+          type: object
+          description: |
+            The actual resource data records received from external systems, keyed by the field indicated by key_field and key_regex.
+        source:
+          type: string
+          description: The source of the resource.
+          examples:
+            - git
+            - import
+        commit_hash:
+          type: string
+          description: |
+            The commit hash of the of the import repository when source is git.
+        created_at:
+          type: integer
+          description: |
+            The Unix epoch timestamp for when the resource was created.
+          examples:
+            - 1234567890
+        created_by:
+          type: string
+          description: The ID of the user that created the resource.
+          examples:
+            - 11223344-5566-7788-9900-aabbccddeeff
+        created_by_user:
+          $ref: '#/components/schemas/user_data'
+        updated_at:
+          type: integer
+          description: |
+            The Unix epoch timestamp for when the resource was last updated.
+          examples:
+            - 1234567890
+        updated_by:
+          type: string
+          description: The ID of the user that last updated the resource.
+          examples:
+            - 11223344-5566-7788-9900-aabbccddeeff
+        updated_by_user:
+          $ref: '#/components/schemas/user_data'
+    tags:
+      type: array
+      description: User-defined tags set for the resource.
+      items:
+        type: string
+        examples:
+          - test:user-tag
+    tags_multi_assignment:
+      type: object
+      description: |
+        A assignment of tags to multiple resources, based on the evaluation of a resource selector.
+      properties:
+        tags:
+          type: array
+          description: User-defined tags.
+          items:
+            type: string
+            examples:
+              - test:user-tag
+        resource_selector:
+          type: string
+          description: |
+            Selection query used to select which resources receive this assignment.
+          examples:
+            - and(name:*)
+    token:
+      type: object
+      description: An API token.
+      properties:
+        token_id:
+          type: string
+          description: The ID of the token.
+          examples:
+            - 1234567890-abcdef
+        status:
+          type: string
+          description: The current status of the token.
+          enum:
+            - active
+            - inactive
+          examples:
+            - active
+        expiration:
+          type: integer
+          description: |
+            The Unix epoch timestamp for when the token will expire. If not provided, the default will be 7 days from the time the token is created.
+          examples:
+            - 1234567890
+        created_at:
+          type: integer
+          description: |
+            The Unix epoch timestamp for when the token was created.
+          examples:
+            - 1234567890
+        created_by:
+          type: string
+          description: The ID of the user that created the token.
+          examples:
+            - 11223344-5566-7788-9900-aabbccddeeff
+        created_by_user:
+          $ref: '#/components/schemas/user_data'
+        updated_at:
+          type: integer
+          description: |
+            The Unix epoch timestamp for when the token was last updated.
+          examples:
+            - 1234567890
+        updated_by:
+          type: string
+          description: The ID of the user that last updated the token.
+          examples:
+            - 11223344-5566-7788-9900-aabbccddeeff
+        updated_by_user:
+          $ref: '#/components/schemas/user_data'
+    user:
+      type: object
+      description: A user.
+      properties:
+        user_id:
+          type: string
+          description: The ID of the user.
+          examples:
+            - 1234567890abcdef
+        email:
+          type: string
+          description: The email address of the user.
+          examples:
+            - test@test.com
+        last_name:
+          type: string
+          description: The last name of the user.
+          examples:
+            - Doe
+        first_name:
+          type: string
+          description: The first name of the user.
+          examples:
+            - Jane
+        status:
+          type: string
+          description: The current status of the user.
+          enum:
+            - active
+            - inactive
+          examples:
+            - active
+        data:
+          type: object
+          description: Additional data related to the user.
+        created_at:
+          type: integer
+          description: The Unix epoch timestamp for when the user was created.
+          examples:
+            - 1234567890
+        created_by:
+          type: string
+          description: The ID of the user that created the user.
+          examples:
+            - 1234567890abcdef
+        created_by_user:
+          $ref: '#/components/schemas/user_data'
+        updated_at:
+          type: integer
+          description: The Unix epoch timestamp for when the user was last updated.
+          examples:
+            - 1234567890
+        updated_by:
+          type: string
+          description: The ID of the user that last updated the user.
+          examples:
+            - 1234567890abcdef
+        updated_by_user:
+          $ref: '#/components/schemas/user_data'
+  responses:
+    account:
+      description: |
+        A response containing details about the account.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/account'
+    user_error:
+      description: |
+        Some sort of error occurred during the request due to the contents of the request itself. The error will contain details about the specific cause. The request should not be repeated, as it will not ever be able to produce a successful response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/user_error'
+    error:
+      description: |
+        Some sort of error occurred while processing the request that was not due to a problem with the request itself. The response will include information about the cause of the error. Repeating the request may result in a successful response.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/error'
+    account_repo:
+      description: |
+        A response containing details about the account repository.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/account_repo'
+    resources:
+      description: |
+        A response containing an array of resources.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/resource'
+    resource:
+      description: |
+        A response containing details about the resource.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/resource'
+    tags:
+      description: |
+        A response containing an array of tags.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/tags'
+    tags_multi_assignment:
+      description: |
+        A response containing details about the tags multiple assignment.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/tags_multi_assignment'
+    tokens:
+      description: |
+        A response containing an array of tokens.
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/token'
+    token:
+      description: |
+        A response containing details about the token.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/token'
+    user:
+      description: |
+        A response containing details about the user.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/user'

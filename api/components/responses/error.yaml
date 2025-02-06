@@ -1,0 +1,10 @@
+# components/responses/error.yaml
+description: >
+  Some sort of error occurred while processing the request that was not due to
+  a problem with the request itself. The response will include information about
+  the cause of the error. Repeating the request may result in a successful
+  response.
+content:
+  application/json:
+    schema:
+      $ref: "../schemas/error.yaml"

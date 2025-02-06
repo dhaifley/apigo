@@ -1,0 +1,7 @@
+# components/responses/resource.yaml
+description: >
+  A response containing details about the resource.
+content:
+  application/json:
+    schema:
+      $ref: "../schemas/resource.yaml"

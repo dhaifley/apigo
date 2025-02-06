@@ -1,0 +1,6 @@
+# components/schemas/tags.yaml
+type: array
+description: User-defined tags set for the resource.
+items: 
+  type: string
+  examples: ["test:user-tag"]

@@ -1,0 +1,39 @@
+# paths/tokens.yaml
+parameters:
+  - $ref: "../components/parameters/search.yaml"
+  - $ref: "../components/parameters/size.yaml"
+  - $ref: "../components/parameters/from.yaml"
+  - $ref: "../components/parameters/order.yaml"
+  - $ref: "../components/parameters/summary.yaml"
+get:
+  tags:
+    - Tokens
+  operationId: search_tokens
+  summary: Search tokens
+  description: Retrieves tokens based on a search query.
+  responses:
+    "200":
+      $ref: "../components/responses/tokens.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+post:
+  tags:
+    - Tokens
+  operationId: create_token
+  summary: Create token
+  description: Creates a new token.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/token.yaml"
+  responses:
+    "201":
+      $ref: "../components/responses/token.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

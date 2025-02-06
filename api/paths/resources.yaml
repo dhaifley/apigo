@@ -1,0 +1,39 @@
+# paths/resources.yaml
+parameters:
+  - $ref: "../components/parameters/search.yaml"
+  - $ref: "../components/parameters/size.yaml"
+  - $ref: "../components/parameters/from.yaml"
+  - $ref: "../components/parameters/order.yaml"
+  - $ref: "../components/parameters/summary.yaml"
+get:
+  tags:
+    - Resources
+  operationId: search_resources
+  summary: Search resources
+  description: Retrieves resources based on a search query.
+  responses:
+    "200":
+      $ref: "../components/responses/resources.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+post:
+  tags:
+    - Resources
+  operationId: create_resource
+  summary: Create resource
+  description: Creates a new resource and associated external access.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/resource.yaml"
+  responses:
+    "201":
+      $ref: "../components/responses/resource.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

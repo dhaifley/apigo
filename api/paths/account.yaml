@@ -1,0 +1,52 @@
+# paths/account.yaml
+get:
+  tags:
+    - Account
+  operationId: get_account
+  summary: Get account
+  description: Retrieves details for the current account.
+  responses:
+    "200":
+      $ref: "../components/responses/account.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+patch:
+  tags:
+    - Account
+  operationId: update_account
+  summary: Update account
+  description: Updates details for the current account.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/account.yaml"
+  responses:
+    "200":
+      $ref: "../components/responses/account.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+put:
+  tags:
+    - Account
+  operationId: replace_account
+  summary: Replace account
+  description: Updates details for the current account.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/account.yaml"
+  responses:
+    "200":
+      $ref: "../components/responses/account.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

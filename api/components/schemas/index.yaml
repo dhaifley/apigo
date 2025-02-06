@@ -1,0 +1,21 @@
+# components/schemas/index.yaml
+account:
+  $ref: "./account.yaml"
+account_repo:
+  $ref: "./account_repo.yaml"
+error:
+  $ref: "./error.yaml"
+resource:
+  $ref: "./resource.yaml"
+token:
+  $ref: "./token.yaml"
+tags:
+  $ref: "./tags.yaml"
+tags_multi_assignment:
+  $ref: "./tags_multi_assignment.yaml"
+user:
+  $ref: "./user.yaml"
+user_data:
+  $ref: "./user_data.yaml"
+user_error:
+  $ref: "./user_error.yaml"

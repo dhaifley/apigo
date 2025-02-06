@@ -1,0 +1,45 @@
+# components/schemas/account.yaml
+type: object
+description: An account.
+properties:
+  account_id:
+    type: string
+    description: The ID of the account.
+    examples: [1234567890abcdef]
+  name:
+    type: string
+    description: The unique name of the account.
+    examples: [example-account]
+  status:
+    type: string
+    description: The current status of the account.
+    enum:
+      - active
+      - inactive
+    examples: [active]
+  status_data:
+    type: object
+    description: Additional data related to the account status.
+  repo_status:
+    type: string
+    description: The current status of the import repository.
+    enum:
+      - active
+      - inactive
+      - importing
+      - error
+    examples: [active]
+  repo_status_data:
+    type: object
+    description: Additional data related to the import repository status.
+  data:
+    type: object
+    description: Additional data related to the account.
+  created_at:
+    type: integer
+    description: The Unix epoch timestamp for when the account was created.
+    examples: [1234567890]
+  updated_at:
+    type: integer
+    description: The Unix epoch timestamp for when the account was last updated.
+    examples: [1234567890]

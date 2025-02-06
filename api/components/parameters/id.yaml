@@ -1,0 +1,8 @@
+# components/parameters/id.yaml
+name: id
+in: path
+description: The ID of the resource or object requested.
+required: true
+example: 11223344-5566-7788-9900-aabbccddeeff
+schema:
+  type: string

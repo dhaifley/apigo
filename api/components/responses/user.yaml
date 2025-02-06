@@ -1,0 +1,7 @@
+# components/responses/user.yaml
+description: >
+  A response containing details about the user.
+content:
+  application/json:
+    schema:
+      $ref: "../schemas/user.yaml"

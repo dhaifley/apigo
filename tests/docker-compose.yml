@@ -1,0 +1,49 @@
+services:
+  apid:
+    build: ..
+    environment:
+      LOG_LEVEL: debug
+      POSTGRES_HOST: db
+      REDIS_HOST: cache
+      AUTH_TOKEN_PUBLIC_KEY_FILE: /certs/tls.crt
+    ports:
+     - "8080:8080"
+    volumes:
+      - type: bind
+        source: ../certs
+        target: /certs
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: [""]
+  migrate:
+    build: ..
+    environment:
+      LOG_LEVEL: debug
+      POSTGRES_HOST: db
+      REDIS_HOST: cache
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["migrate"]
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: api-db
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d api-db -U postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+  cache:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"

@@ -1,0 +1,39 @@
+openapi: 3.1.0
+info:
+  title: apid
+  version: "0.1.1"
+  description: >
+    A service providing an application programming interface.
+  license: 
+    name: No License
+    url: https://choosealicense.com/no-permission/
+servers:
+  - url: "/v1/api"
+security:
+  - Authorization: []
+paths:
+  $ref: "./paths/index.yaml"
+components:
+  securitySchemes:
+    Authorization:
+      in: header
+      name: Authorization
+      type: apiKey
+      description: A valid authentication token with valid authorization.
+  parameters:
+    $ref: "./components/parameters/index.yaml"
+  schemas:
+    $ref: "./components/schemas/index.yaml"
+  responses:
+    $ref: "./components/responses/index.yaml"
+tags:
+  - name: Account
+    description: Account information and services.
+  - name: Resources
+    description: Operations related to resources.
+  - name: Tags
+    description: Operations related to resource tags.
+  - name: Tokens
+    description: Operations related to API tokens.
+  - name: User
+    description: User information and services.

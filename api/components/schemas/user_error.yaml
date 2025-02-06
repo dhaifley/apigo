@@ -1,0 +1,16 @@
+# components/schemas/error.yaml
+type: object
+description: An error message and associated information.
+properties:
+  code:
+    type: string
+    description: The name of the error code.
+    examples: ["InvalidRequest"]
+  status:
+    type: integer
+    description: The status code of the error.
+    examples: [400]
+  message:
+    type: string
+    description: A message explaining the error details.
+    examples: ["invalid request"]

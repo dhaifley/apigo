@@ -1,0 +1,24 @@
+run:
+  timeout: 10m
+linters-settings:
+  cyclop:
+    skip-tests: true
+    max-complexity: 128
+  nestif:
+    min-complexity: 128
+  lll:
+    line-length: 256
+linters:
+  fast: true
+  enable-all: true
+  disable:
+    - depguard
+    - dupl
+    - funlen
+    - gocognit
+    - goconst
+    - gocyclo
+    - interfacebloat
+    - maintidx
+    - mnd
+    - tagliatelle

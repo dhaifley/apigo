@@ -1,0 +1,67 @@
+# paths/resource.yaml
+parameters:
+  - $ref: "../components/parameters/id.yaml"
+get:
+  tags:
+    - Resources
+  operationId: get_resource
+  summary: Get resource
+  description: Retrieves details for a specific resource.
+  responses:
+    "200":
+      $ref: "../components/responses/resource.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+patch:
+  tags:
+    - Resources
+  operationId: update_resource
+  summary: Update resource
+  description: Updates details for a specific resource.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/resource.yaml"
+  responses:
+    "200":
+      $ref: "../components/responses/resource.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+put:
+  tags:
+    - Resources
+  operationId: replace_resource
+  summary: Replace resource
+  description: Updates details for a specific resource.
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../components/schemas/resource.yaml"
+  responses:
+    "200":
+      $ref: "../components/responses/resource.yaml"
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"
+delete:
+  tags:
+    - Resources
+  operationId: delete_resource
+  summary: Delete resource
+  description: Deletes a specific resource.
+  responses:
+    "204":
+      description: No response body.
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

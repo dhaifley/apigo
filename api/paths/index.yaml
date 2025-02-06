@@ -1,0 +1,23 @@
+# paths/index.yaml
+"/account":
+  $ref: "./account.yaml"
+"/account/repo":
+  $ref: "./account_repo.yaml"
+"/resources":
+  $ref: "./resources.yaml"
+"/resources/{id}":
+  $ref: "./resource.yaml"
+"/resources/import":
+  $ref: "./resources_import.yaml"
+"/resources/{id}/import":
+  $ref: "./resource_import.yaml"
+"/resources/{id}/tags":
+  $ref: "./tags.yaml"
+"/resources/tags_multi_assignments":
+  $ref: "./tags_multi_assignments.yaml"
+"/tokens":
+  $ref: "./tokens.yaml"
+"/tokens/{id}":
+  $ref: "./token.yaml"
+"/user":
+  $ref: "./user.yaml"

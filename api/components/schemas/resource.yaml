@@ -1,0 +1,104 @@
+# components/schemas/resource.yaml
+type: object
+description: A resource connected to an external system.
+properties:
+  resource_id:
+    type: string
+    description: The ID of the resource.
+    examples: [11223344-5566-7788-9900-aabbccddeeff]
+  name:
+    type: string
+    description: The name of the resource.
+    examples: [Test Resource]
+  version:
+    type: string
+    description: The version of the resource.
+    examples: ["1"]
+  description:
+    type: string
+    description: A description of the resource.
+    examples: [A test resource]
+  status:
+    type: string
+    description: >
+      The current status of the resource. A `new` status indicates no resource
+      data has been received yet from external system.s An `error` status
+      indicates that there was a problem with resource data submitted by
+      external systems.
+    enum:
+      - active
+      - inactive
+      - new
+      - error
+    examples: [active]
+  status_data:
+    type: object
+    description: Additional data related to the status.
+  key_field:
+    type: string
+    description: >
+      The field contained in resource data payloads submitted by the external
+      system that will be used to "key" the resource data records. A payload
+      received with the same key, will replace an resource data payload received
+      earlier from external systems.
+    examples: ["resource_id"]
+  key_regex:
+    type: string
+    description: >
+      If not null, this regular expression will be applied to the value of
+      the field specified by key_field in the resource data payload before it
+      is used as the key for that resource data payload.
+    examples: ["[^(.*resource_id:)]\\d+"]
+  clear_condition:
+    type: string
+    description: >
+      The clear condition for the resource.
+    examples: ["gt(cleared_on:0)"]
+  clear_after:
+    type: integer
+    description: >
+      The duration in seconds after which resource data payloads will be
+      cleared automatically. The default is equivalent to 30 days.
+    examples: [2592000]
+  clear_delay:
+    type: integer
+    description: >
+      The duration in seconds after which external resource data payloads meet a
+      clear condition that the resource data record will actually be removed,
+      thereby triggering any associated rule processing. The default is 0.
+    examples: [0]
+  data:
+    type: object
+    description: >
+      The actual resource data records received from external systems, keyed by
+      the field indicated by key_field and key_regex.
+  source:
+    type: string
+    description: The source of the resource.
+    examples: [git,import]
+  commit_hash:
+    type: string
+    description: >
+      The commit hash of the of the import repository when source is git.
+  created_at:
+    type: integer
+    description: >
+      The Unix epoch timestamp for when the resource was created.
+    examples: [1234567890]
+  created_by:
+    type: string
+    description: The ID of the user that created the resource.
+    examples: [11223344-5566-7788-9900-aabbccddeeff]
+  created_by_user:
+    $ref: "./user_data.yaml"
+  updated_at:
+    type: integer
+    description: >
+      The Unix epoch timestamp for when the resource was last updated.
+    examples: [1234567890]
+  updated_by:
+    type: string
+    description: The ID of the user that last updated the resource.
+    examples: [11223344-5566-7788-9900-aabbccddeeff]
+  updated_by_user:
+      $ref: "./user_data.yaml"

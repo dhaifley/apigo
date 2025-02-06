@@ -1,0 +1,11 @@
+# components/parameters/size.yaml
+name: size
+in: query
+schema:
+  type: integer
+  minimum: 1
+  maximum: 10000
+  default: 100
+description: >
+  The maximum number of results that should be returned by a single API
+  request.

@@ -1,0 +1,19 @@
+# components/schemas/account_repo.yaml
+type: object
+description: Account repository information.
+properties:
+  repo:
+    type: string
+    description: The repository connection string.
+  repo_status:
+    type: string
+    description: The current status of the account repository.
+    enum:
+      - active
+      - inactive
+      - importing
+      - error
+    examples: [active]
+  repo_status_data:
+    type: object
+    description: Additional data related to the account repository status.

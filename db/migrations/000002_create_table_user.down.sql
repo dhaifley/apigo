@@ -1,0 +1,7 @@
+BEGIN;
+
+DROP TABLE IF EXISTS "user";
+
+DROP SEQUENCE IF EXISTS user_key_seq;
+
+COMMIT;

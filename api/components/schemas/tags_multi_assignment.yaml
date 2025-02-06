@@ -1,0 +1,17 @@
+# components/schemas/tags_multi_assignment.yaml
+type: object
+description: >
+  A assignment of tags to multiple resources, based on the evaluation of a
+  resource selector.
+properties:
+  tags:
+    type: array
+    description: User-defined tags.
+    items: 
+      type: string
+      examples: ["test:user-tag"]
+  resource_selector:
+    type: string
+    description: >
+      Selection query used to select which resources receive this assignment.
+    examples: ["and(name:*)"]

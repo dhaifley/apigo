@@ -1,0 +1,6 @@
+# components/parameters/search.yaml
+name: search
+in: query
+schema:
+  type: string
+description: A valid search query.

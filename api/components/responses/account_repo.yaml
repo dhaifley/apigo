@@ -1,0 +1,7 @@
+# components/responses/account_repo.yaml
+description: >
+  A response containing details about the account repository.
+content:
+  application/json:
+    schema:
+      $ref: "../schemas/account_repo.yaml"

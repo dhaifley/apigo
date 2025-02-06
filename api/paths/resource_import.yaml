@@ -1,0 +1,16 @@
+# paths/resource_import.yaml
+parameters:
+  - $ref: "../components/parameters/id.yaml"
+post:
+  tags:
+    - Resources
+  operationId: create_resource_import
+  summary: Import resource
+  description: Imports a single resource from the import repository.
+  responses:
+    "204":
+      description: No response body.
+    "400":
+      $ref: "../components/responses/user_error.yaml"
+    "500":
+      $ref: "../components/responses/error.yaml"

@@ -1,0 +1,9 @@
+# components/responses/resources.yaml
+description: >
+  A response containing an array of resources.
+content:
+  application/json:
+    schema:
+      type: array
+      items:
+        $ref: "../schemas/resource.yaml"

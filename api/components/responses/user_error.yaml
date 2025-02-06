@@ -1,0 +1,10 @@
+# components/responses/user_error.yaml
+description: >
+  Some sort of error occurred during the request due to the contents of the
+  request itself. The error will contain details about the specific cause.
+  The request should not be repeated, as it will not ever be able to produce a
+  successful response.
+content:
+  application/json:
+    schema:
+      $ref: "../schemas/user_error.yaml"
