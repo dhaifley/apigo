@@ -4,9 +4,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dhaifley/apid/config"
 	"github.com/dhaifley/apid/db/migrations"
-	"github.com/dhaifley/apid/logger"
+	"github.com/dhaifley/apid/internal/config"
+	"github.com/dhaifley/apid/internal/logger"
 )
 
 func TestMigrations(t *testing.T) {

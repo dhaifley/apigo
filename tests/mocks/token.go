@@ -3,9 +3,9 @@ package mocks
 import (
 	"time"
 
-	"github.com/dhaifley/apid/auth"
-	"github.com/dhaifley/apid/request"
-	"github.com/dhaifley/apid/sqldb"
+	"github.com/dhaifley/apid/internal/auth"
+	"github.com/dhaifley/apid/internal/request"
+	"github.com/dhaifley/apid/internal/sqldb"
 )
 
 var TestToken = auth.Token{

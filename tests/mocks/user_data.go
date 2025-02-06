@@ -1,8 +1,8 @@
 package mocks
 
 import (
-	"github.com/dhaifley/apid/request"
-	"github.com/dhaifley/apid/sqldb"
+	"github.com/dhaifley/apid/internal/request"
+	"github.com/dhaifley/apid/internal/sqldb"
 )
 
 var TestUserData = sqldb.UserData{

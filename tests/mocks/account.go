@@ -1,8 +1,8 @@
 package mocks
 
 import (
-	"github.com/dhaifley/apid/auth"
-	"github.com/dhaifley/apid/request"
+	"github.com/dhaifley/apid/internal/auth"
+	"github.com/dhaifley/apid/internal/request"
 )
 
 var TestAccount = auth.Account{

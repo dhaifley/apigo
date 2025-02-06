@@ -4,9 +4,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/dhaifley/apid/errors"
-	"github.com/dhaifley/apid/request"
-	"github.com/dhaifley/apid/sqldb"
+	"github.com/dhaifley/apid/internal/errors"
+	"github.com/dhaifley/apid/internal/request"
+	"github.com/dhaifley/apid/internal/sqldb"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
