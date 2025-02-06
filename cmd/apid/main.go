@@ -48,7 +48,8 @@ func main() {
 		syscall.SIGHUP,
 		syscall.SIGINT,
 		syscall.SIGTERM,
-		syscall.SIGQUIT, os.Interrupt)
+		syscall.SIGQUIT,
+		os.Interrupt)
 
 	select {
 	case <-ch:
