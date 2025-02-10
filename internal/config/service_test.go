@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dhaifley/apid/internal/config"
+	"github.com/dhaifley/apigo/internal/config"
 )
 
 func TestServiceConfig(t *testing.T) {

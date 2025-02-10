@@ -4,10 +4,10 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/auth"
-	"github.com/dhaifley/apid/internal/cache"
-	"github.com/dhaifley/apid/internal/sqldb"
-	"github.com/dhaifley/apid/tests/mocks"
+	"github.com/dhaifley/apigo/internal/auth"
+	"github.com/dhaifley/apigo/internal/cache"
+	"github.com/dhaifley/apigo/internal/sqldb"
+	"github.com/dhaifley/apigo/tests/mocks"
 )
 
 func TestGetUser(t *testing.T) {

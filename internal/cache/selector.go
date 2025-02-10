@@ -6,7 +6,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dhaifley/apid/internal/errors"
+	"github.com/dhaifley/apigo/internal/errors"
 	"github.com/google/gomemcache/memcache"
 	"github.com/google/uuid"
 )

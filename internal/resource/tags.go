@@ -5,12 +5,12 @@ import (
 	"context"
 	"strings"
 
-	"github.com/dhaifley/apid/internal/cache"
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/logger"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/search"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/cache"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/logger"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/search"
+	"github.com/dhaifley/apigo/internal/sqldb"
 )
 
 // TagMap values contain a map of tag values keyed by tag categories.

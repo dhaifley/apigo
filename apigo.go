@@ -1,5 +1,5 @@
-// Package apid provides an API service.
-package apid
+// Package apigo provides an API service.
+package apigo
 
 import (
 	"context"
@@ -7,12 +7,12 @@ import (
 	"reflect"
 	_ "time/tzdata"
 
-	"github.com/dhaifley/apid/db/migrations"
-	"github.com/dhaifley/apid/internal/config"
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/logger"
-	"github.com/dhaifley/apid/internal/metric"
-	"github.com/dhaifley/apid/internal/server"
+	"github.com/dhaifley/apigo/db/migrations"
+	"github.com/dhaifley/apigo/internal/config"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/logger"
+	"github.com/dhaifley/apigo/internal/metric"
+	"github.com/dhaifley/apigo/internal/server"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/metric"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/metric"
 	"github.com/go-git/go-billy/v5"
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-git/v5"

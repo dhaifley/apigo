@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/resource"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/resource"
+	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

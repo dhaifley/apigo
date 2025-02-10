@@ -1,8 +1,8 @@
-# apid
-An application programming interface service template
+# apigo
+An application programming interface service template.
 
-A set of packages that may be useful as a template project when creating
-services which expose a REST API using Go.
+This set of packages may be useful as a template project when creating services
+which expose a REST API using Go.
 
 ## Requirements
 
@@ -54,7 +54,7 @@ $ tests/stop-tests.sh
 ```
 
 While the local test environment is running, the test API service can be
-accessed at: `http://localhost:8080/v1/api`.
+accessed at: `http://localhost:8080/api/v1`.
 
 ## API Documentation
 

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/search"
+	"github.com/dhaifley/apigo/internal/search"
 )
 
 func TestScanner(t *testing.T) {

@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dhaifley/apid/internal/errors"
+	"github.com/dhaifley/apigo/internal/errors"
 	"github.com/jackc/pgx/v5/pgtype"
 	"gopkg.in/yaml.v3"
 )

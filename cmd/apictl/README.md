@@ -40,7 +40,7 @@ parameters are:
 ## Examples
 ```sh
 $ apictl --config.format='yaml' \
---config.endpoint='https://example.com/v1/api' \
+--config.endpoint='https://example.com/api/v1' \
 --config.tls='{"InsecureSkipVerify":true}' \
 --config.headers='{"Authorization":["token"]}' \
 get user

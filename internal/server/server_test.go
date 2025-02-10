@@ -10,16 +10,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dhaifley/apid/internal/config"
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/logger"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/server"
-	"github.com/dhaifley/apid/tests/mocks"
+	"github.com/dhaifley/apigo/internal/config"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/logger"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/server"
+	"github.com/dhaifley/apigo/tests/mocks"
 )
 
 const (
-	basePath = "/v1/api"
+	basePath = config.DefaultServerPathPrefix
 )
 
 var servicesLock sync.Mutex
@@ -49,9 +49,13 @@ func TestShutdown(t *testing.T) {
 func TestServe(t *testing.T) {
 	t.Parallel()
 
-	cfg := config.New("")
+	cfg := config.NewDefault()
 
-	cfg.SetServer(&config.ServerConfig{Address: ":18086"})
+	sCfg := &config.ServerConfig{Address: ":18086"}
+
+	sCfg.Load()
+
+	cfg.SetServer(sCfg)
 
 	svr, err := server.NewServer(cfg, nil, nil, nil)
 	if err != nil {
@@ -104,10 +108,10 @@ func TestHeader(t *testing.T) {
 		name: "options CORS",
 		w:    httptest.NewRecorder(),
 		headers: map[string]string{
-			"Origin": "https://apid.io",
+			"Origin": "https://apigo.io",
 		},
 		expCORS:   "GET, PUT, POST, OPTIONS",
-		expAllow:  "https://apid.io",
+		expAllow:  "https://apigo.io",
 		expServer: host,
 		expCode:   http.StatusNoContent,
 	}, {
@@ -261,7 +265,7 @@ func BenchmarkServerPostResource(b *testing.B) {
 
 	w := httptest.NewRecorder()
 
-	u := "https://localhost:8080/v1/api/resources"
+	u := "https://localhost:8080/api/v1/resources"
 
 	for i := 0; i < b.N; i++ {
 		b.StopTimer()

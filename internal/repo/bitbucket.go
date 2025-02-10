@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/metric"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/metric"
 	"github.com/ktrysmt/go-bitbucket"
 	"go.opentelemetry.io/otel/trace"
 )

@@ -4,7 +4,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/search"
+	"github.com/dhaifley/apigo/internal/search"
 )
 
 func TestQueryString(t *testing.T) {

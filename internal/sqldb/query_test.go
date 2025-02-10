@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/search"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/search"
+	"github.com/dhaifley/apigo/internal/sqldb"
 )
 
 func TestNewQuery(t *testing.T) {

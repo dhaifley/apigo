@@ -7,10 +7,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dhaifley/apid/internal/config"
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/search"
+	"github.com/dhaifley/apigo/internal/config"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/search"
 )
 
 // Query values are used to build SQL queries for search operations.

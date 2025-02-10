@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dhaifley/apid/internal/errors"
+	"github.com/dhaifley/apigo/internal/errors"
 )
 
 // ScanToken values represent individual tokens found by query scanners.

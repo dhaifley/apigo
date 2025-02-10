@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/metric"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/metric"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"

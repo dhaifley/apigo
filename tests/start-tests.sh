@@ -11,6 +11,6 @@ wget --no-verbose \
 --header 'Authorization: Bearer '"$USER_AUTH_TOKEN" \
 --header 'Content-Type: application/json' \
 --post-data '{"repo": "'"$REPO"'"}' \
-http://localhost:8080/v1/api/account/repo
+http://localhost:8080/api/v1/account/repo
 
 echo "Test services started, ready to run tests."

@@ -3,8 +3,8 @@ package request_test
 import (
 	"testing"
 
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/tests/mocks"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/tests/mocks"
 )
 
 func TestValidAccountID(t *testing.T) {

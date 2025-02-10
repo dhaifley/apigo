@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/repo"
+	"github.com/dhaifley/apigo/internal/repo"
 )
 
 func mockContext() context.Context {

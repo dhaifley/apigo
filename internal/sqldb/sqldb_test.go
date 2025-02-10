@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dhaifley/apid/internal/config"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/config"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )

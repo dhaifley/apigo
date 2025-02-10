@@ -1,9 +1,9 @@
 package mocks
 
 import (
-	"github.com/dhaifley/apid/internal/auth"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/auth"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/sqldb"
 )
 
 var TestUser = auth.User{
@@ -13,7 +13,7 @@ var TestUser = auth.User{
 	},
 	Email: request.FieldString{
 		Set: true, Valid: true,
-		Value: "test@apid.io",
+		Value: "test@apigo.io",
 	},
 	LastName: request.FieldString{
 		Set: true, Valid: true,

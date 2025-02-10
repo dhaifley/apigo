@@ -3,9 +3,9 @@ package resource_test
 import (
 	"testing"
 
-	"github.com/dhaifley/apid/internal/cache"
-	"github.com/dhaifley/apid/internal/resource"
-	"github.com/dhaifley/apid/tests/mocks"
+	"github.com/dhaifley/apigo/internal/cache"
+	"github.com/dhaifley/apigo/internal/resource"
+	"github.com/dhaifley/apigo/tests/mocks"
 )
 
 func TestGetTags(t *testing.T) {

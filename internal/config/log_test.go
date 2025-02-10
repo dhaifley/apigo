@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/config"
+	"github.com/dhaifley/apigo/internal/config"
 )
 
 func TestLogConfig(t *testing.T) {

@@ -1,4 +1,4 @@
-// apid is a service providing an API.
+// apigo is a service providing an API.
 package main
 
 import (
@@ -9,17 +9,17 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/dhaifley/apid"
+	"github.com/dhaifley/apigo"
 )
 
 // Main service entry point.
 func main() {
 	ctx := context.Background()
 
-	svc := apid.New()
+	svc := apigo.New()
 
 	if len(os.Args) > 0 && os.Args[1] == "version" {
-		fmt.Println("apid", svc.Version())
+		fmt.Println("apigo", svc.Version())
 
 		os.Exit(0)
 	}

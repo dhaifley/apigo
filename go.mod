@@ -1,6 +1,6 @@
-module github.com/dhaifley/apid
+module github.com/dhaifley/apigo
 
-go 1.23.5
+go 1.23
 
 require (
 	github.com/go-chi/chi/v5 v5.2.0

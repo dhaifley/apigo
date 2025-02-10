@@ -3,7 +3,7 @@ package cache_test
 import (
 	"testing"
 
-	"github.com/dhaifley/apid/internal/cache"
+	"github.com/dhaifley/apigo/internal/cache"
 )
 
 func TestCacheKeys(t *testing.T) {

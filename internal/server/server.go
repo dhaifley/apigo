@@ -14,15 +14,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dhaifley/apid/internal/auth"
-	"github.com/dhaifley/apid/internal/cache"
-	"github.com/dhaifley/apid/internal/config"
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/logger"
-	"github.com/dhaifley/apid/internal/metric"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/resource"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/auth"
+	"github.com/dhaifley/apigo/internal/cache"
+	"github.com/dhaifley/apigo/internal/config"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/logger"
+	"github.com/dhaifley/apigo/internal/metric"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/resource"
+	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
@@ -259,7 +259,7 @@ func (s *Server) initRouter() {
 
 	r := chi.NewRouter()
 
-	base.Mount("/v1/api", r)
+	base.Mount(s.cfg.ServerPathPrefix(), r)
 
 	r.Use(
 		s.Context,

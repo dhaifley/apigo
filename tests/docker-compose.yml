@@ -1,5 +1,5 @@
 services:
-  apid:
+  apigo:
     build: ..
     environment:
       LOG_LEVEL: debug

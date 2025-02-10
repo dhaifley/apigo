@@ -12,7 +12,8 @@ const (
 	KeyServerKey            = "server/key"
 	KeyServerTimeout        = "server/timeout"
 	KeyServerIdleTimeout    = "server/idle_timeout"
-	KeyServerHost           = "server/domain"
+	KeyServerHost           = "server/host"
+	KeyServerPathPrefix     = "server/path_prefix"
 	KeyServerMaxRequestSize = "server/max_request_size"
 
 	DefaultServerAddress        = ":8080"
@@ -20,7 +21,8 @@ const (
 	DefaultServerKey            = ""
 	DefaultServerTimeout        = time.Second * 30
 	DefaultServerIdleTimeout    = time.Second * 5
-	DefaultServerHost           = "apid.io"
+	DefaultServerHost           = "apigo.io"
+	DefaultServerPathPrefix     = "/api/v1"
 	DefaultServerMaxRequestSize = int64(20971520) // 20 MB
 )
 
@@ -32,6 +34,7 @@ type ServerConfig struct {
 	Timeout        time.Duration `json:"timeout,omitempty"          yaml:"timeout,omitempty"`
 	IdleTimeout    time.Duration `json:"idle_timeout,omitempty"     yaml:"idle_timeout,omitempty"`
 	Host           string        `json:"host,omitempty"             yaml:"host,omitempty"`
+	PathPrefix     string        `json:"path_prefix,omitempty"      yaml:"path_prefix,omitempty"`
 	MaxRequestSize int64         `json:"max_request_size,omitempty" yaml:"max_request_size,omitempty"`
 }
 
@@ -96,6 +99,14 @@ func (c *ServerConfig) Load() {
 
 	if c.Host == "" {
 		c.Host = DefaultServerHost
+	}
+
+	if v := os.Getenv(ReplaceEnv(KeyServerPathPrefix)); v != "" {
+		c.PathPrefix = v
+	}
+
+	if c.PathPrefix == "" {
+		c.PathPrefix = DefaultServerPathPrefix
 	}
 
 	if v := os.Getenv(ReplaceEnv(KeyServerMaxRequestSize)); v != "" {
@@ -187,6 +198,18 @@ func (c *Config) ServerHost() string {
 	}
 
 	return c.server.Host
+}
+
+// ServerPathPrefix returns the path prefix of the server.
+func (c *Config) ServerPathPrefix() string {
+	c.RLock()
+	defer c.RUnlock()
+
+	if c.server == nil {
+		return DefaultServerPathPrefix
+	}
+
+	return c.server.PathPrefix
 }
 
 // ServerMaxRequestSize returns the maximum allowable request size in bytes.

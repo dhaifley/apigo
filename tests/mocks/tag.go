@@ -1,8 +1,8 @@
 package mocks
 
 import (
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/resource"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/resource"
 )
 
 type MockTagRow struct{}

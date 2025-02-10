@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dhaifley/apid/internal/metric"
+	"github.com/dhaifley/apigo/internal/metric"
 	sdkmetric "go.opentelemetry.io/otel/sdk/metric"
 )
 

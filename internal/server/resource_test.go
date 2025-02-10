@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/resource"
-	"github.com/dhaifley/apid/internal/search"
-	"github.com/dhaifley/apid/internal/server"
-	"github.com/dhaifley/apid/internal/sqldb"
-	"github.com/dhaifley/apid/tests/mocks"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/resource"
+	"github.com/dhaifley/apigo/internal/search"
+	"github.com/dhaifley/apigo/internal/server"
+	"github.com/dhaifley/apigo/internal/sqldb"
+	"github.com/dhaifley/apigo/tests/mocks"
 )
 
 type mockResourceService struct{}

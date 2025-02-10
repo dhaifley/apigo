@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dhaifley/apid/internal/request"
+	"github.com/dhaifley/apigo/internal/request"
 	"gopkg.in/yaml.v3"
 )
 

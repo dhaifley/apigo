@@ -9,7 +9,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dhaifley/apid/internal/config"
+	"github.com/dhaifley/apigo/internal/config"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/metric"
 )

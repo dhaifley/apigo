@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/errors"
+	"github.com/dhaifley/apigo/internal/errors"
 )
 
 func TestNew(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"net"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/cache"
+	"github.com/dhaifley/apigo/internal/cache"
 )
 
 func TestServerList(t *testing.T) {

@@ -7,11 +7,11 @@ import (
 	"net/mail"
 	"time"
 
-	"github.com/dhaifley/apid/internal/cache"
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/logger"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/cache"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/logger"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/jackc/pgx/v5"
 )
 

@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/metric"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/metric"
 	"github.com/google/go-github/v39/github"
 	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/oauth2"

@@ -7,12 +7,12 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/dhaifley/apid/internal/errors"
-	"github.com/dhaifley/apid/internal/logger"
-	"github.com/dhaifley/apid/internal/request"
-	"github.com/dhaifley/apid/internal/resource"
-	"github.com/dhaifley/apid/internal/search"
-	"github.com/dhaifley/apid/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/errors"
+	"github.com/dhaifley/apigo/internal/logger"
+	"github.com/dhaifley/apigo/internal/request"
+	"github.com/dhaifley/apigo/internal/resource"
+	"github.com/dhaifley/apigo/internal/search"
+	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/go-chi/chi/v5"
 )
 

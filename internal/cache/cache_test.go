@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dhaifley/apid/internal/cache"
-	"github.com/dhaifley/apid/internal/config"
+	"github.com/dhaifley/apigo/internal/cache"
+	"github.com/dhaifley/apigo/internal/config"
 	"github.com/google/gomemcache/memcache"
 	"github.com/redis/go-redis/v9"
 )

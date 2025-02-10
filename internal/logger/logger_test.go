@@ -9,7 +9,7 @@ import (
 	"testing"
 	"testing/slogtest"
 
-	"github.com/dhaifley/apid/internal/logger"
+	"github.com/dhaifley/apigo/internal/logger"
 )
 
 func mockContext() context.Context {

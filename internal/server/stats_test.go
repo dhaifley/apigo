@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/server"
+	"github.com/dhaifley/apigo/internal/server"
 )
 
 func TestGetHealthCheck(t *testing.T) {

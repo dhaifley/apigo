@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/request"
+	"github.com/dhaifley/apigo/internal/request"
 )
 
 func TestContextService(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/dhaifley/apid/internal/request"
+	"github.com/dhaifley/apigo/internal/request"
 )
 
 func TestContextAuthUser(t *testing.T) {

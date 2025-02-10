@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/dhaifley/apid/internal/errors"
+	"github.com/dhaifley/apigo/internal/errors"
 )
 
 // ContextKey values are used to index context data.

@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dhaifley/apid/internal/config"
+	"github.com/dhaifley/apigo/internal/config"
 )
 
 func TestServerConfig(t *testing.T) {
@@ -21,6 +21,7 @@ func TestServerConfig(t *testing.T) {
 		Timeout:        time.Second * 10,
 		IdleTimeout:    time.Second * 10,
 		Host:           "test.com",
+		PathPrefix:     "/api/v2",
 		MaxRequestSize: 10,
 	})
 
@@ -47,6 +48,10 @@ func TestServerConfig(t *testing.T) {
 
 	if cfg.ServerHost() != "test.com" {
 		t.Errorf("Expected host: test.com, got: %v", cfg.ServerHost())
+	}
+
+	if cfg.ServerPathPrefix() != "/api/v2" {
+		t.Errorf("Expected host: /api/v2, got: %v", cfg.ServerPathPrefix())
 	}
 
 	if cfg.ServerMaxRequestSize() != 10 {
