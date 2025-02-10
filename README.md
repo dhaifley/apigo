@@ -43,5 +43,5 @@ $ tests/stop-tests.sh
 
 ## Documentation
 
-While the local test environment is running, interactive documentation and a
-test interface can be accessed using: `http://localhost:8080/api/v1/docs`.
+While the local test environment is running, interactive documentation can be accessed using:
+* http://localhost:8080/api/v1/docs
