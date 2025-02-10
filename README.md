@@ -11,51 +11,37 @@ which expose a REST API using Go.
 
 ## Building and Testing
 
-To setup a local test environment, from the project root directory, run:
+To build containers for testing the service locally:
 
 ```sh
 $ tests/build-tests.sh
 ```
 
-This will build container images for a local test environment.
-
-Then, you must set the `USER_AUTH_TOKEN` environment variable to be a valid API
-authentication token. A sample token, created with the sample test certificates
-is provided in the tests/test.env file
-
-```sh
-$ set -a
-
-$ source tests/test.env
-```
-
-To start the local test environment containers, run:
+Then, to start the test environment containers:
 
 ```sh
 $ tests/start-tests.sh
 ```
 
-To see the log output for the various test containers, run:
+To see the log output for the various test containers:
 
 ```sh
 $ docker compose logs
 ```
 
-To execute the integration tests, run:
+To run the integration tests:
 
 ```sh
 $ tests/run-tests.sh
 ```
 
-To shutdown and cleanup the test environment, run:
+Finally, to shutdown and cleanup the test environment:
 
 ```sh
 $ tests/stop-tests.sh
 ```
 
-While the local test environment is running, the test API service can be
-accessed at: `http://localhost:8080/api/v1`.
+## Documentation
 
-## API Documentation
-
-* [OpenAPI spec documentation](api/openapi.yaml)
+While the local test environment is running, interactive documentation and a
+test interface can be accessed using: `http://localhost:8080/api/v1/docs`.

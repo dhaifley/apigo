@@ -3,12 +3,10 @@ info:
   title: apigo
   version: "0.1.1"
   description: >
-    A service providing an application programming interface.
-  license: 
+    An application programming interface service.
+  license:
     name: No License
     url: https://choosealicense.com/no-permission/
-servers:
-  - url: "/api/v1"
 security:
   - Authorization: []
 paths:

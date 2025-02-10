@@ -30,10 +30,10 @@ const (
 	CurrentVersion = 6
 )
 
-// FS is a file system containing the database migrations.
+// mfs is a file system containing the database migrations.
 //
 //go:embed *.sql
-var FS embed.FS
+var mfs embed.FS
 
 // Migrate executes the required database migrations.
 func Migrate(cfg *config.Config, log logger.Logger) error {
@@ -147,7 +147,7 @@ func Migrate(cfg *config.Config, log logger.Logger) error {
 		log.Log(ctx, logger.LvlInfo,
 			"loading migration file source...")
 
-		source, err = iofs.New(FS, ".")
+		source, err = iofs.New(mfs, ".")
 		if err != nil {
 			return errors.Wrap(err, errors.ErrServer,
 				"unable to initialize migrations file source")

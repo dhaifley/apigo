@@ -23,6 +23,7 @@ import (
 	"github.com/dhaifley/apigo/internal/request"
 	"github.com/dhaifley/apigo/internal/resource"
 	"github.com/dhaifley/apigo/internal/sqldb"
+	"github.com/dhaifley/apigo/internal/static"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
@@ -289,11 +290,67 @@ func (s *Server) initRouter() {
 	r.Mount("/tokens", s.TokenHandler())
 	r.Mount("/resources", s.ResourceHandler())
 
+	s.initStaticRoutes(r)
+
 	s.Lock()
 
 	s.r = base
 
 	s.Unlock()
+}
+
+// initStaticRoutes initializes routing for embedded static resources.
+func (s *Server) initStaticRoutes(r chi.Router) {
+	r.Get("/openapi.json", func(w http.ResponseWriter, r *http.Request) {
+		v, err := static.FS.ReadFile("openapi.json")
+		if err != nil {
+			s.Error(err, w, r)
+
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+		if _, err := w.Write(v); err != nil {
+			s.Error(err, w, r)
+
+			return
+		}
+	})
+
+	r.Get("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
+		v, err := static.FS.ReadFile("openapi.yaml")
+		if err != nil {
+			s.Error(err, w, r)
+
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+
+		if _, err := w.Write(v); err != nil {
+			s.Error(err, w, r)
+
+			return
+		}
+	})
+
+	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
+		v, err := static.FS.ReadFile("index.html")
+		if err != nil {
+			s.Error(err, w, r)
+
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
+
+		if _, err := w.Write(v); err != nil {
+			s.Error(err, w, r)
+
+			return
+		}
+	})
 }
 
 // UpdateAuthConfig retrieves and begins periodic update of authentication
