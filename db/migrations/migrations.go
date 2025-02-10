@@ -158,7 +158,7 @@ func Migrate(cfg *config.Config, log logger.Logger) error {
 		"initializing migration database connection...")
 
 	driver, err := pgx.WithInstance(sql.OpenDB(
-		stdlib.GetPoolConnector(sc.DB())), &pgx.Config{})
+		stdlib.GetPoolConnector(sc.Pool())), &pgx.Config{})
 	if err != nil {
 		return errors.Wrap(err, errors.ErrDatabase,
 			"unable to initialize database migration driver")

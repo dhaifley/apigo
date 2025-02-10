@@ -15,6 +15,7 @@ import (
 	"github.com/dhaifley/apigo/internal/search"
 	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/dhaifley/apigo/tests/mocks"
+	"github.com/pashagolub/pgxmock/v4"
 	"gopkg.in/yaml.v3"
 )
 
@@ -97,6 +98,73 @@ func (m *mockAuthSvc) SetAccountRepo(ctx context.Context,
 	return nil
 }
 
+func mockBegin(mock pgxmock.PgxCommonIface) {
+	mock.ExpectBegin()
+
+	mock.ExpectExec("SET app.account_id").
+		WillReturnResult(pgxmock.NewResult("SET", 1))
+}
+
+func mockResourceKeyRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
+	return mock.NewRows([]string{"resource_key", "resource_id"}).
+		AddRow(int64(1), "11223344-5566-7788-9900-aabbccddeeff")
+}
+
+func mockResourceSummaryRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
+	return mock.NewRows([]string{"status", "count"}).
+		AddRow(request.StatusActive, int64(1))
+}
+
+func mockResourceRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
+	return mock.NewRows([]string{
+		"resource_id",
+		"name",
+		"version",
+		"description",
+		"status",
+		"status_data",
+		"key_field",
+		"key_regex",
+		"clear_condition",
+		"clear_after",
+		"clear_delay",
+		"data",
+		"source",
+		"commit_hash",
+		"created_at",
+		"created_by",
+		"updated_at",
+		"updated_by",
+	}).AddRow(
+		"11223344-5566-7788-9900-aabbccddeeff",
+		"testName",
+		"1",
+		"testDescription",
+		request.StatusNew,
+		`{"last_error":"testError"}`,
+		"resource_id",
+		".*",
+		"gt(cleared_on:0)",
+		int64(time.Hour.Seconds()),
+		int64(0),
+		`{
+			"11223344-5566-7788-9900-aabbccddeeff": {
+				"test": "testData",
+				"resource_id": "11223344-5566-7788-9900-aabbccddeeff",
+				"array": [
+					{"status":"testStatus"}
+				]
+			}
+		}`,
+		"testSource",
+		"testHash",
+		time.Now().Unix(),
+		"testUser",
+		time.Now().Unix(),
+		"testUser",
+	)
+}
+
 func TestGetResources(t *testing.T) {
 	t.Parallel()
 
@@ -104,14 +172,29 @@ func TestGetResources(t *testing.T) {
 
 	mc := cache.MockCache{}
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, &mc, nil, nil, nil)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
 
 	opts, err := sqldb.ParseFieldOptions(url.Values{
-		"user_details": []string{"true"},
+		"user_details": []string{"false"},
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	mockBegin(mock)
+
+	mock.ExpectQuery("SELECT (.+) FROM resource").
+		WithArgs("%").WillReturnRows(mockResourceKeyRows(mock))
+
+	mockBegin(mock)
+
+	mock.ExpectQuery("SELECT (.+) FROM resource").
+		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceRows(mock))
 
 	res, _, err := svc.GetResources(ctx, &search.Query{
 		Search: "and(name:*)",
@@ -140,6 +223,11 @@ func TestGetResources(t *testing.T) {
 		t.Error("expected cache set")
 	}
 
+	mockBegin(mock)
+
+	mock.ExpectQuery("SELECT (.+) FROM resource").
+		WithArgs("%").WillReturnRows(mockResourceKeyRows(mock))
+
 	res, _, err = svc.GetResources(ctx, &search.Query{
 		Search: "and(name:*)",
 		Size:   10,
@@ -155,13 +243,23 @@ func TestGetResources(t *testing.T) {
 	}
 
 	if len(res) <= 0 {
-		t.Errorf("Expected length to be greater than 0")
+		t.Fatal("Expected length to be greater than 0")
 	}
 
 	if res[0].ResourceID.Value != mocks.TestResource.ResourceID.Value {
 		t.Errorf("Expected id: %v, got: %v",
 			mocks.TestResource.ResourceID.Value, res[0].ResourceID.Value)
 	}
+
+	mockBegin(mock)
+
+	mock.ExpectQuery("SELECT (.+) FROM resource").
+		WithArgs("%").WillReturnRows(mockResourceKeyRows(mock))
+
+	mockBegin(mock)
+
+	mock.ExpectQuery("SELECT (.+) FROM resource").
+		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceSummaryRows(mock))
 
 	_, sum, err := svc.GetResources(ctx, &search.Query{
 		Search:  "and(status:*)",
@@ -177,6 +275,10 @@ func TestGetResources(t *testing.T) {
 	if len(sum) <= 0 {
 		t.Errorf("Expected summary to be greater than 0")
 	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
+	}
 }
 
 func TestGetResource(t *testing.T) {
@@ -186,10 +288,19 @@ func TestGetResource(t *testing.T) {
 
 	mc := cache.MockCache{}
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, &mc, nil, nil, nil)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	res, err := svc.GetResource(ctx, mocks.TestResource.ResourceID.Value,
-		sqldb.FieldOptions{sqldb.OptUserDetails})
+	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+
+	mockBegin(mock)
+
+	mock.ExpectQuery("SELECT (.+) FROM resource").
+		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceRows(mock))
+
+	res, err := svc.GetResource(ctx, mocks.TestResource.ResourceID.Value, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -207,8 +318,7 @@ func TestGetResource(t *testing.T) {
 		t.Error("expected cache set")
 	}
 
-	res, err = svc.GetResource(ctx, mocks.TestResource.ResourceID.Value,
-		sqldb.FieldOptions{sqldb.OptUserDetails})
+	res, err = svc.GetResource(ctx, mocks.TestResource.ResourceID.Value, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

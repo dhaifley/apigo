@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/ktrysmt/go-bitbucket v0.9.81
+	github.com/pashagolub/pgxmock/v4 v4.4.0
 	github.com/redis/go-redis/v9 v9.7.0
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v1.34.0

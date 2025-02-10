@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/pashagolub/pgxmock/v4"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
@@ -440,11 +441,25 @@ type SQLDB interface {
 	Stat() *pgxpool.Stat
 }
 
+// PGXDB types represent pgx specific database connection pools.
+type PGXDB interface {
+	BeginTx(ctx context.Context, opts pgx.TxOptions) (pgx.Tx, error)
+	Exec(ctx context.Context,
+		query string, args ...any) (pgconn.CommandTag, error)
+	Query(ctx context.Context,
+		query string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, query string, args ...any) pgx.Row
+	Close()
+	Ping(ctx context.Context) error
+	Stat() *pgxpool.Stat
+}
+
 // SQLConn values implement the SQLDB interface.
 type SQLConn struct {
 	*sync.RWMutex
 	cfg    *config.Config
-	db     *pgxpool.Pool
+	pool   *pgxpool.Pool
+	mock   PGXDB
 	log    logger.Logger
 	metric metric.Recorder
 	tracer trace.Tracer
@@ -461,6 +476,10 @@ func NewSQLConn(cfg *config.Config,
 	metric metric.Recorder,
 	tracer trace.Tracer,
 ) *SQLConn {
+	if cfg == nil {
+		cfg = config.NewDefault()
+	}
+
 	if log == nil || (reflect.ValueOf(log).Kind() == reflect.Ptr &&
 		reflect.ValueOf(log).IsNil()) {
 		log = logger.NullLog
@@ -487,11 +506,23 @@ func NewSQLConn(cfg *config.Config,
 }
 
 // DB is used to access the internal database connection pool.
-func (sc *SQLConn) DB() *pgxpool.Pool {
+func (sc *SQLConn) DB() PGXDB {
 	sc.RLock()
 	defer sc.RUnlock()
 
-	return sc.db
+	if sc.mock != nil {
+		return sc.mock
+	}
+
+	return sc.pool
+}
+
+// Pool is used to access the internal pgx connection pool.
+func (sc *SQLConn) Pool() *pgxpool.Pool {
+	sc.RLock()
+	defer sc.RUnlock()
+
+	return sc.pool
 }
 
 // Svc is used to access the name of the service using this connection pool.
@@ -626,7 +657,7 @@ func (sc *SQLConn) Connect(ctx context.Context) error {
 
 	conn := sc.cfg.DBConn(sc.mode)
 
-	sc.db, err = pgxpool.New(ctx, conn)
+	sc.pool, err = pgxpool.New(ctx, conn)
 	if err != nil {
 		return errors.Wrap(err, errors.ErrDatabase,
 			"unable to open database",
@@ -950,13 +981,13 @@ func (sc *SQLConn) Close() {
 		sc.cancel()
 	}
 
-	if sc.db == nil {
+	if sc.pool == nil {
 		return
 	}
 
-	sc.db.Close()
+	sc.pool.Close()
 
-	sc.db = nil
+	sc.pool = nil
 }
 
 // Ping verifies that the database connection is functional.
@@ -1055,4 +1086,71 @@ func (sc *SQLConn) startDBSpan(ctx context.Context,
 				operationTag+name)
 		}
 	}
+}
+
+// MockSQLDB values can be used to mock SQL connections for testing.
+type MockSQLDB struct {
+	p PGXDB
+}
+
+// NewMockSQLDB initializes and returns a new mock sql connection pool for
+// use in tests.
+func NewMockSQLDB(cfg *config.Config,
+	log logger.Logger,
+	metric metric.Recorder,
+	tracer trace.Tracer,
+) (SQLDB, pgxmock.PgxCommonIface, error) {
+	mock, err := pgxmock.NewPool()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	mdb := NewSQLConn(cfg, log, metric, tracer)
+
+	mdb.mock = mock
+
+	return mdb, mock, nil
+}
+
+// BeginTx starts a sql transaction.
+func (m *MockSQLDB) BeginTx(ctx context.Context,
+	opts pgx.TxOptions,
+) (SQLTX, error) {
+	return m.BeginTx(ctx, opts)
+}
+
+// Exec executes the provided SQL query returning a result value.
+func (m *MockSQLDB) Exec(ctx context.Context,
+	query string, args ...any,
+) (SQLResult, error) {
+	return m.p.Exec(ctx, query, args...)
+}
+
+// Query executes the provided SQL query returning a set of rows.
+func (m *MockSQLDB) Query(ctx context.Context,
+	query string, args ...any,
+) (SQLRows, error) {
+	return m.p.Query(ctx, query, args...)
+}
+
+// QueryRow executes the provided SQL query returning a single row.
+func (m *MockSQLDB) QueryRow(ctx context.Context,
+	query string, args ...any,
+) SQLRow {
+	return m.p.QueryRow(ctx, query, args...)
+}
+
+// Close shuts down the database connection.
+func (m *MockSQLDB) Close() {
+	m.p.Close()
+}
+
+// Ping verifies that the database connection is functional.
+func (m *MockSQLDB) Ping(ctx context.Context) error {
+	return m.p.Ping(ctx)
+}
+
+// Stat retrieves information about the database connection pool.
+func (m *MockSQLDB) Stat() *pgxpool.Stat {
+	return m.p.Stat()
 }

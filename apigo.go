@@ -35,9 +35,7 @@ type Service struct {
 
 // New initializes a new service.
 func New() *Service {
-	svc := &Service{
-		cfg: config.New("api"),
-	}
+	svc := &Service{cfg: config.New("api")}
 
 	svc.cfg.Load(nil)
 
