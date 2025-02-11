@@ -121,8 +121,6 @@ func (m *MockAuthDB) Query(ctx context.Context,
 	q string, args ...any,
 ) (sqldb.SQLRows, error) {
 	switch {
-	case strings.Contains(q, "FROM token\n"):
-		return &MockTokenRows{}, nil
 	default:
 		return nil, errors.New(errors.ErrDatabase, "invalid query")
 	}
@@ -138,11 +136,6 @@ func (m *MockAuthDB) QueryRow(ctx context.Context,
 		strings.Contains(q, "INSERT INTO account"),
 		strings.Contains(q, "UPDATE account SET"):
 		return &MockAccountRow{}
-	case strings.Contains(q, "FROM token\n"),
-		strings.Contains(q, `DELETE FROM token`),
-		strings.Contains(q, "INSERT INTO token"),
-		strings.Contains(q, "UPDATE token SET"):
-		return &MockTokenRow{}
 	case strings.Contains(q, `WHERE "user".user_id = $1`),
 		strings.Contains(q, `FROM "user"`+"\n"),
 		strings.Contains(q, `DELETE FROM "user"`),

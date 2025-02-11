@@ -5,6 +5,7 @@ CREATE SEQUENCE IF NOT EXISTS user_key_seq;
 CREATE TABLE IF NOT EXISTS "user" (
     user_key BIGINT NOT NULL DEFAULT nextval('user_key_seq') PRIMARY KEY,
     user_id TEXT NOT NULL UNIQUE,
+    password TEXT,
     email TEXT,
     last_name TEXT,
     first_name TEXT,

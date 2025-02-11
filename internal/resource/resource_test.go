@@ -14,17 +14,110 @@ import (
 	"github.com/dhaifley/apigo/internal/resource"
 	"github.com/dhaifley/apigo/internal/search"
 	"github.com/dhaifley/apigo/internal/sqldb"
-	"github.com/dhaifley/apigo/tests/mocks"
 	"github.com/pashagolub/pgxmock/v4"
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	TestKey         = int64(1)
+	TestID          = "1"
+	TestUUID        = "11223344-5566-7788-9900-aabbccddeeff"
+	TestName        = "test"
+	TestInvalidID   = "ˆ˜√å¬ˆ∂"
+	TestInvalidName = "ˆ˜√å¬ˆ∂"
+)
+
+var TestResource = resource.Resource{
+	ResourceID: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestUUID,
+	},
+	Name: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testName",
+	},
+	Version: request.FieldString{
+		Set: true, Valid: true,
+		Value: "1",
+	},
+	Description: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testDescription",
+	},
+	Status: request.FieldString{
+		Set: true, Valid: true,
+		Value: request.StatusNew,
+	},
+	StatusData: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			"last_error": "testError",
+		},
+	},
+	KeyField: request.FieldString{
+		Set: true, Valid: true,
+		Value: "resource_id",
+	},
+	KeyRegex: request.FieldString{
+		Set: true, Valid: true,
+		Value: ".*",
+	},
+	ClearCondition: request.FieldString{
+		Set: true, Valid: true,
+		Value: "gt(cleared_on:0)",
+	},
+	ClearAfter: request.FieldInt64{
+		Set: true, Valid: true,
+		Value: int64(time.Hour.Seconds()),
+	},
+	ClearDelay: request.FieldInt64{
+		Set: true, Valid: true,
+		Value: 0,
+	},
+	Data: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			TestUUID: map[string]any{
+				"test":        "testData",
+				"resource_id": TestUUID,
+				"array": []map[string]any{{
+					"status": "testStatus",
+				}},
+			},
+		},
+	},
+	Source: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testSource",
+	},
+	CommitHash: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testHash",
+	},
+	CreatedBy: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestID,
+	},
+	CreatedAt: request.FieldTime{
+		Set: true, Valid: true,
+		Value: 1,
+	},
+	UpdatedBy: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestID,
+	},
+	UpdatedAt: request.FieldTime{
+		Set: true, Valid: true,
+		Value: 1,
+	},
+}
+
 func mockAuthContext() context.Context {
 	ctx := context.Background()
 
-	ctx = context.WithValue(ctx, request.CtxKeyAccountID, mocks.TestID)
+	ctx = context.WithValue(ctx, request.CtxKeyAccountID, TestID)
 
-	ctx = context.WithValue(ctx, request.CtxKeyUserID, mocks.TestUUID)
+	ctx = context.WithValue(ctx, request.CtxKeyUserID, TestID)
 
 	ctx = context.WithValue(ctx, request.CtxKeyRoles, []string{
 		request.RoleUser,
@@ -36,9 +129,9 @@ func mockAuthContext() context.Context {
 func mockAdminAuthContext() context.Context {
 	ctx := context.Background()
 
-	ctx = context.WithValue(ctx, request.CtxKeyAccountID, mocks.TestID)
+	ctx = context.WithValue(ctx, request.CtxKeyAccountID, TestID)
 
-	ctx = context.WithValue(ctx, request.CtxKeyUserID, mocks.TestUUID)
+	ctx = context.WithValue(ctx, request.CtxKeyUserID, TestID)
 
 	ctx = context.WithValue(ctx, request.CtxKeyRoles, []string{
 		request.RoleAdmin,
@@ -61,7 +154,7 @@ func (m *mockRepoClient) ListAll(ctx context.Context, dirPath string,
 
 func (m *mockRepoClient) Get(ctx context.Context, filePath string,
 ) ([]byte, error) {
-	return yaml.Marshal(&mocks.TestResource)
+	return yaml.Marshal(&TestResource)
 }
 
 func (m *mockRepoClient) Commit(ctx context.Context) (string, error) {
@@ -98,16 +191,26 @@ func (m *mockAuthSvc) SetAccountRepo(ctx context.Context,
 	return nil
 }
 
-func mockBegin(mock pgxmock.PgxCommonIface) {
+func mockTransaction(mock pgxmock.PgxCommonIface) {
 	mock.ExpectBegin()
 
 	mock.ExpectExec("SET app.account_id").
 		WillReturnResult(pgxmock.NewResult("SET", 1))
 }
 
+func mockAccountCommitHashRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
+	return mock.NewRows([]string{"resource_commit_hash"}).
+		AddRow(&[]string{"test"}[0])
+}
+
 func mockResourceKeyRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
 	return mock.NewRows([]string{"resource_key", "resource_id"}).
-		AddRow(int64(1), "11223344-5566-7788-9900-aabbccddeeff")
+		AddRow(TestKey, TestResource.ResourceID.Value)
+}
+
+func mockResourceIDRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
+	return mock.NewRows([]string{"resource_id"}).
+		AddRow(TestResource.ResourceID.Value)
 }
 
 func mockResourceSummaryRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
@@ -136,32 +239,24 @@ func mockResourceRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
 		"updated_at",
 		"updated_by",
 	}).AddRow(
-		"11223344-5566-7788-9900-aabbccddeeff",
-		"testName",
-		"1",
-		"testDescription",
-		request.StatusNew,
-		`{"last_error":"testError"}`,
-		"resource_id",
-		".*",
-		"gt(cleared_on:0)",
-		int64(time.Hour.Seconds()),
-		int64(0),
-		`{
-			"11223344-5566-7788-9900-aabbccddeeff": {
-				"test": "testData",
-				"resource_id": "11223344-5566-7788-9900-aabbccddeeff",
-				"array": [
-					{"status":"testStatus"}
-				]
-			}
-		}`,
-		"testSource",
-		"testHash",
-		time.Now().Unix(),
-		"testUser",
-		time.Now().Unix(),
-		"testUser",
+		TestResource.ResourceID.Value,
+		TestResource.Name.Value,
+		TestResource.Version.Value,
+		TestResource.Description.Value,
+		TestResource.Status.Value,
+		TestResource.StatusData.Value,
+		TestResource.KeyField.Value,
+		TestResource.KeyRegex.Value,
+		TestResource.ClearCondition.Value,
+		TestResource.ClearAfter.Value,
+		TestResource.ClearDelay.Value,
+		TestResource.Data.Value,
+		TestResource.Source.Value,
+		TestResource.CommitHash.Value,
+		TestResource.CreatedAt.Value,
+		TestResource.CreatedBy.Value,
+		TestResource.UpdatedAt.Value,
+		TestResource.UpdatedBy.Value,
 	)
 }
 
@@ -186,12 +281,12 @@ func TestGetResources(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	mockBegin(mock)
+	mockTransaction(mock)
 
 	mock.ExpectQuery("SELECT (.+) FROM resource").
-		WithArgs("%").WillReturnRows(mockResourceKeyRows(mock))
+		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceKeyRows(mock))
 
-	mockBegin(mock)
+	mockTransaction(mock)
 
 	mock.ExpectQuery("SELECT (.+) FROM resource").
 		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceRows(mock))
@@ -210,9 +305,9 @@ func TestGetResources(t *testing.T) {
 		t.Errorf("Expected length to be greater than 0")
 	}
 
-	if res[0].ResourceID.Value != mocks.TestResource.ResourceID.Value {
+	if res[0].ResourceID.Value != TestResource.ResourceID.Value {
 		t.Errorf("Expected id: %v, got: %v",
-			mocks.TestResource.ResourceID.Value, res[0].ResourceID.Value)
+			TestResource.ResourceID.Value, res[0].ResourceID.Value)
 	}
 
 	if !mc.WasMissed() {
@@ -223,10 +318,10 @@ func TestGetResources(t *testing.T) {
 		t.Error("expected cache set")
 	}
 
-	mockBegin(mock)
+	mockTransaction(mock)
 
 	mock.ExpectQuery("SELECT (.+) FROM resource").
-		WithArgs("%").WillReturnRows(mockResourceKeyRows(mock))
+		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceKeyRows(mock))
 
 	res, _, err = svc.GetResources(ctx, &search.Query{
 		Search: "and(name:*)",
@@ -246,17 +341,17 @@ func TestGetResources(t *testing.T) {
 		t.Fatal("Expected length to be greater than 0")
 	}
 
-	if res[0].ResourceID.Value != mocks.TestResource.ResourceID.Value {
+	if res[0].ResourceID.Value != TestResource.ResourceID.Value {
 		t.Errorf("Expected id: %v, got: %v",
-			mocks.TestResource.ResourceID.Value, res[0].ResourceID.Value)
+			TestResource.ResourceID.Value, res[0].ResourceID.Value)
 	}
 
-	mockBegin(mock)
+	mockTransaction(mock)
 
 	mock.ExpectQuery("SELECT (.+) FROM resource").
-		WithArgs("%").WillReturnRows(mockResourceKeyRows(mock))
+		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceKeyRows(mock))
 
-	mockBegin(mock)
+	mockTransaction(mock)
 
 	mock.ExpectQuery("SELECT (.+) FROM resource").
 		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceSummaryRows(mock))
@@ -295,19 +390,19 @@ func TestGetResource(t *testing.T) {
 
 	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
 
-	mockBegin(mock)
+	mockTransaction(mock)
 
 	mock.ExpectQuery("SELECT (.+) FROM resource").
 		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceRows(mock))
 
-	res, err := svc.GetResource(ctx, mocks.TestResource.ResourceID.Value, nil)
+	res, err := svc.GetResource(ctx, TestResource.ResourceID.Value, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if res.ResourceID.Value != mocks.TestResource.ResourceID.Value {
+	if res.ResourceID.Value != TestResource.ResourceID.Value {
 		t.Errorf("Expected id: %v, got: %v",
-			mocks.TestResource.ResourceID.Value, res.ResourceID.Value)
+			TestResource.ResourceID.Value, res.ResourceID.Value)
 	}
 
 	if !mc.WasMissed() {
@@ -318,7 +413,7 @@ func TestGetResource(t *testing.T) {
 		t.Error("expected cache set")
 	}
 
-	res, err = svc.GetResource(ctx, mocks.TestResource.ResourceID.Value, nil)
+	res, err = svc.GetResource(ctx, TestResource.ResourceID.Value, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -327,9 +422,13 @@ func TestGetResource(t *testing.T) {
 		t.Error("expected cache hit")
 	}
 
-	if res.ResourceID.Value != mocks.TestResource.ResourceID.Value {
+	if res.ResourceID.Value != TestResource.ResourceID.Value {
 		t.Errorf("Expected id: %v, got: %v",
-			mocks.TestResource.ResourceID.Value, res.ResourceID.Value)
+			TestResource.ResourceID.Value, res.ResourceID.Value)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
 	}
 }
 
@@ -340,20 +439,40 @@ func TestCreateResource(t *testing.T) {
 
 	mc := cache.MockCache{}
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, &mc, nil, nil, nil)
-
-	res, err := svc.CreateResource(ctx, &mocks.TestResource)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if res.ResourceID.Value != mocks.TestResource.ResourceID.Value {
+	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+
+	mockTransaction(mock)
+
+	args := make([]any, 16)
+
+	for i := 0; i < 16; i++ {
+		args[i] = pgxmock.AnyArg()
+	}
+
+	mock.ExpectQuery("INSERT INTO resource").
+		WithArgs(args...).WillReturnRows(mockResourceRows(mock))
+
+	res, err := svc.CreateResource(ctx, &TestResource)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if res.ResourceID.Value != TestResource.ResourceID.Value {
 		t.Errorf("Expected id: %v, got: %v",
-			mocks.TestResource.ResourceID.Value, res.ResourceID.Value)
+			TestResource.ResourceID.Value, res.ResourceID.Value)
 	}
 
 	if !mc.WasDeleted() {
 		t.Error("expected cache delete")
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
 	}
 }
 
@@ -364,20 +483,40 @@ func TestUpdateResource(t *testing.T) {
 
 	mc := cache.MockCache{}
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, &mc, nil, nil, nil)
-
-	res, err := svc.UpdateResource(ctx, &mocks.TestResource)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if res.ResourceID.Value != mocks.TestResource.ResourceID.Value {
+	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+
+	mockTransaction(mock)
+
+	args := make([]any, 16)
+
+	for i := 0; i < 16; i++ {
+		args[i] = pgxmock.AnyArg()
+	}
+
+	mock.ExpectQuery("UPDATE resource").
+		WithArgs(args...).WillReturnRows(mockResourceRows(mock))
+
+	res, err := svc.UpdateResource(ctx, &TestResource)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if res.ResourceID.Value != TestResource.ResourceID.Value {
 		t.Errorf("Expected id: %v, got: %v",
-			mocks.TestResource.ResourceID.Value, res.ResourceID.Value)
+			TestResource.ResourceID.Value, res.ResourceID.Value)
 	}
 
 	if !mc.WasDeleted() {
 		t.Error("expected cache delete")
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
 	}
 }
 
@@ -388,14 +527,35 @@ func TestDeleteResource(t *testing.T) {
 
 	mc := cache.MockCache{}
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, &mc, nil, nil, nil)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	if err := svc.DeleteResource(ctx, mocks.TestUUID); err != nil {
+	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+
+	mockTransaction(mock)
+
+	args := make([]any, 16)
+
+	for i := 0; i < 16; i++ {
+		args[i] = pgxmock.AnyArg()
+	}
+
+	mock.ExpectExec("DELETE FROM resource").
+		WithArgs(pgxmock.AnyArg()).
+		WillReturnResult(pgxmock.NewResult("DELETE", 1))
+
+	if err := svc.DeleteResource(ctx, TestUUID); err != nil {
 		t.Fatal(err)
 	}
 
 	if !mc.WasDeleted() {
 		t.Error("expected cache delete")
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
 	}
 }
 
@@ -406,33 +566,58 @@ func TestUpdateResourceData(t *testing.T) {
 
 	mc := cache.MockCache{}
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, &mc, nil, nil, nil)
-
-	res, err := svc.UpdateResourceData(ctx, map[string]any{
-		"resources": []any{
-			map[string]any{
-				"resource_id": mocks.TestUUID,
-				"account_id":  mocks.TestUUID,
-				"cleared_on":  int64(1),
-			},
-		},
-	}, mocks.TestID, mocks.TestResource.ResourceID.Value)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if res.ResourceID.Value != mocks.TestResource.ResourceID.Value {
-		t.Errorf("Expected resource_id: %v, got: %v",
-			mocks.TestResource.ResourceID, res.ResourceID.Value)
+	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+
+	mockTransaction(mock)
+
+	mock.ExpectQuery("SELECT (.+) FROM resource").
+		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockResourceRows(mock))
+
+	mockTransaction(mock)
+
+	args := make([]any, 16)
+
+	for i := 0; i < 16; i++ {
+		args[i] = pgxmock.AnyArg()
 	}
 
-	if _, ok := res.Data.Value[mocks.TestUUID]; !ok {
+	mock.ExpectQuery("UPDATE resource").
+		WithArgs(args...).WillReturnRows(mockResourceRows(mock))
+
+	res, err := svc.UpdateResourceData(ctx, map[string]any{
+		"resources": []any{
+			map[string]any{
+				"resource_id": TestUUID,
+				"account_id":  TestUUID,
+				"cleared_on":  int64(1),
+			},
+		},
+	}, TestID, TestResource.ResourceID.Value)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if res.ResourceID.Value != TestResource.ResourceID.Value {
+		t.Errorf("Expected resource_id: %v, got: %v",
+			TestResource.ResourceID, res.ResourceID.Value)
+	}
+
+	if _, ok := res.Data.Value[TestUUID]; !ok {
 		t.Errorf("Expected resource data to contain key: %v, got: %v",
-			mocks.TestUUID, res.Data.Value)
+			TestUUID, res.Data.Value)
 	}
 
 	if !mc.WasDeleted() {
 		t.Error("expected cache delete")
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
 	}
 }
 
@@ -443,15 +628,35 @@ func TestUpdateResourceError(t *testing.T) {
 
 	mc := cache.MockCache{}
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, &mc, nil, nil, nil)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	if err := svc.UpdateResourceError(ctx, mocks.TestID, mocks.TestUUID,
+	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+
+	mockTransaction(mock)
+
+	args := make([]any, 5)
+
+	for i := 0; i < 5; i++ {
+		args[i] = pgxmock.AnyArg()
+	}
+
+	mock.ExpectQuery("UPDATE resource").
+		WithArgs(args...).WillReturnRows(mockResourceRows(mock))
+
+	if err := svc.UpdateResourceError(ctx, TestUUID, TestUUID,
 		errors.New(errors.ErrServer, "test error")); err != nil {
 		t.Fatal(err)
 	}
 
 	if !mc.WasDeleted() {
 		t.Error("expected cache delete")
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
 	}
 }
 
@@ -460,12 +665,32 @@ func TestImportResources(t *testing.T) {
 
 	ctx := mockAdminAuthContext()
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{},
-		nil, nil, nil, nil)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svc := resource.NewService(nil, md, nil, nil, nil, nil)
 
 	svc.SetRepoClient(&mockRepoClient{})
 
 	ma := &mockAuthSvc{}
+
+	mockTransaction(mock)
+
+	mock.ExpectQuery("SELECT resource_commit_hash FROM account").
+		WillReturnRows(mockAccountCommitHashRows(mock))
+
+	mockTransaction(mock)
+
+	mock.ExpectQuery("UPDATE account SET resource_commit_hash").
+		WithArgs(pgxmock.AnyArg()).
+		WillReturnRows(mockAccountCommitHashRows(mock))
+
+	mockTransaction(mock)
+
+	mock.ExpectQuery("DELETE FROM resource").WithArgs(pgxmock.AnyArg()).
+		WillReturnRows(mockResourceIDRows(mock))
 
 	if err := svc.ImportResources(ctx, true, ma); err != nil {
 		t.Fatal(err)
@@ -487,6 +712,10 @@ func TestImportResources(t *testing.T) {
 			t.Errorf("Expected repo status data field: %v", expF)
 		}
 	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
+	}
 }
 
 func TestImportResource(t *testing.T) {
@@ -494,14 +723,32 @@ func TestImportResource(t *testing.T) {
 
 	ctx := mockAdminAuthContext()
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{},
-		nil, nil, nil, nil)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svc := resource.NewService(nil, md, nil, nil, nil, nil)
 
 	svc.SetRepoClient(&mockRepoClient{})
 
-	if err := svc.ImportResource(ctx, &mockAuthSvc{},
-		mocks.TestUUID); err != nil {
+	mockTransaction(mock)
+
+	args := make([]any, 16)
+
+	for i := 0; i < 16; i++ {
+		args[i] = pgxmock.AnyArg()
+	}
+
+	mock.ExpectQuery("INSERT INTO resource").
+		WithArgs(args...).WillReturnRows(mockResourceRows(mock))
+
+	if err := svc.ImportResource(ctx, &mockAuthSvc{}, TestUUID); err != nil {
 		t.Fatal(err)
+	}
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
 	}
 }
 
@@ -510,11 +757,20 @@ func TestUpdate(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	svc := resource.NewService(nil, &mocks.MockResourceDB{}, nil, nil, nil, nil)
+	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svc := resource.NewService(nil, md, nil, nil, nil, nil)
 
 	cancel := svc.Update(ctx, &mockAuthSvc{})
 
 	time.Sleep(time.Second)
 
 	cancel()
+
+	if err := mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("Unmet database expectations: %v", err)
+	}
 }

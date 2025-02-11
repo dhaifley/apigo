@@ -1,7 +1,7 @@
 # paths/user.yaml
 get:
   tags:
-    - User
+    - user
   operationId: get_user
   summary: Get user
   description: Retrieves details for the current user.
@@ -14,7 +14,7 @@ get:
       $ref: "../components/responses/error.yaml"
 patch:
   tags:
-    - User
+    - user
   operationId: update_user
   summary: Update user
   description: Updates details for the current user.
@@ -33,7 +33,7 @@ patch:
       $ref: "../components/responses/error.yaml"
 put:
   tags:
-    - User
+    - user
   operationId: replace_user
   summary: Replace user
   description: Updates details for the current user.

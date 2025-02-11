@@ -25,13 +25,11 @@ components:
   responses:
     $ref: "./components/responses/index.yaml"
 tags:
-  - name: Account
+  - name: account
     description: Account information and services.
-  - name: Resources
+  - name: resources
     description: Operations related to resources.
-  - name: Tags
+  - name: tags
     description: Operations related to resource tags.
-  - name: Tokens
-    description: Operations related to API tokens.
-  - name: User
+  - name: user
     description: User information and services.

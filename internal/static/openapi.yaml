@@ -3,28 +3,26 @@ info:
   title: apigo
   version: 0.1.1
   description: |
-    An application programming interface service template.
+    An application programming interface service.
   license:
     name: No License
     url: https://choosealicense.com/no-permission/
 security:
   - Authorization: []
 tags:
-  - name: Account
+  - name: account
     description: Account information and services.
-  - name: Resources
+  - name: resources
     description: Operations related to resources.
-  - name: Tags
+  - name: tags
     description: Operations related to resource tags.
-  - name: Tokens
-    description: Operations related to API tokens.
-  - name: User
+  - name: user
     description: User information and services.
 paths:
-  /account:
+  /api/v1/account:
     get:
       tags:
-        - Account
+        - account
       operationId: get_account
       summary: Get account
       description: Retrieves details for the current account.
@@ -37,7 +35,7 @@ paths:
           $ref: '#/components/responses/error'
     patch:
       tags:
-        - Account
+        - account
       operationId: update_account
       summary: Update account
       description: Updates details for the current account.
@@ -56,7 +54,7 @@ paths:
           $ref: '#/components/responses/error'
     put:
       tags:
-        - Account
+        - account
       operationId: replace_account
       summary: Replace account
       description: Updates details for the current account.
@@ -73,10 +71,10 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /account/repo:
+  /api/v1/account/repo:
     get:
       tags:
-        - Account
+        - account
       operationId: get_account_repo
       summary: Get account import repository
       description: Retrieves details for the account import repository.
@@ -89,7 +87,7 @@ paths:
           $ref: '#/components/responses/error'
     post:
       tags:
-        - Account
+        - account
       operationId: create_account_repo
       summary: Create account import repository
       description: |
@@ -107,7 +105,7 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /resources:
+  /api/v1/resources:
     parameters:
       - $ref: '#/components/parameters/search'
       - $ref: '#/components/parameters/size'
@@ -116,7 +114,7 @@ paths:
       - $ref: '#/components/parameters/summary'
     get:
       tags:
-        - Resources
+        - resources
       operationId: search_resources
       summary: Search resources
       description: Retrieves resources based on a search query.
@@ -129,7 +127,7 @@ paths:
           $ref: '#/components/responses/error'
     post:
       tags:
-        - Resources
+        - resources
       operationId: create_resource
       summary: Create resource
       description: Creates a new resource and associated external access.
@@ -146,12 +144,12 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /resources/{id}:
+  /api/v1/resources/{id}:
     parameters:
       - $ref: '#/components/parameters/id'
     get:
       tags:
-        - Resources
+        - resources
       operationId: get_resource
       summary: Get resource
       description: Retrieves details for a specific resource.
@@ -164,7 +162,7 @@ paths:
           $ref: '#/components/responses/error'
     patch:
       tags:
-        - Resources
+        - resources
       operationId: update_resource
       summary: Update resource
       description: Updates details for a specific resource.
@@ -183,7 +181,7 @@ paths:
           $ref: '#/components/responses/error'
     put:
       tags:
-        - Resources
+        - resources
       operationId: replace_resource
       summary: Replace resource
       description: Updates details for a specific resource.
@@ -202,7 +200,7 @@ paths:
           $ref: '#/components/responses/error'
     delete:
       tags:
-        - Resources
+        - resources
       operationId: delete_resource
       summary: Delete resource
       description: Deletes a specific resource.
@@ -213,10 +211,10 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /resources/import:
+  /api/v1/resources/import:
     post:
       tags:
-        - Resources
+        - resources
       operationId: create_resources_import
       summary: Import resources
       description: Imports resources from the import repository.
@@ -227,12 +225,12 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /resources/{id}/import:
+  /api/v1/resources/{id}/import:
     parameters:
       - $ref: '#/components/parameters/id'
     post:
       tags:
-        - Resources
+        - resources
       operationId: create_resource_import
       summary: Import resource
       description: Imports a single resource from the import repository.
@@ -243,12 +241,12 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /resources/{id}/tags:
+  /api/v1/resources/{id}/tags:
     parameters:
       - $ref: '#/components/parameters/id'
     get:
       tags:
-        - Tags
+        - tags
       operationId: get_tags
       summary: Get tags
       description: Retrieves tags for a resource.
@@ -261,7 +259,7 @@ paths:
           $ref: '#/components/responses/error'
     post:
       tags:
-        - Tags
+        - tags
       operationId: create_tags
       summary: Create tags
       description: Adds tags to a resource.
@@ -280,7 +278,7 @@ paths:
           $ref: '#/components/responses/error'
     delete:
       tags:
-        - Tags
+        - tags
       operationId: delete_tags
       summary: Delete tags
       description: Deletes tags for a specific resource.
@@ -291,10 +289,10 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /resources/tags_multi_assignments:
+  /api/v1/resources/tags_multi_assignments:
     post:
       tags:
-        - Tags
+        - tags
       operationId: create_tags_multi_assignment
       summary: Create tags_multi_assignment
       description: Creates tags across multiple resources.
@@ -313,7 +311,7 @@ paths:
           $ref: '#/components/responses/error'
     delete:
       tags:
-        - Tags
+        - tags
       operationId: delete_tags_multi_assignment
       summary: Delete tags_multi_assignment
       description: Deletes tags across multiple resources.
@@ -330,116 +328,10 @@ paths:
           $ref: '#/components/responses/user_error'
         '500':
           $ref: '#/components/responses/error'
-  /tokens:
-    parameters:
-      - $ref: '#/components/parameters/search'
-      - $ref: '#/components/parameters/size'
-      - $ref: '#/components/parameters/from'
-      - $ref: '#/components/parameters/order'
-      - $ref: '#/components/parameters/summary'
+  /api/v1/user:
     get:
       tags:
-        - Tokens
-      operationId: search_tokens
-      summary: Search tokens
-      description: Retrieves tokens based on a search query.
-      responses:
-        '200':
-          $ref: '#/components/responses/tokens'
-        '400':
-          $ref: '#/components/responses/user_error'
-        '500':
-          $ref: '#/components/responses/error'
-    post:
-      tags:
-        - Tokens
-      operationId: create_token
-      summary: Create token
-      description: Creates a new token.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/token'
-      responses:
-        '201':
-          $ref: '#/components/responses/token'
-        '400':
-          $ref: '#/components/responses/user_error'
-        '500':
-          $ref: '#/components/responses/error'
-  /tokens/{id}:
-    parameters:
-      - $ref: '#/components/parameters/id'
-    get:
-      tags:
-        - Tokens
-      operationId: get_token
-      summary: Get token
-      description: Retrieves details for a specific token.
-      responses:
-        '200':
-          $ref: '#/components/responses/token'
-        '400':
-          $ref: '#/components/responses/user_error'
-        '500':
-          $ref: '#/components/responses/error'
-    patch:
-      tags:
-        - Tokens
-      operationId: update_token
-      summary: Update token
-      description: Updates details for a specific token.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/token'
-      responses:
-        '200':
-          $ref: '#/components/responses/token'
-        '400':
-          $ref: '#/components/responses/user_error'
-        '500':
-          $ref: '#/components/responses/error'
-    put:
-      tags:
-        - Tokens
-      operationId: replace_token
-      summary: Replace token
-      description: Updates details for a specific token.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/token'
-      responses:
-        '200':
-          $ref: '#/components/responses/token'
-        '400':
-          $ref: '#/components/responses/user_error'
-        '500':
-          $ref: '#/components/responses/error'
-    delete:
-      tags:
-        - Tokens
-      operationId: delete_token
-      summary: Delete token
-      description: Deletes a specific token.
-      responses:
-        '204':
-          description: No response body.
-        '400':
-          $ref: '#/components/responses/user_error'
-        '500':
-          $ref: '#/components/responses/error'
-  /user:
-    get:
-      tags:
-        - User
+        - user
       operationId: get_user
       summary: Get user
       description: Retrieves details for the current user.
@@ -452,7 +344,7 @@ paths:
           $ref: '#/components/responses/error'
     patch:
       tags:
-        - User
+        - user
       operationId: update_user
       summary: Update user
       description: Updates details for the current user.
@@ -471,7 +363,7 @@ paths:
           $ref: '#/components/responses/error'
     put:
       tags:
-        - User
+        - user
       operationId: replace_user
       summary: Replace user
       description: Updates details for the current user.
@@ -654,42 +546,6 @@ components:
         repo_status_data:
           type: object
           description: Additional data related to the account repository status.
-    user_data:
-      type: object
-      description: |
-        Information about a user related to a resource. This information is only displayed when the resource is requested with ?user_details=true.
-      properties:
-        user_id:
-          type: string
-          description: The ID of the user.
-          examples:
-            - 11223344-5566-7788-9900-aabbccddeeff
-        email:
-          type: string
-          description: The email address of the user.
-          examples:
-            - test@test.com
-        last_name:
-          type: string
-          description: The last name of the user.
-          examples:
-            - Doe
-        first_name:
-          type: string
-          description: The first name of the user.
-          examples:
-            - Jane
-        status:
-          type: string
-          description: The current status of the user.
-          enum:
-            - active
-            - inactive
-          examples:
-            - active
-        data:
-          type: object
-          description: Additional data related to the user.
     resource:
       type: object
       description: A resource connected to an external system.
@@ -782,9 +638,7 @@ components:
           type: string
           description: The ID of the user that created the resource.
           examples:
-            - 11223344-5566-7788-9900-aabbccddeeff
-        created_by_user:
-          $ref: '#/components/schemas/user_data'
+            - 1234567890abcdef
         updated_at:
           type: integer
           description: |
@@ -795,9 +649,7 @@ components:
           type: string
           description: The ID of the user that last updated the resource.
           examples:
-            - 11223344-5566-7788-9900-aabbccddeeff
-        updated_by_user:
-          $ref: '#/components/schemas/user_data'
+            - 1234567890abcdef
     tags:
       type: array
       description: User-defined tags set for the resource.
@@ -823,55 +675,6 @@ components:
             Selection query used to select which resources receive this assignment.
           examples:
             - and(name:*)
-    token:
-      type: object
-      description: An API token.
-      properties:
-        token_id:
-          type: string
-          description: The ID of the token.
-          examples:
-            - 1234567890-abcdef
-        status:
-          type: string
-          description: The current status of the token.
-          enum:
-            - active
-            - inactive
-          examples:
-            - active
-        expiration:
-          type: integer
-          description: |
-            The Unix epoch timestamp for when the token will expire. If not provided, the default will be 7 days from the time the token is created.
-          examples:
-            - 1234567890
-        created_at:
-          type: integer
-          description: |
-            The Unix epoch timestamp for when the token was created.
-          examples:
-            - 1234567890
-        created_by:
-          type: string
-          description: The ID of the user that created the token.
-          examples:
-            - 11223344-5566-7788-9900-aabbccddeeff
-        created_by_user:
-          $ref: '#/components/schemas/user_data'
-        updated_at:
-          type: integer
-          description: |
-            The Unix epoch timestamp for when the token was last updated.
-          examples:
-            - 1234567890
-        updated_by:
-          type: string
-          description: The ID of the user that last updated the token.
-          examples:
-            - 11223344-5566-7788-9900-aabbccddeeff
-        updated_by_user:
-          $ref: '#/components/schemas/user_data'
     user:
       type: object
       description: A user.
@@ -917,8 +720,6 @@ components:
           description: The ID of the user that created the user.
           examples:
             - 1234567890abcdef
-        created_by_user:
-          $ref: '#/components/schemas/user_data'
         updated_at:
           type: integer
           description: The Unix epoch timestamp for when the user was last updated.
@@ -929,8 +730,6 @@ components:
           description: The ID of the user that last updated the user.
           examples:
             - 1234567890abcdef
-        updated_by_user:
-          $ref: '#/components/schemas/user_data'
   responses:
     account:
       description: |
@@ -990,22 +789,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/tags_multi_assignment'
-    tokens:
-      description: |
-        A response containing an array of tokens.
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/token'
-    token:
-      description: |
-        A response containing details about the token.
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/token'
     user:
       description: |
         A response containing details about the user.

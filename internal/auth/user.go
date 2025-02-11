@@ -17,18 +17,17 @@ import (
 
 // User values represent service users.
 type User struct {
-	UserID        request.FieldString `json:"user_id"`
-	Email         request.FieldString `json:"email"`
-	LastName      request.FieldString `json:"last_name"`
-	FirstName     request.FieldString `json:"first_name"`
-	Status        request.FieldString `json:"status"`
-	Data          request.FieldJSON   `json:"data"`
-	CreatedAt     request.FieldTime   `json:"created_at"`
-	CreatedBy     request.FieldString `json:"created_by"`
-	CreatedByUser *sqldb.UserData     `json:"created_by_user,omitempty"`
-	UpdatedAt     request.FieldTime   `json:"updated_at"`
-	UpdatedBy     request.FieldString `json:"updated_by"`
-	UpdatedByUser *sqldb.UserData     `json:"updated_by_user,omitempty"`
+	UserID    request.FieldString `json:"user_id"`
+	Email     request.FieldString `json:"email"`
+	LastName  request.FieldString `json:"last_name"`
+	FirstName request.FieldString `json:"first_name"`
+	Status    request.FieldString `json:"status"`
+	Data      request.FieldJSON   `json:"data"`
+	CreatedAt request.FieldTime   `json:"created_at"`
+	CreatedBy request.FieldString `json:"created_by"`
+	UpdatedAt request.FieldTime   `json:"updated_at"`
+	UpdatedBy request.FieldString `json:"updated_by"`
+	Password  *string             `json:"password,omitempty"`
 }
 
 // Validate checks that the value contains valid data.
@@ -97,27 +96,6 @@ func (u *User) ScanDest(options sqldb.FieldOptions) []any {
 	}
 
 	if options != nil && options.Contains(sqldb.OptUserDetails) {
-		u.CreatedByUser = &sqldb.UserData{}
-
-		u.UpdatedByUser = &sqldb.UserData{}
-
-		dest = append(dest,
-			&u.CreatedAt,
-			&u.CreatedBy,
-			&u.CreatedByUser.Email,
-			&u.CreatedByUser.LastName,
-			&u.CreatedByUser.FirstName,
-			&u.CreatedByUser.Status,
-			&u.CreatedByUser.Data,
-			&u.UpdatedAt,
-			&u.UpdatedBy,
-			&u.UpdatedByUser.Email,
-			&u.UpdatedByUser.LastName,
-			&u.UpdatedByUser.FirstName,
-			&u.UpdatedByUser.Status,
-			&u.UpdatedByUser.Data,
-		)
-	} else {
 		dest = append(dest,
 			&u.CreatedAt,
 			&u.CreatedBy,
@@ -130,7 +108,7 @@ func (u *User) ScanDest(options sqldb.FieldOptions) []any {
 }
 
 // userFields contain the search fields for users.
-var userFields = append([]*sqldb.Field{{
+var userFields = []*sqldb.Field{{
 	Name:   "user_key",
 	Type:   sqldb.FieldInt,
 	Table:  `"user"`,
@@ -160,7 +138,27 @@ var userFields = append([]*sqldb.Field{{
 	Name:  "data",
 	Type:  sqldb.FieldJSON,
 	Table: `"user"`,
-}}, sqldb.UserFields(`"user"`)...)
+}, {
+	Name:   "created_at",
+	Type:   sqldb.FieldTime,
+	Option: "user_details",
+	Table:  `"user"`,
+}, {
+	Name:   "created_by",
+	Type:   sqldb.FieldString,
+	Option: "user_details",
+	Table:  `"user"`,
+}, {
+	Name:   "updated_at",
+	Type:   sqldb.FieldTime,
+	Option: "user_details",
+	Table:  `"user"`,
+}, {
+	Name:   "updated_by",
+	Type:   sqldb.FieldString,
+	Option: "user_details",
+	Table:  `"user"`,
+}}
 
 // GetUser retrieves a user from the database.
 func (s *Service) GetUser(ctx context.Context,
@@ -245,22 +243,6 @@ func (s *Service) GetUser(ctx context.Context,
 				"id", id)
 		}
 
-		var cbu *sqldb.UserData
-
-		if r.CreatedByUser != nil {
-			r.CreatedByUser.UserID = r.CreatedBy
-			cbu = r.CreatedByUser
-			r.CreatedByUser = nil
-		}
-
-		var ubu *sqldb.UserData
-
-		if r.UpdatedByUser != nil {
-			r.UpdatedByUser.UserID = r.UpdatedBy
-			ubu = r.UpdatedByUser
-			r.UpdatedByUser = nil
-		}
-
 		if s.cache != nil {
 			ck := cache.KeyUser(r.UserID.Value)
 
@@ -287,14 +269,6 @@ func (s *Service) GetUser(ctx context.Context,
 						"id", id)
 				}
 			}
-		}
-
-		if cbu != nil {
-			r.CreatedByUser = cbu
-		}
-
-		if ubu != nil {
-			r.UpdatedByUser = ubu
 		}
 	}
 

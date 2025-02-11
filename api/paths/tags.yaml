@@ -3,7 +3,7 @@ parameters:
   - $ref: "../components/parameters/id.yaml"
 get:
   tags:
-    - Tags
+    - tags
   operationId: get_tags
   summary: Get tags
   description: Retrieves tags for a resource.
@@ -16,7 +16,7 @@ get:
       $ref: "../components/responses/error.yaml"
 post:
   tags:
-    - Tags
+    - tags
   operationId: create_tags
   summary: Create tags
   description: Adds tags to a resource.
@@ -35,7 +35,7 @@ post:
       $ref: "../components/responses/error.yaml"
 delete:
   tags:
-    - Tags
+    - tags
   operationId: delete_tags
   summary: Delete tags
   description: Deletes tags for a specific resource.

@@ -88,9 +88,7 @@ properties:
   created_by:
     type: string
     description: The ID of the user that created the resource.
-    examples: [11223344-5566-7788-9900-aabbccddeeff]
-  created_by_user:
-    $ref: "./user_data.yaml"
+    examples: [1234567890abcdef]
   updated_at:
     type: integer
     description: >
@@ -99,6 +97,4 @@ properties:
   updated_by:
     type: string
     description: The ID of the user that last updated the resource.
-    examples: [11223344-5566-7788-9900-aabbccddeeff]
-  updated_by_user:
-      $ref: "./user_data.yaml"
+    examples: [1234567890abcdef]

@@ -36,8 +36,6 @@ properties:
     type: string
     description: The ID of the user that created the user.
     examples: [1234567890abcdef]
-  created_by_user:
-    $ref: "./user_data.yaml"
   updated_at:
     type: integer
     description: The Unix epoch timestamp for when the user was last updated.
@@ -46,5 +44,3 @@ properties:
     type: string
     description: The ID of the user that last updated the user.
     examples: [1234567890abcdef]
-  updated_by_user:
-      $ref: "./user_data.yaml"

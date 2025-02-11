@@ -1,7 +1,7 @@
 # paths/resources_import.yaml
 post:
   tags:
-    - Resources
+    - resources
   operationId: create_resources_import
   summary: Import resources
   description: Imports resources from the import repository.

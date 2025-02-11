@@ -52,9 +52,6 @@ const (
 
 	// CtxKeyUserID is used to select the user id from a context.
 	CtxKeyUserID
-
-	// CtxKeyTokenID is used to select the token id from a context.
-	CtxKeyTokenID
 )
 
 // ContextService extracts the service name from the context.
@@ -184,17 +181,6 @@ func ContextUserID(ctx context.Context) (string, error) {
 	return id, nil
 }
 
-// ContextTokenID extracts the token id from the context.
-func ContextTokenID(ctx context.Context) (string, error) {
-	id, ok := ctx.Value(CtxKeyTokenID).(string)
-	if !ok {
-		return "", errors.New(errors.ErrContext,
-			"unable to extract token id from context")
-	}
-
-	return id, nil
-}
-
 // ContextReplaceTimeout creates a copy of an existing context but with a new
 // timeout.
 func ContextReplaceTimeout(ctx context.Context,
@@ -221,8 +207,6 @@ func ContextReplaceTimeout(ctx context.Context,
 	newCtx = context.WithValue(newCtx, CtxKeyAccountName,
 		ctx.Value(CtxKeyAccountName))
 	newCtx = context.WithValue(newCtx, CtxKeyUserID, ctx.Value(CtxKeyUserID))
-	newCtx = context.WithValue(newCtx, CtxKeyTokenID,
-		ctx.Value(CtxKeyTokenID))
 
 	return newCtx, newCancel
 }

@@ -27,7 +27,7 @@ import (
 
 // Database schema version.
 const (
-	CurrentVersion = 6
+	CurrentVersion = 5
 )
 
 // mfs is a file system containing the database migrations.

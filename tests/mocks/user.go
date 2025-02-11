@@ -3,7 +3,6 @@ package mocks
 import (
 	"github.com/dhaifley/apigo/internal/auth"
 	"github.com/dhaifley/apigo/internal/request"
-	"github.com/dhaifley/apigo/internal/sqldb"
 )
 
 var TestUser = auth.User{
@@ -33,8 +32,6 @@ var TestUser = auth.User{
 			"test": "test",
 		},
 	},
-	CreatedByUser: &sqldb.UserData{},
-	UpdatedByUser: &sqldb.UserData{},
 }
 
 type MockUserRow struct{}
@@ -108,36 +105,6 @@ func (m *MockUserRow) Scan(dest ...any) error {
 		n++
 	}
 
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.CreatedByUser.UserID
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.CreatedByUser.Email
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.CreatedByUser.LastName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.CreatedByUser.FirstName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.CreatedByUser.Status
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldJSON); ok {
-		*v = TestUser.CreatedByUser.Data
-		n++
-	}
-
 	if v, ok := dest[n].(*request.FieldTime); ok {
 		*v = TestUser.UpdatedAt
 		n++
@@ -145,40 +112,6 @@ func (m *MockUserRow) Scan(dest ...any) error {
 
 	if v, ok := dest[n].(*request.FieldString); ok {
 		*v = TestUser.UpdatedBy
-		n++
-	}
-
-	if n >= len(dest) {
-		return nil
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.UpdatedByUser.UserID
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.UpdatedByUser.Email
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.UpdatedByUser.LastName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.UpdatedByUser.FirstName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestUser.UpdatedByUser.Status
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldJSON); ok {
-		*v = TestUser.UpdatedByUser.Data
 	}
 
 	return nil

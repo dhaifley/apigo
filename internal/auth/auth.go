@@ -31,7 +31,6 @@ type Claims struct {
 	AccountID   string   `json:"account_id"`
 	AccountName string   `json:"account_name"`
 	UserID      string   `json:"user_id"`
-	TokenID     string   `json:"token_id"`
 	Roles       []string `json:"roles"`
 }
 
@@ -134,52 +133,6 @@ func (s *Service) getAccountSecret(ctx context.Context, accountID string,
 	}
 
 	return []byte(*r), nil
-}
-
-// verifyToken verifies the existence of an active token in the database by
-// token ID.
-func (s *Service) verifyToken(ctx context.Context, tokenID string,
-) error {
-	base := `SELECT token.token_id
-	FROM token
-	WHERE token.token_id = $1
-		AND token.status = 'active'
-		AND token.expiration > CURRENT_TIMESTAMP
-	LIMIT 1`
-
-	q := sqldb.NewQuery(&sqldb.QueryOptions{
-		DB:     s.db,
-		Type:   sqldb.QuerySelect,
-		Base:   base,
-		Params: []any{tokenID},
-	})
-
-	q.Limit = 1
-
-	row, err := q.QueryRow(ctx)
-	if err != nil {
-		return errors.Wrap(err, errors.ErrDatabase,
-			"")
-	}
-
-	var r string
-
-	if err := row.Scan(&r); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return errors.New(errors.ErrNotFound,
-				"token not found")
-		}
-
-		return errors.Wrap(err, errors.ErrDatabase,
-			"unable to select token row")
-	}
-
-	if r == "" {
-		return errors.New(errors.ErrNotFound,
-			"token was not found")
-	}
-
-	return nil
 }
 
 // AuthJWT authenticates using a JWT token.
@@ -362,13 +315,11 @@ func (s *Service) AuthJWT(ctx context.Context,
 		role = request.RoleUser
 	}
 
-	refresh, sysAdmin := false, false
+	sysAdmin := false
 
 	res.Roles = append(res.Roles, role)
 
 	switch role {
-	case request.RoleRefresh:
-		refresh = true
 	case request.RoleSystemAdmin:
 		sysAdmin = true
 
@@ -385,35 +336,6 @@ func (s *Service) AuthJWT(ctx context.Context,
 	}
 
 	ctx = context.WithValue(ctx, request.CtxKeyAccountID, res.AccountID)
-
-	if refresh {
-		if tID, ok := claims["token_id"].(string); !ok {
-			s.log.Log(ctx, logger.LvlDebug,
-				"unable to get token id from claims",
-				"token", token,
-				"tenant", tenant,
-				"claims", claims)
-
-			return nil, errors.New(errors.ErrUnauthorized,
-				"invalid authentication token",
-				"token", token)
-		} else {
-			if err := s.verifyToken(ctx, tID); err != nil {
-				s.log.Log(ctx, logger.LvlDebug,
-					"unable to verify token",
-					"error", err,
-					"token", token,
-					"tenant", tenant,
-					"token_id", tID)
-
-				return nil, errors.New(errors.ErrUnauthorized,
-					"invalid authentication token",
-					"token", token)
-			}
-
-			res.TokenID = tID
-		}
-	}
 
 	if uID, ok := claims["sub"].(string); !ok {
 		s.log.Log(ctx, logger.LvlDebug,
@@ -752,4 +674,47 @@ func (s *Service) Update(ctx context.Context) context.CancelFunc {
 	}(ctx)
 
 	return cancel
+}
+
+// createSecret is used to create a JWT secret that can be used for tokens.
+func (s *Service) createSecret(ctx context.Context,
+	expiration int64,
+) (string, error) {
+	now := time.Now()
+
+	aID, err := request.ContextAccountID(ctx)
+	if err != nil {
+		return "", err
+	}
+
+	claims := jwt.MapClaims{
+		"exp":  expiration,
+		"iat":  now.Unix(),
+		"nbf":  now.Unix(),
+		"iss":  s.cfg.AuthTokenIssuer(),
+		"sub":  "0",
+		"aud":  []string{s.cfg.ServiceName()},
+		"role": request.RoleRefresh,
+	}
+
+	tok := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
+
+	tok.Header = map[string]any{
+		"alg": "HS512",
+		"typ": "JWT",
+		"kid": aID,
+	}
+
+	secret, err := s.getAccountSecret(ctx, aID)
+	if err != nil {
+		return "", err
+	}
+
+	authToken, err := tok.SignedString(secret)
+	if err != nil {
+		return "", errors.New(errors.ErrServer,
+			"unable to create token secret")
+	}
+
+	return authToken, nil
 }

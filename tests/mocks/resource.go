@@ -80,8 +80,6 @@ var TestResource = resource.Resource{
 		Set: true, Valid: true,
 		Value: "testHash",
 	},
-	CreatedByUser: &sqldb.UserData{},
-	UpdatedByUser: &sqldb.UserData{},
 }
 
 type MockResourceRow struct{}
@@ -214,36 +212,6 @@ func (m *MockResourceRow) Scan(dest ...any) error {
 		n++
 	}
 
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.CreatedByUser.UserID
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.CreatedByUser.Email
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.CreatedByUser.LastName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.CreatedByUser.FirstName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.CreatedByUser.Status
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldJSON); ok {
-		*v = TestResource.CreatedByUser.Data
-		n++
-	}
-
 	if v, ok := dest[n].(*request.FieldTime); ok {
 		*v = TestResource.UpdatedAt
 		n++
@@ -251,40 +219,6 @@ func (m *MockResourceRow) Scan(dest ...any) error {
 
 	if v, ok := dest[n].(*request.FieldString); ok {
 		*v = TestResource.UpdatedBy
-		n++
-	}
-
-	if len(dest) <= n {
-		return nil
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.UpdatedByUser.UserID
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.UpdatedByUser.Email
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.UpdatedByUser.LastName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.UpdatedByUser.FirstName
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldString); ok {
-		*v = TestResource.UpdatedByUser.Status
-		n++
-	}
-
-	if v, ok := dest[n].(*request.FieldJSON); ok {
-		*v = TestResource.UpdatedByUser.Data
 	}
 
 	return nil
@@ -336,8 +270,6 @@ func (m *MockResourceDB) Query(ctx context.Context,
 	q string, args ...any,
 ) (sqldb.SQLRows, error) {
 	switch {
-	case strings.Contains(q, "FROM token\n"):
-		return &MockTokenRows{}, nil
 	case strings.Contains(q, "FROM resource\n"):
 		return &MockResourceRows{}, nil
 	case strings.Contains(q, "FROM tag_obj\n"),
@@ -365,11 +297,6 @@ func (m *MockResourceDB) QueryRow(ctx context.Context,
 		strings.Contains(q, "INSERT INTO account"),
 		strings.Contains(q, "UPDATE account SET"):
 		return &MockAccountRow{}
-	case strings.Contains(q, "FROM token\n"),
-		strings.Contains(q, `DELETE FROM token`),
-		strings.Contains(q, "INSERT INTO token"),
-		strings.Contains(q, "UPDATE token SET"):
-		return &MockTokenRow{}
 	case strings.Contains(q, "FROM resource\n"),
 		strings.Contains(q, `DELETE FROM resource`),
 		strings.Contains(q, "INSERT INTO resource"),

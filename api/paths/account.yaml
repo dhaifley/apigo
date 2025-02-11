@@ -1,7 +1,7 @@
 # paths/account.yaml
 get:
   tags:
-    - Account
+    - account
   operationId: get_account
   summary: Get account
   description: Retrieves details for the current account.
@@ -14,7 +14,7 @@ get:
       $ref: "../components/responses/error.yaml"
 patch:
   tags:
-    - Account
+    - account
   operationId: update_account
   summary: Update account
   description: Updates details for the current account.
@@ -33,7 +33,7 @@ patch:
       $ref: "../components/responses/error.yaml"
 put:
   tags:
-    - Account
+    - account
   operationId: replace_account
   summary: Replace account
   description: Updates details for the current account.

@@ -7,7 +7,7 @@ parameters:
   - $ref: "../components/parameters/summary.yaml"
 get:
   tags:
-    - Resources
+    - resources
   operationId: search_resources
   summary: Search resources
   description: Retrieves resources based on a search query.
@@ -20,7 +20,7 @@ get:
       $ref: "../components/responses/error.yaml"
 post:
   tags:
-    - Resources
+    - resources
   operationId: create_resource
   summary: Create resource
   description: Creates a new resource and associated external access.

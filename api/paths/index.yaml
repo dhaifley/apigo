@@ -1,23 +1,19 @@
 # paths/index.yaml
-"/account":
+"/api/v1/account":
   $ref: "./account.yaml"
-"/account/repo":
+"/api/v1/account/repo":
   $ref: "./account_repo.yaml"
-"/resources":
+"/api/v1/resources":
   $ref: "./resources.yaml"
-"/resources/{id}":
+"/api/v1/resources/{id}":
   $ref: "./resource.yaml"
-"/resources/import":
+"/api/v1/resources/import":
   $ref: "./resources_import.yaml"
-"/resources/{id}/import":
+"/api/v1/resources/{id}/import":
   $ref: "./resource_import.yaml"
-"/resources/{id}/tags":
+"/api/v1/resources/{id}/tags":
   $ref: "./tags.yaml"
-"/resources/tags_multi_assignments":
+"/api/v1/resources/tags_multi_assignments":
   $ref: "./tags_multi_assignments.yaml"
-"/tokens":
-  $ref: "./tokens.yaml"
-"/tokens/{id}":
-  $ref: "./token.yaml"
-"/user":
+"/api/v1/user":
   $ref: "./user.yaml"

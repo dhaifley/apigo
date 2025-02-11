@@ -1,7 +1,7 @@
 # paths/account_repo.yaml
 get:
   tags:
-    - Account
+    - account
   operationId: get_account_repo
   summary: Get account import repository
   description: Retrieves details for the account import repository.
@@ -14,7 +14,7 @@ get:
       $ref: "../components/responses/error.yaml"
 post:
   tags:
-    - Account
+    - account
   operationId: create_account_repo
   summary: Create account import repository
   description: >

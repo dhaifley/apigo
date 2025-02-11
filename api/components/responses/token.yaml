@@ -1,7 +1,0 @@
-# components/responses/token.yaml
-description: >
-  A response containing details about the token.
-content:
-  application/json:
-    schema:
-      $ref: "../schemas/token.yaml"

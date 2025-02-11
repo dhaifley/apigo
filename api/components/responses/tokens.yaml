@@ -1,9 +1,0 @@
-# components/responses/tokens.yaml
-description: >
-  A response containing an array of tokens.
-content:
-  application/json:
-    schema:
-      type: array
-      items:
-        $ref: "../schemas/token.yaml"

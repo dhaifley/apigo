@@ -126,93 +126,91 @@ type Resource struct {
 	CommitHash     request.FieldString `json:"commit_hash"`
 	CreatedAt      request.FieldTime   `json:"created_at"`
 	CreatedBy      request.FieldString `json:"created_by"`
-	CreatedByUser  *sqldb.UserData     `json:"created_by_user,omitempty"`
 	UpdatedAt      request.FieldTime   `json:"updated_at"`
 	UpdatedBy      request.FieldString `json:"updated_by"`
-	UpdatedByUser  *sqldb.UserData     `json:"updated_by_user,omitempty"`
 }
 
 // Validate checks that the value contains valid data.
-func (a *Resource) Validate(cfg *config.Config) error {
-	if a.ResourceID.Set {
-		if !a.ResourceID.Valid {
+func (r *Resource) Validate(cfg *config.Config) error {
+	if r.ResourceID.Set {
+		if !r.ResourceID.Valid {
 			return errors.New(errors.ErrInvalidRequest,
 				"resource_id must not be null",
-				"resource", a)
+				"resource", r)
 		}
 
-		if !request.ValidResourceID(a.ResourceID.Value) {
+		if !request.ValidResourceID(r.ResourceID.Value) {
 			return errors.New(errors.ErrInvalidRequest,
 				"invalid resource_id",
-				"resource", a)
+				"resource", r)
 		}
 	}
 
-	if a.Name.Set && !a.Name.Valid {
+	if r.Name.Set && !r.Name.Valid {
 		return errors.New(errors.ErrInvalidRequest,
 			"name must not be null",
-			"resource", a)
+			"resource", r)
 	}
 
-	if a.KeyField.Set && !a.KeyField.Valid {
+	if r.KeyField.Set && !r.KeyField.Valid {
 		return errors.New(errors.ErrInvalidRequest,
 			"key_field must not be null",
-			"resource", a)
+			"resource", r)
 	}
 
-	if a.ClearCondition.Set && a.ClearCondition.Valid {
-		p := search.NewParser(bytes.NewBufferString(a.ClearCondition.Value))
+	if r.ClearCondition.Set && r.ClearCondition.Valid {
+		p := search.NewParser(bytes.NewBufferString(r.ClearCondition.Value))
 
 		if _, err := p.Parse(); err != nil {
 			return errors.Wrap(err, errors.ErrInvalidRequest,
 				"invalid clear_condition",
-				"resource", a)
+				"resource", r)
 		}
 	}
 
-	if a.ClearAfter.Set {
-		if !a.ClearAfter.Valid {
+	if r.ClearAfter.Set {
+		if !r.ClearAfter.Valid {
 			return errors.New(errors.ErrInvalidRequest,
 				"clear_after must not be null",
-				"resource", a)
+				"resource", r)
 		}
 
-		if a.ClearAfter.Value < 0 ||
-			a.ClearAfter.Value > int64(cfg.ResourceDataRetention().Seconds()) {
+		if r.ClearAfter.Value < 0 ||
+			r.ClearAfter.Value > int64(cfg.ResourceDataRetention().Seconds()) {
 			return errors.New(errors.ErrInvalidRequest,
 				"invalid clear_after",
-				"resource", a)
+				"resource", r)
 		}
 	}
 
-	if a.ClearDelay.Set {
-		if !a.ClearDelay.Valid {
+	if r.ClearDelay.Set {
+		if !r.ClearDelay.Valid {
 			return errors.New(errors.ErrInvalidRequest,
 				"clear_delay must not be null",
-				"resource", a)
+				"resource", r)
 		}
 
-		if a.ClearDelay.Value < 0 || a.ClearDelay.Value > 60*60 {
+		if r.ClearDelay.Value < 0 || r.ClearDelay.Value > 60*60 {
 			return errors.New(errors.ErrInvalidRequest,
 				"invalid clear_delay",
-				"resource", a)
+				"resource", r)
 		}
 	}
 
-	if a.Status.Set {
-		if !a.Status.Valid {
+	if r.Status.Set {
+		if !r.Status.Valid {
 			return errors.New(errors.ErrInvalidRequest,
 				"status must not be null",
-				"resource", a)
+				"resource", r)
 		}
 
-		switch a.Status.Value {
+		switch r.Status.Value {
 		case request.StatusNew, request.StatusActive, request.StatusInactive,
 			request.StatusError:
 		default:
 			return errors.New(errors.ErrInvalidRequest,
 				"invalid status",
-				"resource", a)
+				"resource", r)
 		}
 	}
 
@@ -220,68 +218,47 @@ func (a *Resource) Validate(cfg *config.Config) error {
 }
 
 // ValidateCreate checks that the value contains valid data for creation.
-func (a *Resource) ValidateCreate(cfg *config.Config) error {
-	if !a.Name.Set {
+func (r *Resource) ValidateCreate(cfg *config.Config) error {
+	if !r.Name.Set {
 		return errors.New(errors.ErrInvalidRequest,
 			"missing name",
-			"resource", a)
+			"resource", r)
 	}
 
-	if !a.KeyField.Set {
+	if !r.KeyField.Set {
 		return errors.New(errors.ErrInvalidRequest,
 			"missing key_field",
-			"resource", a)
+			"resource", r)
 	}
 
-	return a.Validate(cfg)
+	return r.Validate(cfg)
 }
 
 // ScanDest returns the destination fields for a SQL row scan.
-func (a *Resource) ScanDest(options sqldb.FieldOptions) []any {
+func (r *Resource) ScanDest(options sqldb.FieldOptions) []any {
 	dest := []any{
-		&a.ResourceID,
-		&a.Name,
-		&a.Version,
-		&a.Description,
-		&a.Status,
-		&a.StatusData,
-		&a.KeyField,
-		&a.KeyRegex,
-		&a.ClearCondition,
-		&a.ClearAfter,
-		&a.ClearDelay,
-		&a.Data,
-		&a.Source,
-		&a.CommitHash,
+		&r.ResourceID,
+		&r.Name,
+		&r.Version,
+		&r.Description,
+		&r.Status,
+		&r.StatusData,
+		&r.KeyField,
+		&r.KeyRegex,
+		&r.ClearCondition,
+		&r.ClearAfter,
+		&r.ClearDelay,
+		&r.Data,
+		&r.Source,
+		&r.CommitHash,
 	}
 
 	if options != nil && options.Contains(sqldb.OptUserDetails) {
-		a.CreatedByUser = &sqldb.UserData{}
-
-		a.UpdatedByUser = &sqldb.UserData{}
-
 		dest = append(dest,
-			&a.CreatedAt,
-			&a.CreatedBy,
-			&a.CreatedByUser.Email,
-			&a.CreatedByUser.LastName,
-			&a.CreatedByUser.FirstName,
-			&a.CreatedByUser.Status,
-			&a.CreatedByUser.Data,
-			&a.UpdatedAt,
-			&a.UpdatedBy,
-			&a.UpdatedByUser.Email,
-			&a.UpdatedByUser.LastName,
-			&a.UpdatedByUser.FirstName,
-			&a.UpdatedByUser.Status,
-			&a.UpdatedByUser.Data,
-		)
-	} else {
-		dest = append(dest,
-			&a.CreatedAt,
-			&a.CreatedBy,
-			&a.UpdatedAt,
-			&a.UpdatedBy,
+			&r.CreatedAt,
+			&r.CreatedBy,
+			&r.UpdatedAt,
+			&r.UpdatedBy,
 		)
 	}
 
@@ -289,7 +266,7 @@ func (a *Resource) ScanDest(options sqldb.FieldOptions) []any {
 }
 
 // resourceFields contain the search fields for resources.
-var resourceFields = append([]*sqldb.Field{{
+var resourceFields = []*sqldb.Field{{
 	Name:   "resource_key",
 	Type:   sqldb.FieldInt,
 	Table:  "resource",
@@ -351,7 +328,27 @@ var resourceFields = append([]*sqldb.Field{{
 	Name:  "commit_hash",
 	Type:  sqldb.FieldString,
 	Table: "resource",
-}}, sqldb.UserFields("resource")...)
+}, {
+	Name:   "created_at",
+	Type:   sqldb.FieldTime,
+	Option: "user_details",
+	Table:  "resource",
+}, {
+	Name:   "created_by",
+	Type:   sqldb.FieldString,
+	Option: "user_details",
+	Table:  "resource",
+}, {
+	Name:   "updated_at",
+	Type:   sqldb.FieldTime,
+	Option: "user_details",
+	Table:  "resource",
+}, {
+	Name:   "updated_by",
+	Type:   sqldb.FieldString,
+	Option: "user_details",
+	Table:  "resource",
+}}
 
 // GetResources retrieves resources based on a search query.
 func (s *Service) GetResources(ctx context.Context,
@@ -453,36 +450,6 @@ func (s *Service) GetResources(ctx context.Context,
 						"search", query)
 				}
 
-				if options.Contains(sqldb.OptUserDetails) {
-					if v.CreatedBy.Valid {
-						ud, err := sqldb.GetUserDetails(ctx, v.CreatedBy.Value,
-							s.db, s.cache, s.log, s.cfg)
-						if err != nil {
-							return nil, nil, errors.Wrap(err,
-								errors.ErrDatabase,
-								"unable to select created_by user details",
-								"search", query,
-								"user_id", v.CreatedBy.Value)
-						}
-
-						v.CreatedByUser = ud
-					}
-
-					if v.UpdatedBy.Valid {
-						ud, err := sqldb.GetUserDetails(ctx, v.UpdatedBy.Value,
-							s.db, s.cache, s.log, s.cfg)
-						if err != nil {
-							return nil, nil, errors.Wrap(err,
-								errors.ErrDatabase,
-								"unable to select updated_by user details",
-								"search", query,
-								"user_id", v.UpdatedBy.Value)
-						}
-
-						v.UpdatedByUser = ud
-					}
-				}
-
 				res[index[ck]] = v
 				keys[index[ck]] = 0
 				found = true
@@ -556,22 +523,6 @@ func (s *Service) GetResources(ctx context.Context,
 					"search", query)
 			}
 
-			var cbu *sqldb.UserData
-
-			if r.CreatedByUser != nil {
-				r.CreatedByUser.UserID = r.CreatedBy
-				cbu = r.CreatedByUser
-				r.CreatedByUser = nil
-			}
-
-			var ubu *sqldb.UserData
-
-			if r.UpdatedByUser != nil {
-				r.UpdatedByUser.UserID = r.UpdatedBy
-				ubu = r.UpdatedByUser
-				r.UpdatedByUser = nil
-			}
-
 			if s.cache != nil {
 				ck := cache.KeyResource(r.ResourceID.Value)
 
@@ -598,14 +549,6 @@ func (s *Service) GetResources(ctx context.Context,
 							"search", query)
 					}
 				}
-			}
-
-			if cbu != nil {
-				r.CreatedByUser = cbu
-			}
-
-			if ubu != nil {
-				r.UpdatedByUser = ubu
 			}
 
 			res[index[cache.KeyResource(r.ResourceID.Value)]] = r
@@ -656,34 +599,6 @@ func (s *Service) GetResource(ctx context.Context,
 					"cache_key", ck,
 					"cache_value", string(ci.Value),
 					"id", id)
-			} else {
-				if options.Contains(sqldb.OptUserDetails) {
-					if r.CreatedBy.Valid {
-						ud, err := sqldb.GetUserDetails(ctx, r.CreatedBy.Value,
-							s.db, s.cache, s.log, s.cfg)
-						if err != nil {
-							return nil, errors.Wrap(err, errors.ErrDatabase,
-								"unable to select created_by user details",
-								"id", id,
-								"user_id", r.CreatedBy.Value)
-						}
-
-						r.CreatedByUser = ud
-					}
-
-					if r.UpdatedBy.Valid {
-						ud, err := sqldb.GetUserDetails(ctx, r.UpdatedBy.Value,
-							s.db, s.cache, s.log, s.cfg)
-						if err != nil {
-							return nil, errors.Wrap(err, errors.ErrDatabase,
-								"unable to select updated_by user details",
-								"id", id,
-								"user_id", r.UpdatedBy.Value)
-						}
-
-						r.UpdatedByUser = ud
-					}
-				}
 			}
 		}
 	}
@@ -721,22 +636,6 @@ func (s *Service) GetResource(ctx context.Context,
 				"id", id)
 		}
 
-		var cbu *sqldb.UserData
-
-		if r.CreatedByUser != nil {
-			r.CreatedByUser.UserID = r.CreatedBy
-			cbu = r.CreatedByUser
-			r.CreatedByUser = nil
-		}
-
-		var ubu *sqldb.UserData
-
-		if r.UpdatedByUser != nil {
-			r.UpdatedByUser.UserID = r.UpdatedBy
-			ubu = r.UpdatedByUser
-			r.UpdatedByUser = nil
-		}
-
 		if s.cache != nil {
 			ck := cache.KeyResource(r.ResourceID.Value)
 
@@ -763,14 +662,6 @@ func (s *Service) GetResource(ctx context.Context,
 						"id", id)
 				}
 			}
-		}
-
-		if cbu != nil {
-			r.CreatedByUser = cbu
-		}
-
-		if ubu != nil {
-			r.UpdatedByUser = ubu
 		}
 	}
 
@@ -1090,7 +981,7 @@ func findResourceData(payload map[string]any,
 		}
 
 		if key != "" {
-			am["fleet_ts"] = time.Now().Unix()
+			am["ts"] = time.Now().Unix()
 
 			cleared := false
 
@@ -1358,64 +1249,64 @@ func (s *Service) UpdateResourceData(ctx context.Context,
 
 	ctx = context.WithValue(ctx, request.CtxKeyAccountID, accountID)
 
-	a, err := s.GetResource(ctx, resourceID, nil)
+	r, err := s.GetResource(ctx, resourceID, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	if a.Status.Value == request.StatusInactive {
+	if r.Status.Value == request.StatusInactive {
 		return nil, errors.New(errors.ErrInvalidRequest,
 			"unable to update resource data for inactive resource",
 			"payload", payload,
-			"resource", a)
+			"resource", r)
 	}
 
-	resourceData, clears, err := findResourceData(payload, a)
+	resourceData, clears, err := findResourceData(payload, r)
 	if err != nil {
-		a.Status = request.FieldString{
+		r.Status = request.FieldString{
 			Set: true, Valid: true, Value: request.StatusError,
 		}
 
-		a.StatusData = request.FieldJSON{
+		r.StatusData = request.FieldJSON{
 			Set: true, Valid: true, Value: map[string]any{
 				"last_error": err.Error(),
 			},
 		}
 
-		if _, err := s.UpdateResource(ctx, a); err != nil {
+		if _, err := s.UpdateResource(ctx, r); err != nil {
 			s.log.Log(ctx, logger.LvlError,
 				"unable to update resource error status",
 				"error", err,
-				"resource", a)
+				"resource", r)
 		}
 
 		return nil, err
 	}
 
-	if !a.Data.Set || !a.Data.Valid || len(a.Data.Value) == 0 {
-		a.Data = request.FieldJSON{
+	if !r.Data.Set || !r.Data.Valid || len(r.Data.Value) == 0 {
+		r.Data = request.FieldJSON{
 			Set: true, Valid: true, Value: map[string]any{},
 		}
 	}
 
 	for k, v := range resourceData {
-		a.Data.Value[k] = v
+		r.Data.Value[k] = v
 	}
 
 	// Remove any cleared resources.
 	for _, key := range clears {
-		delete(a.Data.Value, key)
+		delete(r.Data.Value, key)
 	}
 
 	// Prune any data older than the clear_after setting.
 	newData := map[string]any{}
 
 	oldTS := time.Now().Add(0 -
-		(time.Second * time.Duration(a.ClearAfter.Value))).Unix()
+		(time.Second * time.Duration(r.ClearAfter.Value))).Unix()
 
-	for k, v := range a.Data.Value {
+	for k, v := range r.Data.Value {
 		if vv, ok := v.(map[string]any); ok {
-			if pts, ok := vv["fleet_ts"]; ok {
+			if pts, ok := vv["ts"]; ok {
 				switch tv := pts.(type) {
 				case int64:
 					if tv >= oldTS {
@@ -1436,22 +1327,22 @@ func (s *Service) UpdateResourceData(ctx context.Context,
 		}
 	}
 
-	a.Data.Value = newData
+	r.Data.Value = newData
 
-	if len(a.Data.Value) == 0 {
-		a.Data.Valid = false
+	if len(r.Data.Value) == 0 {
+		r.Data.Valid = false
 	}
 
-	a.Status = request.FieldString{
+	r.Status = request.FieldString{
 		Set: true, Valid: true, Value: request.StatusActive,
 	}
 
-	ar, err := s.UpdateResource(ctx, a)
+	res, err := s.UpdateResource(ctx, r)
 	if err != nil {
 		return nil, err
 	}
 
-	return ar, nil
+	return res, nil
 }
 
 // UpdateResourceError allows external systems to update resource error status.

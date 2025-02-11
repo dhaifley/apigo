@@ -11,10 +11,6 @@ tags:
   $ref: "./tags.yaml"
 tags_multi_assignment:
   $ref: "./tags_multi_assignment.yaml"
-token:
-  $ref: "./token.yaml"
-tokens:
-  $ref: "./tokens.yaml"
 user:
   $ref: "./user.yaml"
 user_error:

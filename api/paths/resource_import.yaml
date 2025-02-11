@@ -3,7 +3,7 @@ parameters:
   - $ref: "../components/parameters/id.yaml"
 post:
   tags:
-    - Resources
+    - resources
   operationId: create_resource_import
   summary: Import resource
   description: Imports a single resource from the import repository.

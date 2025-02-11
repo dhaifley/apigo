@@ -898,6 +898,12 @@ func (f *FieldJSON) Scan(src any) error {
 				"unable to scan value into JSON object",
 				"value", v)
 		}
+	case map[string]any:
+		f.Value = map[string]any{}
+
+		for key, val := range v {
+			f.Value[key] = val
+		}
 	case nil:
 		f.Value = nil
 	default:

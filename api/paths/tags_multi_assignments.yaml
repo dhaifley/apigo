@@ -1,7 +1,7 @@
 # paths/tags_multi_assignments.yaml
 post:
   tags:
-    - Tags
+    - tags
   operationId: create_tags_multi_assignment
   summary: Create tags_multi_assignment
   description: Creates tags across multiple resources.
@@ -20,7 +20,7 @@ post:
       $ref: "../components/responses/error.yaml"
 delete:
   tags:
-    - Tags
+    - tags
   operationId: delete_tags_multi_assignment
   summary: Delete tags_multi_assignment
   description: Deletes tags across multiple resources.

@@ -162,20 +162,3 @@ func TestContextUserID(t *testing.T) {
 		t.Errorf("Expected value: %v, got: %v", exp, val)
 	}
 }
-
-func TestContextTokenID(t *testing.T) {
-	t.Parallel()
-
-	exp := "test"
-
-	ctx := context.WithValue(context.Background(), request.CtxKeyTokenID, exp)
-
-	val, err := request.ContextTokenID(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if val != exp {
-		t.Errorf("Expected value: %v, got: %v", exp, val)
-	}
-}

@@ -30,7 +30,7 @@ const (
 
 	DefaultLogLevel  = LogLvlInfo
 	DefaultLogOut    = LogOutStderr
-	DefaultLogFormat = LogFmtText
+	DefaultLogFormat = LogFmtJSON
 )
 
 // LogConfig values represent log configuration data.

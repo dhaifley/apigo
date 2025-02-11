@@ -80,23 +80,6 @@ func ValidUserID(id string) bool {
 	return true
 }
 
-// ValidTokenID checks whether a string is a valid token ID.
-func ValidTokenID(id string) bool {
-	validChars := "1234567890abcdef-"
-
-	if len(id) == 0 {
-		return false
-	}
-
-	for _, r := range id {
-		if !strings.ContainsRune(validChars, r) {
-			return false
-		}
-	}
-
-	return true
-}
-
 // ValidResourceID checks whether a string is a valid external resource ID.
 func ValidResourceID(id string) bool {
 	if _, err := uuid.Parse(id); err != nil {

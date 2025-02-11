@@ -287,7 +287,6 @@ func (s *Server) initRouter() {
 	r.Mount("/health", s.HealthHandler())
 	r.Mount("/account", s.AccountHandler())
 	r.Mount("/user", s.UserHandler())
-	r.Mount("/tokens", s.TokenHandler())
 	r.Mount("/resources", s.ResourceHandler())
 
 	s.initStaticRoutes(r)

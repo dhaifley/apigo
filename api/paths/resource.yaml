@@ -3,7 +3,7 @@ parameters:
   - $ref: "../components/parameters/id.yaml"
 get:
   tags:
-    - Resources
+    - resources
   operationId: get_resource
   summary: Get resource
   description: Retrieves details for a specific resource.
@@ -16,7 +16,7 @@ get:
       $ref: "../components/responses/error.yaml"
 patch:
   tags:
-    - Resources
+    - resources
   operationId: update_resource
   summary: Update resource
   description: Updates details for a specific resource.
@@ -35,7 +35,7 @@ patch:
       $ref: "../components/responses/error.yaml"
 put:
   tags:
-    - Resources
+    - resources
   operationId: replace_resource
   summary: Replace resource
   description: Updates details for a specific resource.
@@ -54,7 +54,7 @@ put:
       $ref: "../components/responses/error.yaml"
 delete:
   tags:
-    - Resources
+    - resources
   operationId: delete_resource
   summary: Delete resource
   description: Deletes a specific resource.

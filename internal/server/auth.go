@@ -12,7 +12,6 @@ import (
 	"github.com/dhaifley/apigo/internal/errors"
 	"github.com/dhaifley/apigo/internal/logger"
 	"github.com/dhaifley/apigo/internal/request"
-	"github.com/dhaifley/apigo/internal/search"
 	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/go-chi/chi/v5"
 )
@@ -41,20 +40,6 @@ type AuthService interface {
 	) (*auth.User, error)
 	Update(ctx context.Context,
 	) context.CancelFunc
-	GetTokens(ctx context.Context,
-		query *search.Query,
-		options sqldb.FieldOptions,
-	) ([]*auth.Token, []*sqldb.SummaryData, error)
-	GetToken(ctx context.Context,
-		token string,
-		options sqldb.FieldOptions,
-	) (*auth.Token, error)
-	CreateToken(ctx context.Context,
-		v *auth.Token,
-	) (*auth.Token, error)
-	DeleteToken(ctx context.Context,
-		token string,
-	) error
 }
 
 // Auth wraps an http handler with authentication verification.
@@ -125,10 +110,6 @@ func (s *Server) Auth(next http.Handler) http.Handler {
 
 		if claims.UserID != "" {
 			ctx = context.WithValue(ctx, request.CtxKeyUserID, claims.UserID)
-		}
-
-		if claims.TokenID != "" {
-			ctx = context.WithValue(ctx, request.CtxKeyTokenID, claims.TokenID)
 		}
 
 		next.ServeHTTP(w, r.WithContext(ctx))
@@ -292,22 +273,6 @@ func (s *Server) UserHandler() http.Handler {
 	return r
 }
 
-// TokenHandler performs routing for token requests.
-func (s *Server) TokenHandler() http.Handler {
-	r := chi.NewRouter()
-
-	r.Use(s.DBAvail)
-
-	r.With(s.Stat, s.Trace, s.Auth).Get("/", s.SearchToken)
-	r.With(s.Stat, s.Trace, s.Auth).Get("/{token_id}", s.GetToken)
-	r.With(s.Stat, s.Trace, s.Auth).Post("/", s.PostToken)
-	r.With(s.Stat, s.Trace, s.Auth).Patch("/{token_id}", s.PutToken)
-	r.With(s.Stat, s.Trace, s.Auth).Put("/{token_id}", s.PutToken)
-	r.With(s.Stat, s.Trace, s.Auth).Delete("/{token_id}", s.DeleteToken)
-
-	return r
-}
-
 // GetUser is the get handler function for users.
 func (s *Server) GetUser(w http.ResponseWriter, r *http.Request) {
 	svc := s.getAuthService(r)
@@ -367,153 +332,4 @@ func (s *Server) PutUser(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(res); err != nil {
 		s.Error(err, w, r)
 	}
-}
-
-// SearchToken is the search handler function for tokens.
-func (s *Server) SearchToken(w http.ResponseWriter,
-	r *http.Request,
-) {
-	svc := s.getAuthService(r)
-
-	ctx := r.Context()
-
-	q, err := search.ParseQuery(r.URL.Query())
-	if err != nil {
-		s.Error(err, w, r)
-
-		return
-	}
-
-	opts, err := sqldb.ParseFieldOptions(r.URL.Query())
-	if err != nil {
-		s.Error(err, w, r)
-
-		return
-	}
-
-	res, sum, err := svc.GetTokens(ctx, q, opts)
-	if err != nil {
-		s.Error(err, w, r)
-
-		return
-	}
-
-	if q.Summary != "" {
-		if err := json.NewEncoder(w).Encode(sum); err != nil {
-			s.Error(err, w, r)
-		}
-
-		return
-	}
-
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
-	}
-}
-
-// GetToken is the get handler function for tokens.
-func (s *Server) GetToken(w http.ResponseWriter,
-	r *http.Request,
-) {
-	svc := s.getAuthService(r)
-
-	ctx := r.Context()
-
-	tID := chi.URLParam(r, "token_id")
-
-	opts, err := sqldb.ParseFieldOptions(r.URL.Query())
-	if err != nil {
-		s.Error(err, w, r)
-
-		return
-	}
-
-	res, err := svc.GetToken(ctx, tID, opts)
-	if err != nil {
-		s.Error(err, w, r)
-
-		return
-	}
-
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
-	}
-}
-
-// PostToken is the post handler function for tokens.
-func (s *Server) PostToken(w http.ResponseWriter,
-	r *http.Request,
-) {
-	svc := s.getAuthService(r)
-
-	ctx := r.Context()
-
-	req := &auth.Token{}
-
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		switch e := err.(type) {
-		case *errors.Error:
-			s.Error(e, w, r)
-		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
-				"unable to decode request"), w, r)
-		}
-
-		return
-	}
-
-	res, err := svc.CreateToken(ctx, req)
-	if err != nil {
-		s.Error(err, w, r)
-
-		return
-	}
-
-	scheme := "https"
-	if strings.Contains(r.Host, "localhost") {
-		scheme = "http"
-	}
-
-	loc := &url.URL{
-		Scheme: scheme,
-		Host:   r.Host,
-		Path:   r.URL.Path + "/" + res.TokenID.Value,
-	}
-
-	w.Header().Set("Location", loc.String())
-
-	w.WriteHeader(http.StatusCreated)
-
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
-	}
-}
-
-// PutToken is the put handler function for tokens.
-func (s *Server) PutToken(w http.ResponseWriter,
-	r *http.Request,
-) {
-	s.Error(errors.New(errors.ErrInvalidRequest,
-		"unable to update  tokens: they are read only"), w, r)
-
-	return
-}
-
-// DeleteToken is the delete handler function for tokens.
-func (s *Server) DeleteToken(w http.ResponseWriter,
-	r *http.Request,
-) {
-	svc := s.getAuthService(r)
-
-	ctx := r.Context()
-
-	tID := chi.URLParam(r, "token_id")
-
-	if err := svc.DeleteToken(ctx, tID); err != nil {
-		s.Error(err, w, r)
-
-		return
-	}
-
-	w.WriteHeader(http.StatusNoContent)
 }
