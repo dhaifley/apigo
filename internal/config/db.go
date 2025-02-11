@@ -37,7 +37,7 @@ const (
 	DefaultDBMigrateDatabase = "postgres"
 	DefaultDBInstance        = ""
 	DefaultDBPrivateIP       = ""
-	DefaultDBHost            = "postgres"
+	DefaultDBHost            = "localhost"
 	DefaultDBPort            = "5432"
 	DefaultDBMaxConns        = 20
 	DefaultDBType            = "postgres"

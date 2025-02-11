@@ -8,7 +8,6 @@ import (
 
 	"github.com/dhaifley/apigo/internal/auth"
 	"github.com/dhaifley/apigo/internal/config"
-	"github.com/dhaifley/apigo/internal/logger"
 	"github.com/dhaifley/apigo/internal/request"
 	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/golang-jwt/jwt/v5"
@@ -51,7 +50,7 @@ func TestAuthJWT(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svc := auth.NewService(cfg, md, nil, logger.New(logger.LogOutStdout, logger.LogFmtJSON, logger.LvlDebug), nil, nil)
+	svc := auth.NewService(cfg, md, nil, nil, nil, nil)
 
 	now := time.Now()
 
@@ -101,9 +100,9 @@ func TestAuthJWT(t *testing.T) {
 
 	mockTransaction(mock)
 
-	args := make([]any, 4)
+	args := make([]any, 3)
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		args[i] = pgxmock.AnyArg()
 	}
 
@@ -160,9 +159,9 @@ func TestAuthJWT(t *testing.T) {
 
 	mockTransaction(mock)
 
-	args = make([]any, 4)
+	args = make([]any, 3)
 
-	for i := 0; i < 4; i++ {
+	for i := 0; i < 3; i++ {
 		args[i] = pgxmock.AnyArg()
 	}
 

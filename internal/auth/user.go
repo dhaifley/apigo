@@ -322,9 +322,6 @@ func (s *Service) CreateUser(ctx context.Context,
 	request.SetField("status", v.Status, &sets, &params)
 	request.SetField("scopes", v.Scopes, &sets, &params)
 	request.SetField("data", v.Data, &sets, &params)
-	request.SetField("created_at", request.FieldTime{
-		Set: true, Valid: true, Value: time.Now().Unix(),
-	}, &sets, &params)
 	request.SetField("created_by", request.FieldString{
 		Set: true, Valid: true, Value: v.CreatedBy.Value,
 	}, &sets, &params)

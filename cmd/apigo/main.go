@@ -18,13 +18,13 @@ func main() {
 
 	svc := apigo.New()
 
-	if len(os.Args) > 0 && os.Args[1] == "version" {
+	if len(os.Args) > 1 && os.Args[1] == "version" {
 		fmt.Println("apigo", svc.Version())
 
 		os.Exit(0)
 	}
 
-	if len(os.Args) > 0 && os.Args[1] == "migrate" {
+	if len(os.Args) > 1 && os.Args[1] == "migrate" {
 		if err := svc.Migrate(ctx); err != nil {
 			slog.Error("migrate error", "error", err)
 

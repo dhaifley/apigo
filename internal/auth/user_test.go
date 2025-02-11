@@ -143,9 +143,9 @@ func TestCreateUser(t *testing.T) {
 
 	mockTransaction(mock)
 
-	args := make([]any, 9)
+	args := make([]any, 8)
 
-	for i := 0; i < 9; i++ {
+	for i := 0; i < 8; i++ {
 		args[i] = pgxmock.AnyArg()
 	}
 

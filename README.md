@@ -8,40 +8,49 @@ which expose a REST API using Go.
 
 * [go](https://go.dev/dl/)
 * [docker](https://docs.docker.com/get-docker/)
+* [make](https://www.gnu.org/software/make/)
 
 ## Building and Testing
 
-To build containers for testing the service locally:
+To build the service locally:
 
 ```sh
-$ tests/build-tests.sh
+$ make clean
+$ make build
 ```
 
-Then, to start the test environment containers:
+To run just the unit tests, which do not start any test containers:
 
 ```sh
-$ tests/start-tests.sh
+$ make test-quick
 ```
 
-To see the log output for the various test containers:
+To run all tests, including integration tests, which start test containers:
 
 ```sh
-$ docker compose logs
+$ make test
 ```
 
-To run the integration tests:
+To start the test environment containers locally:
 
 ```sh
-$ tests/run-tests.sh
+$ make test-start
+```
+
+To run the service locally, for testing:
+
+```sh
+$ make run
 ```
 
 Finally, to shutdown and cleanup the test environment:
 
 ```sh
-$ tests/stop-tests.sh
+$ make test-stop
 ```
 
 ## Documentation
 
-While the local test environment is running, interactive documentation can be accessed using:
+While the service is running locally, interactive documentation, which can be
+used for testing requests to the service, can be accessed using:
 * http://localhost:8080/api/v1/docs

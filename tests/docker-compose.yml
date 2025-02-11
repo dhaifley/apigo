@@ -1,29 +1,10 @@
 services:
-  apigo:
-    build: ..
-    environment:
-      LOG_LEVEL: debug
-      POSTGRES_HOST: db
-      REDIS_HOST: cache
-      AUTH_TOKEN_PUBLIC_KEY_FILE: /certs/tls.crt
-    ports:
-     - "8080:8080"
-    volumes:
-      - type: bind
-        source: ../certs
-        target: /certs
-    depends_on:
-      migrate:
-        condition: service_completed_successfully
-    command: [""]
   migrate:
     build: ..
     environment:
       LOG_LEVEL: debug
       POSTGRES_HOST: db
-      REDIS_HOST: cache
-    ports:
-      - "8080:8080"
+      CACHE_SERVERS: cache:6379
     depends_on:
       db:
         condition: service_healthy

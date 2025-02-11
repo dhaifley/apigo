@@ -672,7 +672,8 @@ func (q *Query) Parse() error {
 			f := q.Field(sf)
 
 			switch {
-			case f != nil && f.Table != q.Fields[0].Table &&
+			case f != nil &&
+				(f.Table != q.Fields[0].Table || f.Table == `"user"`) &&
 				strings.HasSuffix(sf, "_by"):
 				sets += fmt.Sprintf("%s = "+userIDQuery,
 					sf, q.setStart+int64(i))
@@ -723,7 +724,8 @@ func (q *Query) Parse() error {
 			f := q.Field(sf)
 
 			switch {
-			case f != nil && f.Table != q.Fields[0].Table &&
+			case f != nil &&
+				(f.Table != q.Fields[0].Table || f.Table == `"user"`) &&
 				strings.HasSuffix(sf, "_by"):
 				setFields += sf
 				setValues += fmt.Sprintf(userIDQuery, q.setStart+int64(i))
@@ -768,7 +770,8 @@ func (q *Query) Parse() error {
 				f := q.Field(sf)
 
 				switch {
-				case f != nil && f.Table != q.Fields[0].Table &&
+				case f != nil &&
+					(f.Table != q.Fields[0].Table || f.Table == `"user"`) &&
 					strings.HasSuffix(sf, "_by"):
 					sets += fmt.Sprintf("%s = "+userIDQuery, sf,
 						q.setStart+int64(i))
