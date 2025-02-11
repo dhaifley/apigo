@@ -202,6 +202,10 @@ func (m *MockResourceRow) Scan(dest ...any) error {
 		n++
 	}
 
+	if len(dest) <= n {
+		return nil
+	}
+
 	if v, ok := dest[n].(*request.FieldTime); ok {
 		*v = TestResource.CreatedAt
 		n++

@@ -234,10 +234,6 @@ func mockResourceRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
 		"data",
 		"source",
 		"commit_hash",
-		"created_at",
-		"created_by",
-		"updated_at",
-		"updated_by",
 	}).AddRow(
 		TestResource.ResourceID.Value,
 		TestResource.Name.Value,
@@ -253,10 +249,6 @@ func mockResourceRows(mock pgxmock.PgxCommonIface) *pgxmock.Rows {
 		TestResource.Data.Value,
 		TestResource.Source.Value,
 		TestResource.CommitHash.Value,
-		TestResource.CreatedAt.Value,
-		TestResource.CreatedBy.Value,
-		TestResource.UpdatedAt.Value,
-		TestResource.UpdatedBy.Value,
 	)
 }
 
