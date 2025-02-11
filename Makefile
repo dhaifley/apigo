@@ -28,9 +28,9 @@ test-stop:
 .PHONY: test-stop
 
 test:
-	make test-start
+	@make test-start
 	go test -race -cover ./...
-	make test-stop
+	@make test-stop
 .PHONY: test
 
 test-quick:
@@ -38,5 +38,5 @@ test-quick:
 .PHONY: test-quick
 
 run: build
-	echo "set -a && . ./tests/test.env && ./apigo" | ${SHELL}
+	@echo "set -a && . ./tests/test.env && ./apigo" | ${SHELL}
 .PHONY: run
