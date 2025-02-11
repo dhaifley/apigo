@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"math/big"
-	"net"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -486,23 +485,6 @@ func (s *Service) Update(ctx context.Context) context.CancelFunc {
 				}
 
 				cli := &http.Client{Timeout: time.Second * 10}
-
-				cli.Transport = &http.Transport{
-					Proxy: http.ProxyFromEnvironment,
-					DialContext: (&net.Dialer{
-						Timeout:   cli.Timeout,
-						KeepAlive: 30 * time.Second,
-						DualStack: true,
-					}).DialContext,
-					ForceAttemptHTTP2:     true,
-					DisableKeepAlives:     true,
-					MaxConnsPerHost:       0,
-					MaxIdleConns:          10,
-					MaxIdleConnsPerHost:   1,
-					IdleConnTimeout:       cli.Timeout,
-					TLSHandshakeTimeout:   cli.Timeout,
-					ExpectContinueTimeout: cli.Timeout,
-				}
 
 				resp, err := cli.Do(r)
 				if err != nil {

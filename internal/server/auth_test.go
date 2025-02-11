@@ -13,8 +13,85 @@ import (
 	"github.com/dhaifley/apigo/internal/request"
 	"github.com/dhaifley/apigo/internal/server"
 	"github.com/dhaifley/apigo/internal/sqldb"
-	"github.com/dhaifley/apigo/tests/mocks"
 )
+
+var TestAccount = auth.Account{
+	AccountID: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestID,
+	},
+	Name: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testAccount",
+	},
+	Status: request.FieldString{
+		Set: true, Valid: true,
+		Value: request.StatusActive,
+	},
+	StatusData: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			"last_error": "test",
+		},
+	},
+	Repo: request.FieldString{
+		Set: true, Valid: true,
+		Value: "test",
+	},
+	RepoStatus: request.FieldString{
+		Set: true, Valid: true,
+		Value: request.StatusActive,
+	},
+	RepoStatusData: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			"last_error": "test",
+		},
+	},
+	Secret: request.FieldString{
+		Set: true, Valid: true,
+		Value: "test",
+	},
+	Data: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			"test": "test",
+		},
+	},
+}
+
+var TestUser = auth.User{
+	UserID: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestUUID,
+	},
+	Email: request.FieldString{
+		Set: true, Valid: true,
+		Value: "test@apigo.io",
+	},
+	LastName: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testLastName",
+	},
+	FirstName: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testFirstName",
+	},
+	Status: request.FieldString{
+		Set: true, Valid: true,
+		Value: request.StatusActive,
+	},
+	Scopes: request.FieldString{
+		Set: true, Valid: true,
+		Value: request.ScopeSuperUser,
+	},
+	Data: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			"test": "test",
+		},
+	},
+}
 
 type mockAuthService struct{}
 
@@ -24,16 +101,16 @@ func (m *mockAuthService) AuthJWT(ctx context.Context,
 	switch token {
 	case "test":
 		return &auth.Claims{
-			AccountID:   mocks.TestAccount.AccountID.Value,
-			AccountName: mocks.TestAccount.Name.Value,
-			UserID:      mocks.TestUser.UserID.Value,
+			AccountID:   TestAccount.AccountID.Value,
+			AccountName: TestAccount.Name.Value,
+			UserID:      TestUser.UserID.Value,
 			Roles:       []string{request.RoleUser},
 		}, nil
 	case "admin":
 		return &auth.Claims{
-			AccountID:   mocks.TestAccount.AccountID.Value,
-			AccountName: mocks.TestAccount.Name.Value,
-			UserID:      mocks.TestUser.UserID.Value,
+			AccountID:   TestAccount.AccountID.Value,
+			AccountName: TestAccount.Name.Value,
+			UserID:      TestUser.UserID.Value,
 			Roles:       []string{request.RoleAdmin},
 		}, nil
 	default:
@@ -43,13 +120,13 @@ func (m *mockAuthService) AuthJWT(ctx context.Context,
 
 func (m *mockAuthService) GetAccount(ctx context.Context, id string,
 ) (*auth.Account, error) {
-	return &mocks.TestAccount, nil
+	return &TestAccount, nil
 }
 
 func (m *mockAuthService) CreateAccount(ctx context.Context,
 	v *auth.Account,
 ) (*auth.Account, error) {
-	return &mocks.TestAccount, nil
+	return &TestAccount, nil
 }
 
 func (m *mockAuthService) GetAccountRepo(ctx context.Context,
@@ -76,12 +153,12 @@ func (m *mockAuthService) GetUser(ctx context.Context,
 	id string,
 	options sqldb.FieldOptions,
 ) (*auth.User, error) {
-	return &mocks.TestUser, nil
+	return &TestUser, nil
 }
 
 func (m *mockAuthService) UpdateUser(ctx context.Context, v *auth.User,
 ) (*auth.User, error) {
-	return &mocks.TestUser, nil
+	return &TestUser, nil
 }
 
 func (m *mockAuthService) Update(ctx context.Context) context.CancelFunc {
@@ -98,7 +175,12 @@ func TestAuth(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockAuthDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -115,7 +197,7 @@ func TestAuth(t *testing.T) {
 		url:    basePath + "/account",
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusOK,
-		resp:   `"account_id":"` + mocks.TestID + `"`,
+		resp:   `"account_id":"` + TestID + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -153,7 +235,12 @@ func TestGetAccount(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockAuthDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -170,7 +257,7 @@ func TestGetAccount(t *testing.T) {
 		url:    basePath + "/account",
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusOK,
-		resp:   `"account_id":"` + mocks.TestID + `"`,
+		resp:   `"account_id":"` + TestID + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -208,7 +295,12 @@ func TestPostAccount(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockAuthDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -225,9 +317,9 @@ func TestPostAccount(t *testing.T) {
 		w:      httptest.NewRecorder(),
 		url:    basePath + "/account",
 		header: map[string]string{"Authorization": "admin"},
-		body:   `{"account_id":"` + mocks.TestID + `"}`,
+		body:   `{"account_id":"` + TestID + `"}`,
 		code:   http.StatusCreated,
-		resp:   `"account_id":"` + mocks.TestID + `"`,
+		resp:   `"account_id":"` + TestID + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -267,7 +359,12 @@ func TestGetAccountRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockAuthDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -322,7 +419,12 @@ func TestPostAccountRepo(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockAuthDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -381,7 +483,12 @@ func TestGetUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockAuthDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -398,7 +505,7 @@ func TestGetUser(t *testing.T) {
 		url:    basePath + "/user",
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusOK,
-		resp:   `"user_id":"` + mocks.TestUUID + `"`,
+		resp:   `"user_id":"` + TestUUID + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -436,7 +543,12 @@ func TestPutUser(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockAuthDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -453,9 +565,9 @@ func TestPutUser(t *testing.T) {
 		w:      httptest.NewRecorder(),
 		url:    basePath + "/user",
 		header: map[string]string{"Authorization": "test"},
-		body:   `{"user_id":"` + mocks.TestUUID + `"}`,
+		body:   `{"user_id":"` + TestUUID + `"}`,
 		code:   http.StatusOK,
-		resp:   `"user_id":"` + mocks.TestUUID + `"`,
+		resp:   `"user_id":"` + TestUUID + `"`,
 	}}
 
 	for _, tt := range tests {

@@ -19,12 +19,9 @@ import (
 )
 
 const (
-	TestKey         = int64(1)
-	TestID          = "1"
-	TestUUID        = "11223344-5566-7788-9900-aabbccddeeff"
-	TestName        = "test"
-	TestInvalidID   = "ˆ˜√å¬ˆ∂"
-	TestInvalidName = "ˆ˜√å¬ˆ∂"
+	TestKey  = int64(1)
+	TestID   = "1"
+	TestUUID = "11223344-5566-7788-9900-aabbccddeeff"
 )
 
 var TestResource = resource.Resource{
@@ -257,14 +254,14 @@ func TestGetResources(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	mc := cache.MockCache{}
+	mc := &cache.MockCache{}
 
 	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+	svc := resource.NewService(nil, md, mc, nil, nil, nil)
 
 	opts, err := sqldb.ParseFieldOptions(url.Values{
 		"user_details": []string{"false"},
@@ -373,14 +370,14 @@ func TestGetResource(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	mc := cache.MockCache{}
+	mc := &cache.MockCache{}
 
 	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+	svc := resource.NewService(nil, md, mc, nil, nil, nil)
 
 	mockTransaction(mock)
 
@@ -429,14 +426,14 @@ func TestCreateResource(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	mc := cache.MockCache{}
+	mc := &cache.MockCache{}
 
 	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+	svc := resource.NewService(nil, md, mc, nil, nil, nil)
 
 	mockTransaction(mock)
 
@@ -473,14 +470,14 @@ func TestUpdateResource(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	mc := cache.MockCache{}
+	mc := &cache.MockCache{}
 
 	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+	svc := resource.NewService(nil, md, mc, nil, nil, nil)
 
 	mockTransaction(mock)
 
@@ -517,14 +514,14 @@ func TestDeleteResource(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	mc := cache.MockCache{}
+	mc := &cache.MockCache{}
 
 	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+	svc := resource.NewService(nil, md, mc, nil, nil, nil)
 
 	mockTransaction(mock)
 
@@ -556,14 +553,14 @@ func TestUpdateResourceData(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	mc := cache.MockCache{}
+	mc := &cache.MockCache{}
 
 	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+	svc := resource.NewService(nil, md, mc, nil, nil, nil)
 
 	mockTransaction(mock)
 
@@ -618,14 +615,14 @@ func TestUpdateResourceError(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	mc := cache.MockCache{}
+	mc := &cache.MockCache{}
 
 	md, mock, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	svc := resource.NewService(nil, md, &mc, nil, nil, nil)
+	svc := resource.NewService(nil, md, mc, nil, nil, nil)
 
 	mockTransaction(mock)
 

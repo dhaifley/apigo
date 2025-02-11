@@ -4,7 +4,15 @@ import (
 	"testing"
 
 	"github.com/dhaifley/apigo/internal/request"
-	"github.com/dhaifley/apigo/tests/mocks"
+)
+
+const (
+	TestKey         = int64(1)
+	TestID          = "1"
+	TestUUID        = "11223344-5566-7788-9900-aabbccddeeff"
+	TestName        = "test"
+	TestInvalidID   = "ˆ˜√å¬ˆ∂"
+	TestInvalidName = "ˆ˜√å¬ˆ∂"
 )
 
 func TestValidAccountID(t *testing.T) {
@@ -20,11 +28,11 @@ func TestValidAccountID(t *testing.T) {
 		want bool
 	}{{
 		name: "valid",
-		args: args{id: mocks.TestUUID},
+		args: args{id: TestUUID},
 		want: true,
 	}, {
 		name: "invalid",
-		args: args{id: mocks.TestInvalidID},
+		args: args{id: TestInvalidID},
 		want: false,
 	}}
 
@@ -52,11 +60,11 @@ func TestValidAccountName(t *testing.T) {
 		want bool
 	}{{
 		name: "valid",
-		args: args{name: mocks.TestName},
+		args: args{name: TestName},
 		want: true,
 	}, {
 		name: "invalid",
-		args: args{name: mocks.TestInvalidName},
+		args: args{name: TestInvalidName},
 		want: false,
 	}}
 
@@ -82,11 +90,11 @@ func TestValidUserID(t *testing.T) {
 		want bool
 	}{{
 		name: "valid",
-		args: args{id: mocks.TestUUID},
+		args: args{id: TestUUID},
 		want: true,
 	}, {
 		name: "invalid",
-		args: args{id: mocks.TestInvalidID},
+		args: args{id: TestInvalidID},
 		want: false,
 	}}
 
@@ -112,11 +120,11 @@ func TestValidResourceID(t *testing.T) {
 		want bool
 	}{{
 		name: "valid",
-		args: args{id: mocks.TestUUID},
+		args: args{id: TestUUID},
 		want: true,
 	}, {
 		name: "invalid",
-		args: args{id: mocks.TestInvalidID},
+		args: args{id: TestInvalidID},
 		want: false,
 	}}
 

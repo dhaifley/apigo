@@ -7,14 +7,99 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/dhaifley/apigo/internal/request"
 	"github.com/dhaifley/apigo/internal/resource"
 	"github.com/dhaifley/apigo/internal/search"
 	"github.com/dhaifley/apigo/internal/server"
 	"github.com/dhaifley/apigo/internal/sqldb"
-	"github.com/dhaifley/apigo/tests/mocks"
 )
+
+var TestResource = resource.Resource{
+	ResourceID: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestUUID,
+	},
+	Name: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testName",
+	},
+	Version: request.FieldString{
+		Set: true, Valid: true,
+		Value: "1",
+	},
+	Description: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testDescription",
+	},
+	Status: request.FieldString{
+		Set: true, Valid: true,
+		Value: request.StatusNew,
+	},
+	StatusData: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			"last_error": "testError",
+		},
+	},
+	KeyField: request.FieldString{
+		Set: true, Valid: true,
+		Value: "resource_id",
+	},
+	KeyRegex: request.FieldString{
+		Set: true, Valid: true,
+		Value: ".*",
+	},
+	ClearCondition: request.FieldString{
+		Set: true, Valid: true,
+		Value: "gt(cleared_on:0)",
+	},
+	ClearAfter: request.FieldInt64{
+		Set: true, Valid: true,
+		Value: int64(time.Hour.Seconds()),
+	},
+	ClearDelay: request.FieldInt64{
+		Set: true, Valid: true,
+		Value: 0,
+	},
+	Data: request.FieldJSON{
+		Set: true, Valid: true,
+		Value: map[string]any{
+			TestUUID: map[string]any{
+				"test":        "testData",
+				"resource_id": TestUUID,
+				"array": []map[string]any{{
+					"status": "testStatus",
+				}},
+			},
+		},
+	},
+	Source: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testSource",
+	},
+	CommitHash: request.FieldString{
+		Set: true, Valid: true,
+		Value: "testHash",
+	},
+	CreatedBy: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestID,
+	},
+	CreatedAt: request.FieldTime{
+		Set: true, Valid: true,
+		Value: 1,
+	},
+	UpdatedBy: request.FieldString{
+		Set: true, Valid: true,
+		Value: TestID,
+	},
+	UpdatedAt: request.FieldTime{
+		Set: true, Valid: true,
+		Value: 1,
+	},
+}
 
 type mockResourceService struct{}
 
@@ -22,8 +107,8 @@ func (m *mockResourceService) GetResources(ctx context.Context,
 	query *search.Query,
 	options sqldb.FieldOptions,
 ) ([]*resource.Resource, []*sqldb.SummaryData, error) {
-	return []*resource.Resource{&mocks.TestResource}, []*sqldb.SummaryData{{
-		"status": mocks.TestResource.Status.Value,
+	return []*resource.Resource{&TestResource}, []*sqldb.SummaryData{{
+		"status": TestResource.Status.Value,
 		"count":  1,
 	}}, nil
 }
@@ -32,19 +117,19 @@ func (m *mockResourceService) GetResource(ctx context.Context,
 	id string,
 	options sqldb.FieldOptions,
 ) (*resource.Resource, error) {
-	return &mocks.TestResource, nil
+	return &TestResource, nil
 }
 
 func (m *mockResourceService) CreateResource(ctx context.Context,
 	v *resource.Resource,
 ) (*resource.Resource, error) {
-	return &mocks.TestResource, nil
+	return &TestResource, nil
 }
 
 func (m *mockResourceService) UpdateResource(ctx context.Context,
 	v *resource.Resource,
 ) (*resource.Resource, error) {
-	return &mocks.TestResource, nil
+	return &TestResource, nil
 }
 
 func (m *mockResourceService) DeleteResource(ctx context.Context,
@@ -57,7 +142,7 @@ func (m *mockResourceService) UpdateResourceData(ctx context.Context,
 	payload map[string]any,
 	accountID, resourceID string,
 ) (*resource.Resource, error) {
-	return &mocks.TestResource, nil
+	return &TestResource, nil
 }
 
 func (m *mockResourceService) UpdateResourceError(ctx context.Context,
@@ -136,7 +221,12 @@ func TestSearchResource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -157,7 +247,7 @@ func TestSearchResource(t *testing.T) {
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusOK,
 		resp: `"resource_id":"` +
-			mocks.TestResource.ResourceID.Value + `"`,
+			TestResource.ResourceID.Value + `"`,
 	}, {
 		name:   "summary",
 		w:      httptest.NewRecorder(),
@@ -205,7 +295,12 @@ func TestGetResource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -221,11 +316,11 @@ func TestGetResource(t *testing.T) {
 	}{{
 		name:   "success",
 		w:      httptest.NewRecorder(),
-		url:    basePath + "/resources/" + mocks.TestResource.ResourceID.Value,
+		url:    basePath + "/resources/" + TestResource.ResourceID.Value,
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusOK,
 		resp: `"resource_id":"` +
-			mocks.TestResource.ResourceID.Value + `"`,
+			TestResource.ResourceID.Value + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -263,7 +358,12 @@ func TestPostResource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -282,14 +382,14 @@ func TestPostResource(t *testing.T) {
 		w:    httptest.NewRecorder(),
 		url:  basePath + "/resources",
 		body: `{
-			"event_id": "` + mocks.TestResource.ResourceID.Value + `",
+			"event_id": "` + TestResource.ResourceID.Value + `",
 			"name":"test",
 			"status":"` + request.StatusActive + `"
 		}`,
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusCreated,
 		resp: `"resource_id":"` +
-			mocks.TestResource.ResourceID.Value + `"`,
+			TestResource.ResourceID.Value + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -329,7 +429,12 @@ func TestPutResource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -346,7 +451,7 @@ func TestPutResource(t *testing.T) {
 	}{{
 		name: "success",
 		w:    httptest.NewRecorder(),
-		url:  basePath + "/resources/" + mocks.TestResource.ResourceID.Value,
+		url:  basePath + "/resources/" + TestResource.ResourceID.Value,
 		body: `{
 			"name": "changed",
 			"status":"` + request.StatusActive + `"
@@ -354,7 +459,7 @@ func TestPutResource(t *testing.T) {
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusOK,
 		resp: `"resource_id":"` +
-			mocks.TestResource.ResourceID.Value + `"`,
+			TestResource.ResourceID.Value + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -395,7 +500,12 @@ func TestDeleteResource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -410,7 +520,7 @@ func TestDeleteResource(t *testing.T) {
 	}{{
 		name:   "success",
 		w:      httptest.NewRecorder(),
-		url:    basePath + "/resources/" + mocks.TestResource.ResourceID.Value,
+		url:    basePath + "/resources/" + TestResource.ResourceID.Value,
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusNoContent,
 	}}
@@ -445,7 +555,12 @@ func TestPostUpdateResources(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -462,20 +577,20 @@ func TestPostUpdateResources(t *testing.T) {
 	}{{
 		name: "success",
 		w:    httptest.NewRecorder(),
-		url: basePath + "/resources/update/" + mocks.TestID + "/" +
-			mocks.TestUUID,
+		url: basePath + "/resources/update/" + TestID + "/" +
+			TestUUID,
 		body: `{
 			"resources": [
 				{
-					"resource_id": "` + mocks.TestUUID + `",
-					"account_id": "` + mocks.TestID + `",
+					"resource_id": "` + TestUUID + `",
+					"account_id": "` + TestID + `",
 					"cleared_on": 1
 				}
 			]
 		}`,
 		header: map[string]string{"Authorization": "test"},
 		code:   http.StatusOK,
-		resp:   `"resource_id":"` + mocks.TestUUID + `"`,
+		resp:   `"resource_id":"` + TestUUID + `"`,
 	}}
 
 	for _, tt := range tests {
@@ -515,7 +630,12 @@ func TestPostImportResources(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 
@@ -565,7 +685,12 @@ func TestPostImportResource(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	svr.SetDB(&mocks.MockResourceDB{})
+	md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	svr.SetDB(md)
 
 	svr.SetAuthService(&mockAuthService{})
 

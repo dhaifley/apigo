@@ -15,10 +15,14 @@ import (
 	"github.com/dhaifley/apigo/internal/logger"
 	"github.com/dhaifley/apigo/internal/request"
 	"github.com/dhaifley/apigo/internal/server"
-	"github.com/dhaifley/apigo/tests/mocks"
+	"github.com/dhaifley/apigo/internal/sqldb"
 )
 
 const (
+	TestKey  = int64(1)
+	TestID   = "1"
+	TestUUID = "11223344-5566-7788-9900-aabbccddeeff"
+	TestName = "test"
 	basePath = config.DefaultServerPathPrefix
 )
 
@@ -246,7 +250,12 @@ func BenchmarkServerPostResource(b *testing.B) {
 	}
 
 	if v := os.Getenv("POSTGRES_HOST"); v == "" {
-		svr.SetDB(&mocks.MockResourceDB{})
+		md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		svr.SetDB(md)
 	} else {
 		svr.ConnectSQL()
 
@@ -306,7 +315,12 @@ func BenchmarkServerGetResource(b *testing.B) {
 	}
 
 	if v := os.Getenv("POSTGRES_HOST"); v == "" {
-		svr.SetDB(&mocks.MockResourceDB{})
+		md, _, err := sqldb.NewMockSQLDB(nil, nil, nil, nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+
+		svr.SetDB(md)
 	} else {
 		svr.ConnectSQL()
 
