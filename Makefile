@@ -11,7 +11,7 @@ clean:
 apigo:
 	docker compose -f tests/docker-compose.yml build
 	CGO_ENABLED=0 go build -v -o apigo \
-	-ldflags="-X github.com/dhaifley/apigo/server.Version=${VERSION}" \
+	-ldflags="-X github.com/dhaifley/apigo/internal/server.Version=${VERSION}" \
 	./cmd/apigo
 
 build: apigo
