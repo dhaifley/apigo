@@ -26,6 +26,10 @@ var TestUser = auth.User{
 		Set: true, Valid: true,
 		Value: request.StatusActive,
 	},
+	Scopes: request.FieldString{
+		Set: true, Valid: true,
+		Value: request.ScopeSuperUser,
+	},
 	Data: request.FieldJSON{
 		Set: true, Valid: true,
 		Value: map[string]any{
@@ -83,6 +87,11 @@ func (m *MockUserRow) Scan(dest ...any) error {
 
 	if v, ok := dest[n].(*request.FieldString); ok {
 		*v = TestUser.Status
+		n++
+	}
+
+	if v, ok := dest[n].(*request.FieldString); ok {
+		*v = TestUser.Scopes
 		n++
 	}
 

@@ -1018,6 +1018,13 @@
               "active"
             ]
           },
+          "scopes": {
+            "type": "string",
+            "description": "The scopes available to the user.",
+            "examples": [
+              "account:read user:read user:write"
+            ]
+          },
           "data": {
             "type": "object",
             "description": "Additional data related to the user."

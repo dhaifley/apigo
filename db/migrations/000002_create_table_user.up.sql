@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS "user" (
     last_name TEXT,
     first_name TEXT,
     status TEXT NOT NULL DEFAULT 'active',
+    scopes TEXT NOT NULL DEFAULT '',
     data JSONB,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     created_by BIGINT,

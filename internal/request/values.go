@@ -39,6 +39,34 @@ const (
 	SystemUser     = "sys"
 )
 
+// Valid scopes.
+const (
+	ScopeSuperUser     = "superuser"
+	ScopeAccountRead   = "account:read"
+	ScopeAccountWrite  = "account:write"
+	ScopeAccountAdmin  = "account:admin"
+	ScopeUserRead      = "user:read"
+	ScopeUserWrite     = "user:write"
+	ScopeUserAdmin     = "user:admin"
+	ScopeResourceRead  = "resource:read"
+	ScopeResourceWrite = "resource:write"
+	ScopeResourceAdmin = "resource:admin"
+)
+
+// Scopes is a slice of all valid scopes.
+var Scopes = []string{
+	ScopeSuperUser,
+	ScopeAccountRead,
+	ScopeAccountWrite,
+	ScopeAccountAdmin,
+	ScopeUserRead,
+	ScopeUserWrite,
+	ScopeUserAdmin,
+	ScopeResourceRead,
+	ScopeResourceWrite,
+	ScopeResourceAdmin,
+}
+
 // ValidAccountID checks whether a string is a valid account ID.
 func ValidAccountID(id string) bool {
 	validChars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" +
@@ -87,4 +115,15 @@ func ValidResourceID(id string) bool {
 	}
 
 	return true
+}
+
+// ValidScope checks whether a string is a valid scope.
+func ValidScope(scope string) bool {
+	for _, s := range Scopes {
+		if scope == s {
+			return true
+		}
+	}
+
+	return false
 }

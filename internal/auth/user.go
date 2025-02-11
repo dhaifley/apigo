@@ -22,6 +22,7 @@ type User struct {
 	LastName  request.FieldString `json:"last_name"`
 	FirstName request.FieldString `json:"first_name"`
 	Status    request.FieldString `json:"status"`
+	Scopes    request.FieldString `json:"scopes"`
 	Data      request.FieldJSON   `json:"data"`
 	CreatedAt request.FieldTime   `json:"created_at"`
 	CreatedBy request.FieldString `json:"created_by"`
@@ -70,6 +71,20 @@ func (u *User) Validate() error {
 		}
 	}
 
+	if u.Scopes.Set {
+		if !u.Scopes.Valid {
+			return errors.New(errors.ErrInvalidRequest,
+				"scopes must not be null",
+				"user", u)
+		}
+
+		if !request.ValidScope(u.Scopes.Value) {
+			return errors.New(errors.ErrInvalidRequest,
+				"invalid scope",
+				"user", u)
+		}
+	}
+
 	return nil
 }
 
@@ -92,6 +107,7 @@ func (u *User) ScanDest(options sqldb.FieldOptions) []any {
 		&u.LastName,
 		&u.FirstName,
 		&u.Status,
+		&u.Scopes,
 		&u.Data,
 	}
 
@@ -132,6 +148,10 @@ var userFields = []*sqldb.Field{{
 	Table: `"user"`,
 }, {
 	Name:  "status",
+	Type:  sqldb.FieldString,
+	Table: `"user"`,
+}, {
+	Name:  "scopes",
 	Type:  sqldb.FieldString,
 	Table: `"user"`,
 }, {
@@ -300,6 +320,7 @@ func (s *Service) CreateUser(ctx context.Context,
 	request.SetField("last_name", v.LastName, &sets, &params)
 	request.SetField("first_name", v.FirstName, &sets, &params)
 	request.SetField("status", v.Status, &sets, &params)
+	request.SetField("scopes", v.Scopes, &sets, &params)
 	request.SetField("data", v.Data, &sets, &params)
 
 	q := sqldb.NewQuery(&sqldb.QueryOptions{
@@ -380,6 +401,7 @@ func (s *Service) UpdateUser(ctx context.Context,
 	request.SetField("last_name", v.LastName, &sets, &params)
 	request.SetField("first_name", v.FirstName, &sets, &params)
 	request.SetField("status", v.Status, &sets, &params)
+	request.SetField("scopes", v.Scopes, &sets, &params)
 	request.SetField("data", v.Data, &sets, &params)
 	request.SetField("updated_at", request.FieldTime{
 		Set: true, Valid: true, Value: time.Now().Unix(),

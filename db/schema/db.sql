@@ -180,6 +180,7 @@ CREATE TABLE public."user" (
     last_name text,
     first_name text,
     status text DEFAULT 'active'::text NOT NULL,
+    scopes text DEFAULT ''::text NOT NULL,
     data jsonb,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by bigint,
