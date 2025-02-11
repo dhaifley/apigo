@@ -2,12 +2,13 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.3 (Debian 16.3-1.pgdg120+1)
--- Dumped by pg_dump version 16.6 (Ubuntu 16.6-0ubuntu0.24.04.1)
+-- Dumped from database version 17.2 (Debian 17.2-1.pgdg120+1)
+-- Dumped by pg_dump version 17.2 (Debian 17.2-1.pgdg120+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -154,24 +155,6 @@ CREATE TABLE public.tag_obj (
 ALTER TABLE public.tag_obj OWNER TO postgres;
 
 --
--- Name: token; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.token (
-    account_id text DEFAULT current_setting('app.account_id'::text) NOT NULL,
-    token_id text NOT NULL,
-    status text DEFAULT 'active'::text NOT NULL,
-    expiration timestamp with time zone NOT NULL,
-    created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    created_by bigint,
-    updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    updated_by bigint
-);
-
-
-ALTER TABLE public.token OWNER TO postgres;
-
---
 -- Name: user_key_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -192,6 +175,7 @@ ALTER SEQUENCE public.user_key_seq OWNER TO postgres;
 CREATE TABLE public."user" (
     user_key bigint DEFAULT nextval('public.user_key_seq'::regclass) NOT NULL,
     user_id text NOT NULL,
+    password text,
     email text,
     last_name text,
     first_name text,
@@ -276,14 +260,6 @@ ALTER TABLE ONLY public.tag_obj
 
 ALTER TABLE ONLY public.tag
     ADD CONSTRAINT tag_pkey PRIMARY KEY (account_id, tag_key, tag_val);
-
-
---
--- Name: token token_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.token
-    ADD CONSTRAINT token_pkey PRIMARY KEY (account_id, token_id);
 
 
 --
@@ -383,30 +359,6 @@ ALTER TABLE ONLY public.tag
 
 
 --
--- Name: token token_account_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.token
-    ADD CONSTRAINT token_account_id_fkey FOREIGN KEY (account_id) REFERENCES public.account(account_id) ON DELETE CASCADE;
-
-
---
--- Name: token token_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.token
-    ADD CONSTRAINT token_created_by_fkey FOREIGN KEY (created_by) REFERENCES public."user"(user_key) ON DELETE SET NULL;
-
-
---
--- Name: token token_updated_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.token
-    ADD CONSTRAINT token_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES public."user"(user_key) ON DELETE SET NULL;
-
-
---
 -- Name: account; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
@@ -441,13 +393,6 @@ CREATE POLICY account_isolation_policy ON public.tag_obj USING ((account_id = cu
 
 
 --
--- Name: token account_isolation_policy; Type: POLICY; Schema: public; Owner: postgres
---
-
-CREATE POLICY account_isolation_policy ON public.token USING ((account_id = current_setting('app.account_id'::text)));
-
-
---
 -- Name: resource; Type: ROW SECURITY; Schema: public; Owner: postgres
 --
 
@@ -464,12 +409,6 @@ ALTER TABLE public.tag ENABLE ROW LEVEL SECURITY;
 --
 
 ALTER TABLE public.tag_obj ENABLE ROW LEVEL SECURITY;
-
---
--- Name: token; Type: ROW SECURITY; Schema: public; Owner: postgres
---
-
-ALTER TABLE public.token ENABLE ROW LEVEL SECURITY;
 
 --
 -- Name: TABLE account; Type: ACL; Schema: public; Owner: postgres
@@ -518,13 +457,6 @@ GRANT ALL ON SEQUENCE public.tag_obj_key_seq TO "api-db-user";
 --
 
 GRANT ALL ON TABLE public.tag_obj TO "api-db-user";
-
-
---
--- Name: TABLE token; Type: ACL; Schema: public; Owner: postgres
---
-
-GRANT ALL ON TABLE public.token TO "api-db-user";
 
 
 --
