@@ -10,6 +10,7 @@ all: build
 
 clean:
 	rm -f apigo
+	rm -r apigo.test
 .PHONY: clean
 
 internal/static/openapi.yaml: $(YAML_FILES)
@@ -26,8 +27,11 @@ apigo: $(GO_FILES) Dockerfile tests/docker-compose.yml internal/static/*
 build: apigo
 .PHONY: build
 
-build-docker: build Dockerfile tests/docker-compose.yml
+apigo.test: apigo Dockerfile tests/docker-compose.yml
 	docker compose -f tests/docker-compose.yml build
+	touch apigo.test
+
+build-docker: apigo.test
 .PHONY: build-docker
 
 start: build build-docker
