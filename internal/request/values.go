@@ -127,3 +127,16 @@ func ValidScope(scope string) bool {
 
 	return false
 }
+
+// ValidScopes checks whether a string is a valid scope.
+func ValidScopes(scopes string) bool {
+	s := strings.Split(scopes, " ")
+
+	for _, scope := range s {
+		if !ValidScope(scope) {
+			return false
+		}
+	}
+
+	return true
+}

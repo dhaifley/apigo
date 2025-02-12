@@ -51,20 +51,28 @@ func (s *Server) GetHealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(int(res.Health))
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
 // PutHealthCheck is the handler function for setting the server health code.
 func (s *Server) PutHealthCheck(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	if err := s.checkScope(ctx, request.ScopeSuperUser); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	req := &HealthCheck{}
 
 	if err := json.NewDecoder(r.Body).Decode(req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -81,7 +89,7 @@ func (s *Server) PutHealthCheck(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(int(res.Health))
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 

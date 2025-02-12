@@ -3,6 +3,7 @@ package resource_test
 import (
 	"context"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -116,9 +117,12 @@ func mockAuthContext() context.Context {
 
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, TestID)
 
-	ctx = context.WithValue(ctx, request.CtxKeyRoles, []string{
-		request.RoleUser,
-	})
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, strings.Join([]string{
+		request.ScopeAccountRead,
+		request.ScopeUserRead,
+		request.ScopeResourceRead,
+		request.ScopeResourceWrite,
+	}, " "))
 
 	return ctx
 }
@@ -130,9 +134,7 @@ func mockAdminAuthContext() context.Context {
 
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, TestID)
 
-	ctx = context.WithValue(ctx, request.CtxKeyRoles, []string{
-		request.RoleAdmin,
-	})
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
 
 	return ctx
 }

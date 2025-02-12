@@ -11,9 +11,7 @@ import (
 	"time"
 
 	"github.com/dhaifley/apigo/internal/config"
-	"github.com/dhaifley/apigo/internal/errors"
 	"github.com/dhaifley/apigo/internal/logger"
-	"github.com/dhaifley/apigo/internal/request"
 	"github.com/dhaifley/apigo/internal/server"
 	"github.com/dhaifley/apigo/internal/sqldb"
 )
@@ -163,73 +161,6 @@ func TestHeader(t *testing.T) {
 			if tt.expAllow != tt.w.Header().Get("Access-Control-Allow-Origin") {
 				t.Errorf("Access-Control-Allow-Origin expected: %v, got: %v",
 					tt.expAllow, tt.w.Header().Get("Access-Control-Allow-Origin"))
-			}
-		})
-	}
-}
-
-func TestError(t *testing.T) {
-	t.Parallel()
-
-	w := httptest.NewRecorder()
-
-	r, err := http.NewRequest(http.MethodPost, "/test", nil)
-	if err != nil {
-		t.Fatal("Failed to initialize request", err)
-	}
-
-	r = r.WithContext(context.WithValue(r.Context(),
-		request.CtxKeyRequestBody, "test"))
-
-	svr, err := server.NewServer(nil, nil, nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	svr.Error(errors.New(errors.ErrServer, "test error"), w, r)
-
-	if w.Code != http.StatusInternalServerError {
-		t.Errorf("Expected code: %v, got: %v",
-			http.StatusInternalServerError, w.Code)
-	}
-}
-
-func TestNotFound(t *testing.T) {
-	t.Parallel()
-
-	svr, err := server.NewServer(nil, nil, nil, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	tests := []struct {
-		name string
-		w    *httptest.ResponseRecorder
-		url  string
-	}{{
-		name: "bad url",
-		w:    httptest.NewRecorder(),
-		url:  basePath + "/bad_url",
-	}, {
-		name: "root",
-		w:    httptest.NewRecorder(),
-		url:  basePath + "/",
-	}}
-
-	for _, tt := range tests {
-		t.Run(tt.url, func(t *testing.T) {
-			t.Parallel()
-
-			r, err := http.NewRequest(http.MethodGet, tt.url, nil)
-			if err != nil {
-				t.Fatal("Failed to initialize request", err)
-			}
-
-			svr.NotFound(tt.w, r)
-
-			if tt.w.Code != http.StatusNotFound {
-				t.Errorf("Code expected: %v, got: %v",
-					http.StatusNotFound, tt.w.Code)
 			}
 		})
 	}

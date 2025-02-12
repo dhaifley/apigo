@@ -19,10 +19,6 @@ type TagMap map[string][]string
 // GetTags retrieves all resource tags and tag values.
 func (s *Service) GetTags(ctx context.Context,
 ) (TagMap, error) {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return nil, err
-	}
-
 	base := `SELECT tag_obj.tag_key || ':' || tag_obj.tag_val AS tag
 		FROM tag_obj
 		WHERE tag_obj.status = '` + request.StatusActive + `'
@@ -84,10 +80,6 @@ func (s *Service) GetTags(ctx context.Context,
 func (s *Service) GetResourceTags(ctx context.Context,
 	resourceID string,
 ) ([]string, error) {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return nil, err
-	}
-
 	base := `SELECT tag_obj.tag_key || ':' || tag_obj.tag_val AS tag
 		FROM tag_obj
 		WHERE tag_obj.status = '` + request.StatusActive + `'
@@ -141,7 +133,7 @@ func (s *Service) AddResourceTags(ctx context.Context,
 	resourceID string,
 	tags []string,
 ) ([]string, error) {
-	userID, err := request.ContextAuthUser(ctx)
+	userID, err := request.ContextUserID(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -251,10 +243,6 @@ func (s *Service) DeleteResourceTags(ctx context.Context,
 	resourceID string,
 	tags []string,
 ) error {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return err
-	}
-
 	res := []string{}
 
 	for _, tag := range tags {
@@ -429,10 +417,6 @@ func (tma *TagsMultiAssignment) ValidateCreate() error {
 func (s *Service) CreateTagsMultiAssignment(ctx context.Context,
 	v *TagsMultiAssignment,
 ) (*TagsMultiAssignment, error) {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return nil, err
-	}
-
 	if v == nil {
 		return nil, errors.New(errors.ErrInvalidRequest,
 			"missing tags_multi_assignment",
@@ -469,10 +453,6 @@ func (s *Service) CreateTagsMultiAssignment(ctx context.Context,
 func (s *Service) DeleteTagsMultiAssignment(ctx context.Context,
 	v *TagsMultiAssignment,
 ) (*TagsMultiAssignment, error) {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return nil, err
-	}
-
 	if v == nil {
 		return nil, errors.New(errors.ErrInvalidRequest,
 			"missing tags_multi_assignment",

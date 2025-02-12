@@ -13,6 +13,7 @@ import (
 	"github.com/dhaifley/apigo/internal/request"
 	"github.com/dhaifley/apigo/internal/sqldb"
 	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // User values represent service users.
@@ -185,7 +186,7 @@ func (s *Service) GetUser(ctx context.Context,
 	id string,
 	options sqldb.FieldOptions,
 ) (*User, error) {
-	userID, err := request.ContextAuthUser(ctx)
+	userID, err := request.ContextUserID(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -193,7 +194,7 @@ func (s *Service) GetUser(ctx context.Context,
 	if id == "" || id == current {
 		id = userID
 	} else if id != userID {
-		if _, err := request.ContextAuthSysAdmin(ctx); err != nil {
+		if !request.ContextHasScope(ctx, request.ScopeSuperUser) {
 			return nil, errors.New(errors.ErrNotFound, "user not found")
 		}
 	}
@@ -325,6 +326,16 @@ func (s *Service) CreateUser(ctx context.Context,
 	request.SetField("created_by", request.FieldString{
 		Set: true, Valid: true, Value: v.CreatedBy.Value,
 	}, &sets, &params)
+
+	if v.Password != nil {
+		hp, err := hashPassword(*v.Password)
+		if err != nil {
+			return nil, errors.Wrap(err, errors.ErrServer, "",
+				"user", v)
+		}
+
+		request.SetField("password", hp, &sets, &params)
+	}
 
 	q := sqldb.NewQuery(&sqldb.QueryOptions{
 		DB:     s.db,
@@ -508,4 +519,21 @@ func (s *Service) DeleteUser(ctx context.Context,
 	}
 
 	return nil
+}
+
+// hashPassword creates a hashed password.
+func hashPassword(password string) (string, error) {
+	hp, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return "", errors.Wrap(err, errors.ErrServer,
+			"unable to hash password")
+	}
+
+	return string(hp), nil
+}
+
+// verifyPassword verifies if a password matches a hashed password.
+func verifyPassword(hashedPassword, password string) error {
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword),
+		[]byte(password))
 }

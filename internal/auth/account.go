@@ -411,8 +411,8 @@ func (s *Service) CreateAccount(ctx context.Context,
 ) (*Account, error) {
 	accountID := ""
 
-	if !request.ContextHasRole(ctx, request.RoleSystemAdmin) {
-		if !request.ContextHasRole(ctx, request.RoleAdmin) {
+	if !request.ContextHasScope(ctx, request.ScopeSuperUser) {
+		if !request.ContextHasScope(ctx, request.ScopeAccountAdmin) {
 			return nil, errors.New(errors.ErrForbidden,
 				"unable to create account",
 				"account", v)
@@ -542,15 +542,9 @@ type AccountRepo struct {
 func (s *Service) GetAccountRepo(ctx context.Context) (*AccountRepo, error) {
 	admin := true
 
-	if !request.ContextHasRole(ctx, request.RoleSystemAdmin) {
-		if !request.ContextHasRole(ctx, request.RoleAdmin) {
-			admin = false
-
-			if _, err := request.ContextAuthUser(ctx); err != nil {
-				return nil, errors.New(errors.ErrForbidden,
-					"unable to get account repo")
-			}
-		}
+	if !request.ContextHasScope(ctx, request.ScopeSuperUser) &&
+		!request.ContextHasScope(ctx, request.ScopeAccountAdmin) {
+		admin = false
 	}
 
 	base := `SELECT
@@ -596,12 +590,11 @@ func (s *Service) GetAccountRepo(ctx context.Context) (*AccountRepo, error) {
 func (s *Service) SetAccountRepo(ctx context.Context,
 	v *AccountRepo,
 ) error {
-	if !request.ContextHasRole(ctx, request.RoleSystemAdmin) {
-		if !request.ContextHasRole(ctx, request.RoleAdmin) {
-			return errors.New(errors.ErrForbidden,
-				"unable to set account repo",
-				"repo", v)
-		}
+	if !request.ContextHasScope(ctx, request.ScopeSuperUser) &&
+		!request.ContextHasScope(ctx, request.ScopeAccountAdmin) {
+		return errors.New(errors.ErrForbidden,
+			"unable to set account repo",
+			"repo", v)
 	}
 
 	accountID := ""

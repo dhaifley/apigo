@@ -651,7 +651,7 @@ func TestPostImportResources(t *testing.T) {
 		name:   "success",
 		w:      httptest.NewRecorder(),
 		url:    basePath + "/resources/import",
-		header: map[string]string{"Authorization": "test"},
+		header: map[string]string{"Authorization": "admin"},
 		code:   http.StatusNoContent,
 	}}
 
@@ -706,7 +706,7 @@ func TestPostImportResource(t *testing.T) {
 		name:   "success",
 		w:      httptest.NewRecorder(),
 		url:    basePath + "/resources/1/import",
-		header: map[string]string{"Authorization": "test"},
+		header: map[string]string{"Authorization": "admin"},
 		code:   http.StatusNoContent,
 	}}
 

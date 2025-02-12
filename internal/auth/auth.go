@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/dhaifley/apigo/internal/cache"
@@ -27,10 +28,10 @@ import (
 
 // Claims values contain token claims information.
 type Claims struct {
-	AccountID   string   `json:"account_id"`
-	AccountName string   `json:"account_name"`
-	UserID      string   `json:"user_id"`
-	Roles       []string `json:"roles"`
+	AccountID   string `json:"account_id"`
+	AccountName string `json:"account_name"`
+	UserID      string `json:"user_id"`
+	Scopes      string `json:"scopes"`
 }
 
 // Service values are used to provide access to authentication services.
@@ -240,10 +241,8 @@ func (s *Service) AuthJWT(ctx context.Context,
 	ca, err := request.ContextAccountID(ctx)
 	if err != nil || ca != request.SystemUser {
 		ctx = context.WithValue(ctx, request.CtxKeyAccountID, res.AccountID)
-
-		ctx = context.WithValue(ctx, request.CtxKeyRoles, []string{
-			request.RoleSystemAdmin,
-		})
+		ctx = context.WithValue(ctx, request.CtxKeyScopes,
+			request.ScopeSuperUser)
 
 		oa, err := s.GetAccount(ctx, res.AccountID)
 		if err != nil && !errors.Has(err, errors.ErrNotFound) {
@@ -309,17 +308,11 @@ func (s *Service) AuthJWT(ctx context.Context,
 		}
 	}
 
-	role, ok := claims["role"].(string)
-	if !ok || len(role) == 0 {
-		role = request.RoleUser
-	}
+	res.Scopes, _ = claims["scopes"].(string)
 
 	sysAdmin := false
 
-	res.Roles = append(res.Roles, role)
-
-	switch role {
-	case request.RoleSystemAdmin:
+	if strings.Contains(res.Scopes, request.ScopeSuperUser) {
 		sysAdmin = true
 
 		if aID, err := request.ContextAccountID(ctx); err == nil {
@@ -371,10 +364,8 @@ func (s *Service) AuthJWT(ctx context.Context,
 		cu, err := request.ContextUserID(ctx)
 		if err != nil || cu != request.SystemUser {
 			ctx = context.WithValue(ctx, request.CtxKeyUserID, u.UserID.Value)
-
-			ctx = context.WithValue(ctx, request.CtxKeyRoles, []string{
-				request.RoleSystemAdmin,
-			})
+			ctx = context.WithValue(ctx, request.CtxKeyScopes,
+				request.ScopeSuperUser)
 
 			ou, err := s.GetUser(ctx, u.UserID.Value, nil)
 			if err != nil {
@@ -426,6 +417,79 @@ func (s *Service) AuthJWT(ctx context.Context,
 	}
 
 	return res, nil
+}
+
+// AuthPassword authenticates using a user password.
+func (s *Service) AuthPassword(ctx context.Context,
+	userID, password, tenant string,
+) error {
+	if !request.ValidUserID(userID) {
+		return errors.New(errors.ErrInvalidParameter, "invalid user_id",
+			"user_id", userID)
+	}
+
+	if !request.ValidAccountName(tenant) {
+		return errors.New(errors.ErrInvalidParameter, "invalid tenant",
+			"tenant", tenant)
+	}
+
+	aCtx := context.WithValue(ctx, request.CtxKeyAccountID, "sys")
+
+	a, err := s.GetAccountByName(aCtx, tenant)
+	if err != nil {
+		return errors.New(errors.ErrUnauthorized,
+			"invalid tenant",
+			"tenant", tenant)
+	}
+
+	ctx = context.WithValue(ctx, request.CtxKeyAccountID, a.AccountID.Value)
+
+	base := `SELECT password FROM "user"
+		WHERE "user".user_id = $1`
+
+	q := sqldb.NewQuery(&sqldb.QueryOptions{
+		DB:     s.db,
+		Type:   sqldb.QuerySelect,
+		Base:   base,
+		Fields: userFields,
+		Params: []any{userID},
+	})
+
+	q.Limit = 1
+
+	row, err := q.QueryRow(ctx)
+	if err != nil {
+		return errors.Wrap(err, errors.ErrDatabase, "",
+			"user_id", userID)
+	}
+
+	hp := new(string)
+
+	if err := row.Scan(&hp); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return errors.New(errors.ErrNotFound,
+				"user not found",
+				"user_id", userID)
+		}
+
+		return errors.Wrap(err, errors.ErrDatabase,
+			"unable to select user password",
+			"user_id", userID)
+	}
+
+	if hp == nil || *hp == "" {
+		return errors.New(errors.ErrUnauthorized,
+			"user cannot login",
+			"user_id", userID)
+	}
+
+	if err := verifyPassword(*hp, password); err != nil {
+		return errors.New(errors.ErrUnauthorized,
+			"invalid user id or password",
+			"user_id", userID)
+	}
+
+	return nil
 }
 
 // Update periodically updates authentication data.
@@ -658,25 +722,42 @@ func (s *Service) Update(ctx context.Context) context.CancelFunc {
 	return cancel
 }
 
-// createSecret is used to create a JWT secret that can be used for tokens.
-func (s *Service) createSecret(ctx context.Context,
+// CreateToken is used to create a JWT token that can be used for tokens.
+func (s *Service) CreateToken(ctx context.Context,
+	accountID, userID string,
 	expiration int64,
+	scopes string,
 ) (string, error) {
+	if !request.ValidAccountID(accountID) {
+		return "", errors.New(errors.ErrInvalidParameter, "invalid account_id",
+			"account_id", accountID)
+	}
+
+	if !request.ValidUserID(userID) {
+		return "", errors.New(errors.ErrInvalidParameter, "invalid user_id",
+			"user_id", userID)
+	}
+
+	if !request.ValidScopes(scopes) {
+		return "", errors.New(errors.ErrInvalidParameter, "invalid scopes",
+			"scopes", scopes)
+	}
+
 	now := time.Now()
 
-	aID, err := request.ContextAccountID(ctx)
-	if err != nil {
-		return "", err
+	if now.Unix() >= expiration {
+		return "", errors.New(errors.ErrInvalidParameter, "invalid expiration",
+			"expiration", expiration)
 	}
 
 	claims := jwt.MapClaims{
-		"exp":  expiration,
-		"iat":  now.Unix(),
-		"nbf":  now.Unix(),
-		"iss":  s.cfg.AuthTokenIssuer(),
-		"sub":  "0",
-		"aud":  []string{s.cfg.ServiceName()},
-		"role": request.RoleRefresh,
+		"exp":    expiration,
+		"iat":    now.Unix(),
+		"nbf":    now.Unix(),
+		"iss":    s.cfg.AuthTokenIssuer(),
+		"sub":    userID,
+		"aud":    []string{s.cfg.ServiceName()},
+		"scopes": scopes,
 	}
 
 	tok := jwt.NewWithClaims(jwt.SigningMethodHS512, claims)
@@ -684,10 +765,10 @@ func (s *Service) createSecret(ctx context.Context,
 	tok.Header = map[string]any{
 		"alg": "HS512",
 		"typ": "JWT",
-		"kid": aID,
+		"kid": accountID,
 	}
 
-	secret, err := s.getAccountSecret(ctx, aID)
+	secret, err := s.getAccountSecret(ctx, accountID)
 	if err != nil {
 		return "", err
 	}

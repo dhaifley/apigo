@@ -21,6 +21,14 @@ type AuthService interface {
 	AuthJWT(ctx context.Context,
 		token, tenant string,
 	) (*auth.Claims, error)
+	AuthPassword(ctx context.Context,
+		userID, password, tenant string,
+	) error
+	CreateToken(ctx context.Context,
+		accountID, userID string,
+		expiration int64,
+		scopes string,
+	) (string, error)
 	GetAccount(ctx context.Context,
 		id string,
 	) (*auth.Account, error)
@@ -75,12 +83,12 @@ func (s *Server) Auth(next http.Handler) http.Handler {
 		claims, err := svc.AuthJWT(ctx, token, tenant)
 		if err != nil {
 			if e, ok := err.(*errors.Error); ok {
-				s.Error(e, w, r)
+				s.error(e, w, r)
 
 				return
 			}
 
-			s.Error(errors.New(errors.ErrForbidden,
+			s.error(errors.New(errors.ErrForbidden,
 				"unauthenticated request"), w, r)
 
 			return
@@ -106,7 +114,7 @@ func (s *Server) Auth(next http.Handler) http.Handler {
 		ctx = context.WithValue(ctx, request.CtxKeyAccountName,
 			claims.AccountName)
 
-		ctx = context.WithValue(ctx, request.CtxKeyRoles, claims.Roles)
+		ctx = context.WithValue(ctx, request.CtxKeyScopes, claims.Scopes)
 
 		if claims.UserID != "" {
 			ctx = context.WithValue(ctx, request.CtxKeyUserID, claims.UserID)
@@ -120,7 +128,7 @@ func (s *Server) Auth(next http.Handler) http.Handler {
 func (s *Server) AccountHandler() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(s.DBAvail)
+	r.Use(s.dbAvail)
 
 	r.With(s.Stat, s.Trace, s.Auth).Get("/repo", s.GetAccountRepo)
 	r.With(s.Stat, s.Trace, s.Auth).Post("/repo", s.PostAccountRepo)
@@ -131,21 +139,38 @@ func (s *Server) AccountHandler() http.Handler {
 	return r
 }
 
+// checkScope verifies the request has the specified scope. It returns false
+// following an error response if the required scope is missing.
+func (s *Server) checkScope(ctx context.Context, scope string) error {
+	if !request.ContextHasScope(ctx, scope) {
+		return errors.New(errors.ErrForbidden,
+			"request not authorized")
+	}
+
+	return nil
+}
+
 // GetAccount is the get handler function for accounts.
 func (s *Server) GetAccount(w http.ResponseWriter, r *http.Request) {
 	svc := s.getAuthService(r)
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeAccountRead); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	res, err := svc.GetAccount(ctx, "")
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -155,14 +180,20 @@ func (s *Server) PostAccount(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeAccountWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	req := &auth.Account{}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -171,7 +202,7 @@ func (s *Server) PostAccount(w http.ResponseWriter, r *http.Request) {
 
 	res, err := svc.CreateAccount(ctx, req)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -192,7 +223,7 @@ func (s *Server) PostAccount(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -202,15 +233,21 @@ func (s *Server) GetAccountRepo(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeAccountRead); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	res, err := svc.GetAccountRepo(ctx)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -220,14 +257,20 @@ func (s *Server) PostAccountRepo(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeAccountWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	req := &auth.AccountRepo{}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -235,7 +278,7 @@ func (s *Server) PostAccountRepo(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := svc.SetAccountRepo(ctx, req); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -256,7 +299,7 @@ func (s *Server) PostAccountRepo(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(req); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -264,7 +307,7 @@ func (s *Server) PostAccountRepo(w http.ResponseWriter, r *http.Request) {
 func (s *Server) UserHandler() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(s.DBAvail)
+	r.Use(s.dbAvail)
 
 	r.With(s.Stat, s.Trace, s.Auth).Get("/", s.GetUser)
 	r.With(s.Stat, s.Trace, s.Auth).Patch("/", s.PutUser)
@@ -279,22 +322,28 @@ func (s *Server) GetUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeUserRead); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	opts, err := sqldb.ParseFieldOptions(r.URL.Query())
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	res, err := svc.GetUser(ctx, "", opts)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -304,14 +353,20 @@ func (s *Server) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeUserWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	req := &auth.User{}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -324,12 +379,12 @@ func (s *Server) PutUser(w http.ResponseWriter, r *http.Request) {
 
 	res, err := svc.UpdateUser(ctx, req)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }

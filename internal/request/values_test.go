@@ -136,3 +136,29 @@ func TestValidResourceID(t *testing.T) {
 		})
 	}
 }
+
+func TestValidScopes(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args string
+		want bool
+	}{{
+		name: "valid",
+		args: "superuser",
+		want: true,
+	}, {
+		name: "invalid",
+		args: "invalid",
+		want: false,
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := request.ValidScopes(tt.args); got != tt.want {
+				t.Errorf("ValidScopes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

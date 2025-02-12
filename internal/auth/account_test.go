@@ -11,13 +11,6 @@ import (
 	"github.com/pashagolub/pgxmock/v4"
 )
 
-const (
-	TestKey  = int64(1)
-	TestID   = "1"
-	TestUUID = "11223344-5566-7788-9900-aabbccddeeff"
-	TestName = "test"
-)
-
 var TestAccount = auth.Account{
 	AccountID: request.FieldString{
 		Set: true, Valid: true,
@@ -227,8 +220,7 @@ func TestCreateAccount(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	ctx = context.WithValue(ctx, request.CtxKeyRoles,
-		[]string{request.RoleSystemAdmin})
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
 
 	mc := &cache.MockCache{}
 

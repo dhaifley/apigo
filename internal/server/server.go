@@ -263,13 +263,13 @@ func (s *Server) initRouter() {
 	base.Mount(s.cfg.ServerPathPrefix(), r)
 
 	r.Use(
-		s.Context,
-		s.Header,
-		s.Logger,
+		s.context,
+		s.header,
+		s.logger,
 	)
 
-	r.NotFound(s.NotFound)
-	r.MethodNotAllowed(s.MethodNotAllowed)
+	r.NotFound(s.notFound)
+	r.MethodNotAllowed(s.methodNotAllowed)
 
 	r.Get("/debug/cmdline", pprof.Cmdline)
 	r.Get("/debug/profile", pprof.Profile)
@@ -303,7 +303,7 @@ func (s *Server) initStaticRoutes(r chi.Router) {
 	r.Get("/openapi.json", func(w http.ResponseWriter, r *http.Request) {
 		v, err := static.FS.ReadFile("openapi.json")
 		if err != nil {
-			s.Error(err, w, r)
+			s.error(err, w, r)
 
 			return
 		}
@@ -311,7 +311,7 @@ func (s *Server) initStaticRoutes(r chi.Router) {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 
 		if _, err := w.Write(v); err != nil {
-			s.Error(err, w, r)
+			s.error(err, w, r)
 
 			return
 		}
@@ -320,7 +320,7 @@ func (s *Server) initStaticRoutes(r chi.Router) {
 	r.Get("/openapi.yaml", func(w http.ResponseWriter, r *http.Request) {
 		v, err := static.FS.ReadFile("openapi.yaml")
 		if err != nil {
-			s.Error(err, w, r)
+			s.error(err, w, r)
 
 			return
 		}
@@ -328,7 +328,7 @@ func (s *Server) initStaticRoutes(r chi.Router) {
 		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 
 		if _, err := w.Write(v); err != nil {
-			s.Error(err, w, r)
+			s.error(err, w, r)
 
 			return
 		}
@@ -337,7 +337,7 @@ func (s *Server) initStaticRoutes(r chi.Router) {
 	r.Get("/docs", func(w http.ResponseWriter, r *http.Request) {
 		v, err := static.FS.ReadFile("index.html")
 		if err != nil {
-			s.Error(err, w, r)
+			s.error(err, w, r)
 
 			return
 		}
@@ -345,7 +345,7 @@ func (s *Server) initStaticRoutes(r chi.Router) {
 		w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 
 		if _, err := w.Write(v); err != nil {
-			s.Error(err, w, r)
+			s.error(err, w, r)
 
 			return
 		}
@@ -512,8 +512,8 @@ func (s *Server) Shutdown(ctx context.Context) {
 	}
 }
 
-// Context wraps request handlers to setup the request context.
-func (s *Server) Context(next http.Handler) http.Handler {
+// context wraps request handlers to setup the request context.
+func (s *Server) context(next http.Handler) http.Handler {
 	timeout := s.cfg.ServerTimeout()
 	if timeout == 0 {
 		timeout = 30 * time.Second // Default 30 second timeout.
@@ -553,8 +553,8 @@ func (s *Server) Context(next http.Handler) http.Handler {
 	})
 }
 
-// Header wraps request handlers with default header values.
-func (s *Server) Header(next http.Handler) http.Handler {
+// header wraps request handlers with default header values.
+func (s *Server) header(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		wd := s.cfg.ServerHost()
 
@@ -584,7 +584,7 @@ func (s *Server) Header(next http.Handler) http.Handler {
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
 		if s.cfg.ServiceMaintenance() {
-			s.Error(errors.New(errors.ErrMaintenance,
+			s.error(errors.New(errors.ErrMaintenance,
 				"The service is currently undergoing maintenance, "+
 					"please try back later"), w, r)
 
@@ -592,7 +592,7 @@ func (s *Server) Header(next http.Handler) http.Handler {
 		}
 
 		if r.Method == http.MethodOptions {
-			s.NoContent(w, r)
+			s.noContent(w, r)
 
 			return
 		}
@@ -601,8 +601,8 @@ func (s *Server) Header(next http.Handler) http.Handler {
 	})
 }
 
-// Logger wraps request handlers with logging functionality.
-func (s *Server) Logger(next http.Handler) http.Handler {
+// logger wraps request handlers with logging functionality.
+func (s *Server) logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
@@ -663,11 +663,11 @@ func (s *Server) Logger(next http.Handler) http.Handler {
 	})
 }
 
-// DBAvail wraps request handlers with a check to ensure the database is up.
-func (s *Server) DBAvail(next http.Handler) http.Handler {
+// dbAvail wraps request handlers with a check to ensure the database is up.
+func (s *Server) dbAvail(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if s.db == nil {
-			s.Error(errors.New(errors.ErrUnavailable,
+			s.error(errors.New(errors.ErrUnavailable,
 				"The service database is currently unavailable, "+
 					"please try back later"), w, r)
 
@@ -678,8 +678,8 @@ func (s *Server) DBAvail(next http.Handler) http.Handler {
 	})
 }
 
-// Error responds to the current request with a standard error response.
-func (s *Server) Error(err error, w http.ResponseWriter, r *http.Request) {
+// error responds to the current request with a standard error response.
+func (s *Server) error(err error, w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	// Ensure any error is wrapped and formatted.
@@ -777,20 +777,20 @@ func (s *Server) Error(err error, w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// NoContent is the handler function for empty responses.
-func (s *Server) NoContent(w http.ResponseWriter, r *http.Request) {
+// noContent is the handler function for empty responses.
+func (s *Server) noContent(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Del("Content-Type")
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// NotFound is the handler function for 404 errors.
-func (s *Server) NotFound(w http.ResponseWriter, r *http.Request) {
-	s.Error(errors.New(errors.ErrNotFound,
+// notFound is the handler function for 404 errors.
+func (s *Server) notFound(w http.ResponseWriter, r *http.Request) {
+	s.error(errors.New(errors.ErrNotFound,
 		"resource not found"), w, r)
 }
 
-// MethodNotAllowed is the handler function for 405 errors.
-func (s *Server) MethodNotAllowed(w http.ResponseWriter, r *http.Request) {
-	s.Error(errors.New(errors.ErrNotAllowed,
+// methodNotAllowed is the handler function for 405 errors.
+func (s *Server) methodNotAllowed(w http.ResponseWriter, r *http.Request) {
+	s.error(errors.New(errors.ErrNotAllowed,
 		"method not allowed"), w, r)
 }

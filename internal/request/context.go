@@ -4,6 +4,7 @@ package request
 import (
 	"context"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/dhaifley/apigo/internal/errors"
@@ -41,8 +42,8 @@ const (
 	// CtxKeyJWT is used to select the authentication token from a context.
 	CtxKeyJWT
 
-	// CtxKeyRoles is used to select the authorization roles from a context.
-	CtxKeyRoles
+	// CtxKeyScopes is used to select the authorization scopes from a context.
+	CtxKeyScopes
 
 	// CtxKeyAccountID is used to select the account id from a context.
 	CtxKeyAccountID
@@ -120,32 +121,27 @@ func ContextJWT(ctx context.Context) (string, error) {
 	return token, nil
 }
 
-// ContextRoles extracts the authorization roles from the context.
-func ContextRoles(ctx context.Context) ([]string, error) {
-	roles, ok := ctx.Value(CtxKeyRoles).([]string)
+// ContextScopes extracts the authorization scopes from the context.
+func ContextScopes(ctx context.Context) (string, error) {
+	scopes, ok := ctx.Value(CtxKeyScopes).(string)
 	if !ok {
-		return nil, errors.New(errors.ErrContext,
-			"unable to extract authorization roles from context")
+		return "", errors.New(errors.ErrContext,
+			"unable to extract authorization scopes from context")
 	}
 
-	return roles, nil
+	return scopes, nil
 }
 
-// ContextHasRole tests whether the context contains a specified authorization
-// role.
-func ContextHasRole(ctx context.Context, role string) bool {
-	roles, ok := ctx.Value(CtxKeyRoles).([]string)
+// ContextHasScope tests whether the context contains a specified authorization
+// scope.
+func ContextHasScope(ctx context.Context, scope string) bool {
+	scopes, ok := ctx.Value(CtxKeyScopes).(string)
 	if !ok {
 		return false
 	}
 
-	for _, r := range roles {
-		if r == role {
-			return true
-		}
-	}
-
-	return false
+	return strings.Contains(scopes, scope) ||
+		strings.Contains(scopes, ScopeSuperUser)
 }
 
 // ContextAccountID extracts the account id from the context.
@@ -201,7 +197,7 @@ func ContextReplaceTimeout(ctx context.Context,
 	newCtx = context.WithValue(newCtx, CtxKeySpanID, ctx.Value(CtxKeySpanID))
 	newCtx = context.WithValue(newCtx, CtxKeyRemote, ctx.Value(CtxKeyRemote))
 	newCtx = context.WithValue(newCtx, CtxKeyJWT, ctx.Value(CtxKeyJWT))
-	newCtx = context.WithValue(newCtx, CtxKeyRoles, ctx.Value(CtxKeyRoles))
+	newCtx = context.WithValue(newCtx, CtxKeyScopes, ctx.Value(CtxKeyScopes))
 	newCtx = context.WithValue(newCtx, CtxKeyAccountID,
 		ctx.Value(CtxKeyAccountID))
 	newCtx = context.WithValue(newCtx, CtxKeyAccountName,

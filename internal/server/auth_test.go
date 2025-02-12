@@ -104,18 +104,38 @@ func (m *mockAuthService) AuthJWT(ctx context.Context,
 			AccountID:   TestAccount.AccountID.Value,
 			AccountName: TestAccount.Name.Value,
 			UserID:      TestUser.UserID.Value,
-			Roles:       []string{request.RoleUser},
+			Scopes: strings.Join([]string{
+				request.ScopeAccountRead,
+				request.ScopeUserRead,
+				request.ScopeUserWrite,
+				request.ScopeResourceRead,
+				request.ScopeResourceWrite,
+			}, " "),
 		}, nil
 	case "admin":
 		return &auth.Claims{
 			AccountID:   TestAccount.AccountID.Value,
 			AccountName: TestAccount.Name.Value,
 			UserID:      TestUser.UserID.Value,
-			Roles:       []string{request.RoleAdmin},
+			Scopes:      request.ScopeSuperUser,
 		}, nil
 	default:
 		return nil, errors.New(errors.ErrForbidden, "invalid auth token")
 	}
+}
+
+func (m *mockAuthService) AuthPassword(ctx context.Context,
+	userID, password, tenant string,
+) error {
+	return nil
+}
+
+func (m *mockAuthService) CreateToken(ctx context.Context,
+	accountID, userID string,
+	expiration int64,
+	scopes string,
+) (string, error) {
+	return "test", nil
 }
 
 func (m *mockAuthService) GetAccount(ctx context.Context, id string,

@@ -88,7 +88,7 @@ func (s *Server) SetResourceService(svc ResourceService) {
 func (s *Server) ResourceHandler() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(s.DBAvail)
+	r.Use(s.dbAvail)
 
 	r.With(s.Stat, s.Trace, s.Auth).Post("/{id}/import", s.PostImportResource)
 	r.With(s.Stat, s.Trace, s.Auth).Post("/import", s.PostImportResources)
@@ -131,37 +131,43 @@ func (s *Server) SearchResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	q, err := search.ParseQuery(r.URL.Query())
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	opts, err := sqldb.ParseFieldOptions(r.URL.Query())
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	res, sum, err := svc.GetResources(ctx, q, opts)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if q.Summary != "" {
 		if err := json.NewEncoder(w).Encode(sum); err != nil {
-			s.Error(err, w, r)
+			s.error(err, w, r)
 		}
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -171,24 +177,30 @@ func (s *Server) GetResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	id := chi.URLParam(r, "id")
 
 	opts, err := sqldb.ParseFieldOptions(r.URL.Query())
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	res, err := svc.GetResource(ctx, id, opts)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -198,14 +210,20 @@ func (s *Server) PostResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	req := &resource.Resource{}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -214,7 +232,7 @@ func (s *Server) PostResource(w http.ResponseWriter, r *http.Request) {
 
 	res, err := svc.CreateResource(ctx, req)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -235,7 +253,7 @@ func (s *Server) PostResource(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Location", loc.String())
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -245,6 +263,12 @@ func (s *Server) PutResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	id := chi.URLParam(r, "id")
 
 	req := &resource.Resource{}
@@ -252,9 +276,9 @@ func (s *Server) PutResource(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -268,13 +292,13 @@ func (s *Server) PutResource(w http.ResponseWriter, r *http.Request) {
 
 	res, err := svc.UpdateResource(ctx, req)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -284,10 +308,16 @@ func (s *Server) DeleteResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	id := chi.URLParam(r, "id")
 
 	if err := svc.DeleteResource(ctx, id); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -329,20 +359,20 @@ func (s *Server) PostUpdateResource(w http.ResponseWriter, r *http.Request) {
 				"resource_error", dErr)
 		}
 
-		s.Error(dErr, w, r)
+		s.error(dErr, w, r)
 
 		return
 	}
 
 	res, err := svc.UpdateResourceData(ctx, req, accountID, resourceID)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -354,6 +384,12 @@ func (s *Server) PostImportResources(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceAdmin); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	force := false
 
 	fs := strings.ToLower(strings.TrimSpace(r.URL.Query().Get("force")))
@@ -362,7 +398,7 @@ func (s *Server) PostImportResources(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := svc.ImportResources(ctx, force, aSvc); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -378,10 +414,16 @@ func (s *Server) PostImportResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceAdmin); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	id := chi.URLParam(r, "id")
 
 	if err := svc.ImportResource(ctx, aSvc, id); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -395,15 +437,21 @@ func (s *Server) GetAllResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	res, err := svc.GetTags(ctx)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -413,17 +461,23 @@ func (s *Server) GetResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	resourceID := chi.URLParam(r, "id")
 
 	res, err := svc.GetResourceTags(ctx, resourceID)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -433,6 +487,12 @@ func (s *Server) PostResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	resourceID := chi.URLParam(r, "id")
 
 	tags := []string{}
@@ -440,9 +500,9 @@ func (s *Server) PostResourceTags(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&tags); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -451,7 +511,7 @@ func (s *Server) PostResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	res, err := svc.AddResourceTags(ctx, resourceID, tags)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -461,7 +521,7 @@ func (s *Server) PostResourceTags(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -471,6 +531,12 @@ func (s *Server) DeleteResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	resourceID := chi.URLParam(r, "id")
 
 	tags := []string{}
@@ -478,9 +544,9 @@ func (s *Server) DeleteResourceTags(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewDecoder(r.Body).Decode(&tags); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -488,7 +554,7 @@ func (s *Server) DeleteResourceTags(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := svc.DeleteResourceTags(ctx, resourceID, tags); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -505,14 +571,20 @@ func (s *Server) PostTagsMultiAssignment(w http.ResponseWriter,
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	req := &resource.TagsMultiAssignment{}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -521,7 +593,7 @@ func (s *Server) PostTagsMultiAssignment(w http.ResponseWriter,
 
 	res, err := svc.CreateTagsMultiAssignment(ctx, req)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
@@ -542,7 +614,7 @@ func (s *Server) PostTagsMultiAssignment(w http.ResponseWriter,
 	w.WriteHeader(http.StatusCreated)
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }
 
@@ -555,14 +627,20 @@ func (s *Server) DeleteTagsMultiAssignment(w http.ResponseWriter,
 
 	ctx := r.Context()
 
+	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
 	req := &resource.TagsMultiAssignment{}
 
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		switch e := err.(type) {
 		case *errors.Error:
-			s.Error(e, w, r)
+			s.error(e, w, r)
 		default:
-			s.Error(errors.Wrap(err, errors.ErrInvalidRequest,
+			s.error(errors.Wrap(err, errors.ErrInvalidRequest,
 				"unable to decode request"), w, r)
 		}
 
@@ -571,12 +649,12 @@ func (s *Server) DeleteTagsMultiAssignment(w http.ResponseWriter,
 
 	res, err := svc.DeleteTagsMultiAssignment(ctx, req)
 	if err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 
 		return
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {
-		s.Error(err, w, r)
+		s.error(err, w, r)
 	}
 }

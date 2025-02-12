@@ -355,10 +355,6 @@ func (s *Service) GetResources(ctx context.Context,
 	query *search.Query,
 	options sqldb.FieldOptions,
 ) ([]*Resource, []*sqldb.SummaryData, error) {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return nil, nil, err
-	}
-
 	q := sqldb.NewQuery(&sqldb.QueryOptions{
 		DB:     s.db,
 		Type:   sqldb.QuerySelect,
@@ -573,10 +569,6 @@ func (s *Service) GetResource(ctx context.Context,
 	id string,
 	options sqldb.FieldOptions,
 ) (*Resource, error) {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return nil, err
-	}
-
 	var r *Resource
 
 	if s.cache != nil {
@@ -672,7 +664,7 @@ func (s *Service) GetResource(ctx context.Context,
 func (s *Service) CreateResource(ctx context.Context,
 	v *Resource,
 ) (*Resource, error) {
-	userID, err := request.ContextAuthUser(ctx)
+	userID, err := request.ContextUserID(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -773,7 +765,7 @@ func (s *Service) CreateResource(ctx context.Context,
 func (s *Service) UpdateResource(ctx context.Context,
 	v *Resource,
 ) (*Resource, error) {
-	userID, err := request.ContextAuthUser(ctx)
+	userID, err := request.ContextUserID(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -882,10 +874,6 @@ func (s *Service) UpdateResource(ctx context.Context,
 func (s *Service) DeleteResource(ctx context.Context,
 	id string,
 ) error {
-	if _, err := request.ContextAuthUser(ctx); err != nil {
-		return err
-	}
-
 	if s.cache != nil {
 		defer func(ck string) {
 			if err := s.cache.Delete(ctx, ck); err != nil &&
@@ -1243,10 +1231,7 @@ func (s *Service) UpdateResourceData(ctx context.Context,
 	accountID, resourceID string,
 ) (*Resource, error) {
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
-
-	ctx = context.WithValue(ctx, request.CtxKeyRoles,
-		[]string{request.RoleSystemAdmin})
-
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
 	ctx = context.WithValue(ctx, request.CtxKeyAccountID, accountID)
 
 	r, err := s.GetResource(ctx, resourceID, nil)
@@ -1352,8 +1337,7 @@ func (s *Service) UpdateResourceError(ctx context.Context,
 ) error {
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
 
-	ctx = context.WithValue(ctx, request.CtxKeyRoles,
-		[]string{request.RoleSystemAdmin})
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
 
 	ctx = context.WithValue(ctx, request.CtxKeyAccountID, accountID)
 
@@ -1388,15 +1372,8 @@ func (s *Service) ImportResource(ctx context.Context,
 	authSvc AuthService,
 	resourceID string,
 ) error {
-	if _, err := request.ContextAuthAdmin(ctx); err != nil {
-		return errors.New(errors.ErrForbidden,
-			"unable to import repository resource")
-	}
-
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
-
-	ctx = context.WithValue(ctx, request.CtxKeyRoles,
-		[]string{request.RoleSystemAdmin})
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
 
 	ar, err := authSvc.GetAccountRepo(ctx)
 	if err != nil {
@@ -1467,15 +1444,8 @@ func (s *Service) ImportResources(ctx context.Context,
 	force bool,
 	authSvc AuthService,
 ) error {
-	if _, err := request.ContextAuthAdmin(ctx); err != nil {
-		return errors.New(errors.ErrForbidden,
-			"unable to import repository resources")
-	}
-
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
-
-	ctx = context.WithValue(ctx, request.CtxKeyRoles,
-		[]string{request.RoleSystemAdmin})
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
 
 	ar, err := authSvc.GetAccountRepo(ctx)
 	if err != nil {
@@ -1950,12 +1920,10 @@ func (s *Service) Update(ctx context.Context,
 					go func(ctx context.Context, accountID string) {
 						ctx = context.WithValue(ctx, request.CtxKeyAccountID,
 							accountID)
-
 						ctx = context.WithValue(ctx, request.CtxKeyUserID,
 							request.SystemUser)
-
-						ctx = context.WithValue(ctx, request.CtxKeyRoles,
-							[]string{request.RoleSystemAdmin})
+						ctx = context.WithValue(ctx, request.CtxKeyScopes,
+							request.ScopeSuperUser)
 
 						if tu, err := uuid.NewRandom(); err == nil {
 							ctx = context.WithValue(ctx, request.CtxKeyTraceID,
