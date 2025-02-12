@@ -1,5 +1,5 @@
 # apictl
-A command line interface utility.
+A command line interface utility for API access.
 
 ## Usage
 
@@ -32,8 +32,8 @@ request. For example, --param=value will be sent as ?param=value. Common query
 parameters are:
   --search = Search expression
   --size = Number of results to request
-  --from = Offset starting point
-  --order = List of fields to sort by, descending fields have a "-" prefix
+  --skip = Offset starting point
+  --sort = List of fields to sort by, descending fields have a "-" prefix
   --summary = List of fields to summarize by
 ```
 
