@@ -564,8 +564,8 @@ func (q *Query) Parse() error {
 			}
 		}
 
-		if q.Search.From != 0 {
-			offset = fmt.Sprintf(" OFFSET %d", q.Search.From)
+		if q.Search.Skip != 0 {
+			offset = fmt.Sprintf(" OFFSET %d", q.Search.Skip)
 		}
 
 		if q.Search.Summary != "" {
@@ -592,8 +592,8 @@ func (q *Query) Parse() error {
 			}
 		}
 
-		if q.Search.Order != "" {
-			s := strings.Split(q.Search.Order, ",")
+		if q.Search.Sort != "" {
+			s := strings.Split(q.Search.Sort, ",")
 
 			for i, sv := range s {
 				dir := " ASC"

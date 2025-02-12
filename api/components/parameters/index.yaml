@@ -5,9 +5,9 @@ search:
   $ref: "./search.yaml"
 size:
   $ref: "./size.yaml"
-from:
-  $ref: "./from.yaml"
-order:
-  $ref: "./order.yaml"
+skip:
+  $ref: "./skip.yaml"
+sort:
+  $ref: "./sort.yaml"
 summary:
   $ref: "./summary.yaml"

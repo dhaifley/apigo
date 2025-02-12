@@ -76,8 +76,8 @@ func TestQueryParse(t *testing.T) {
 		Search: `t"*"* and(id:1,test:test,also:*,notes:null,data.test:*,` +
 			`data.array[1].test:test)`,
 		Size:    10,
-		From:    10,
-		Order:   "-id",
+		Skip:    10,
+		Sort:    "-id",
 		Summary: "id",
 	}
 

@@ -110,14 +110,14 @@ func TestParseQuery(t *testing.T) {
 
 	expI = int64(10)
 
-	if req.From != expI {
-		t.Errorf("Expected from: %v, got: %v", expI, req.From)
+	if req.Skip != expI {
+		t.Errorf("Expected from: %v, got: %v", expI, req.Skip)
 	}
 
 	expS = "test,-test1"
 
-	if req.Order != expS {
-		t.Errorf("Expected order: %v, got: %v", expS, req.Order)
+	if req.Sort != expS {
+		t.Errorf("Expected order: %v, got: %v", expS, req.Sort)
 	}
 
 	expS = "test,test1"

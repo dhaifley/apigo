@@ -285,8 +285,8 @@ func TestGetResources(t *testing.T) {
 	res, _, err := svc.GetResources(ctx, &search.Query{
 		Search: "and(name:*)",
 		Size:   10,
-		From:   0,
-		Order:  "-name",
+		Skip:   0,
+		Sort:   "-name",
 	}, opts)
 	if err != nil {
 		t.Fatal(err)
@@ -317,8 +317,8 @@ func TestGetResources(t *testing.T) {
 	res, _, err = svc.GetResources(ctx, &search.Query{
 		Search: "and(name:*)",
 		Size:   10,
-		From:   0,
-		Order:  "-name",
+		Skip:   0,
+		Sort:   "-name",
 	}, opts)
 	if err != nil {
 		t.Fatal(err)
@@ -350,8 +350,8 @@ func TestGetResources(t *testing.T) {
 	_, sum, err := svc.GetResources(ctx, &search.Query{
 		Search:  "and(status:*)",
 		Size:    10,
-		From:    0,
-		Order:   "-status",
+		Skip:    0,
+		Sort:    "-status",
 		Summary: "status",
 	}, opts)
 	if err != nil {

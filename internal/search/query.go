@@ -224,8 +224,8 @@ func (qt *QueryTree) Eval(f func(node *QueryNode) (bool, error)) (bool, error) {
 type Query struct {
 	Search  string `json:"search,omitempty"`
 	Size    int64  `json:"size,omitempty"`
-	From    int64  `json:"from,omitempty"`
-	Order   string `json:"order,omitempty"`
+	Skip    int64  `json:"skip,omitempty"`
+	Sort    string `json:"sort,omitempty"`
 	Summary string `json:"summary,omitempty"`
 }
 
@@ -238,8 +238,8 @@ func (q *Query) NoSummary() *Query {
 	return &Query{
 		Search: q.Search,
 		Size:   q.Size,
-		From:   q.From,
-		Order:  q.Order,
+		Skip:   q.Skip,
+		Sort:   q.Sort,
 	}
 }
 
@@ -258,16 +258,16 @@ func ParseQuery(values url.Values) (*Query, error) {
 		switch qk {
 		case "search":
 			req.Search = qv[0]
-		case "from":
+		case "skip":
 			if strings.TrimSpace(qv[0]) != "" {
 				i, err := strconv.ParseInt(strings.TrimSpace(qv[0]), 10, 64)
 				if err != nil || i < 0 {
 					return nil, errors.New(errors.ErrInvalidRequest,
-						"invalid query from value",
+						"invalid query skip value",
 						"query", values)
 				}
 
-				req.From = i
+				req.Skip = i
 			}
 		case "size":
 			if strings.TrimSpace(qv[0]) != "" {
@@ -280,8 +280,8 @@ func ParseQuery(values url.Values) (*Query, error) {
 
 				req.Size = i
 			}
-		case "order":
-			req.Order = strings.Join(qv, ",")
+		case "sort":
+			req.Sort = strings.Join(qv, ",")
 		case "summary":
 			req.Summary = strings.Join(qv, ",")
 		}

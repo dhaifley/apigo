@@ -1,0 +1,8 @@
+# components/parameters/sort.yaml
+name: sort
+in: query
+schema:
+  type: string
+description: >
+  A comma separated list of resource field names used to apply sorting. field
+  names with a minus (-) prefix, will be sorted in descending order.

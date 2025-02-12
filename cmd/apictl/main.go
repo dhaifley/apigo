@@ -47,10 +47,10 @@ Query Parameters:
   Any parameters beginning with -- will be sent as query parameters with the API
 request. For example, --param=value will be sent as ?param=value. Common query
 parameters are:
-  --search = Search expression
+  --search = Search query expression
   --size = Number of results to request
-  --from = Offset starting point
-  --order = List of fields to sort by, descending fields have a "-" prefix
+  --skip = Offset starting point
+  --sort = List of fields to sort by, descending fields have a "-" prefix
   --summary = List of fields to summarize by`
 
 // Commands.

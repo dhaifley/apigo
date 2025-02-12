@@ -124,8 +124,8 @@ paths:
     parameters:
       - $ref: '#/components/parameters/search'
       - $ref: '#/components/parameters/size'
-      - $ref: '#/components/parameters/from'
-      - $ref: '#/components/parameters/order'
+      - $ref: '#/components/parameters/skip'
+      - $ref: '#/components/parameters/sort'
       - $ref: '#/components/parameters/summary'
     get:
       tags:
@@ -477,8 +477,8 @@ components:
         default: 100
       description: |
         The maximum number of results that should be returned by a single API request.
-    from:
-      name: from
+    skip:
+      name: skip
       in: query
       schema:
         type: integer
@@ -487,13 +487,13 @@ components:
         default: 0
       description: |
         The number of results that should be skipped before any size limit.
-    order:
-      name: order
+    sort:
+      name: sort
       in: query
       schema:
         type: string
       description: |
-        A comma separated list of resource field names used to apply sorting.
+        A comma separated list of resource field names used to apply sorting. field names with a minus (-) prefix, will be sorted in descending order.
     summary:
       name: summary
       in: query
