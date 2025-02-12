@@ -34,7 +34,7 @@ var TestUser = auth.User{
 	},
 	Scopes: request.FieldString{
 		Set: true, Valid: true,
-		Value: request.ScopeSuperUser,
+		Value: request.ScopeSuperuser,
 	},
 	Data: request.FieldJSON{
 		Set: true, Valid: true,

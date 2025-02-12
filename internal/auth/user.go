@@ -135,6 +135,11 @@ var userFields = []*sqldb.Field{{
 	Type:  sqldb.FieldString,
 	Table: `"user"`,
 }, {
+	Name:   "password",
+	Type:   sqldb.FieldJSON,
+	Table:  `"user"`,
+	Hidden: true,
+}, {
 	Name:    "email",
 	Type:    sqldb.FieldString,
 	Table:   `"user"`,
@@ -194,7 +199,7 @@ func (s *Service) GetUser(ctx context.Context,
 	if id == "" || id == current {
 		id = userID
 	} else if id != userID {
-		if !request.ContextHasScope(ctx, request.ScopeSuperUser) {
+		if !request.ContextHasScope(ctx, request.ScopeSuperuser) {
 			return nil, errors.New(errors.ErrNotFound, "user not found")
 		}
 	}
@@ -334,7 +339,9 @@ func (s *Service) CreateUser(ctx context.Context,
 				"user", v)
 		}
 
-		request.SetField("password", hp, &sets, &params)
+		request.SetField("password", request.FieldString{
+			Set: true, Valid: true, Value: hp,
+		}, &sets, &params)
 	}
 
 	q := sqldb.NewQuery(&sqldb.QueryOptions{

@@ -220,7 +220,7 @@ func TestCreateAccount(t *testing.T) {
 
 	ctx := mockAuthContext()
 
-	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperuser)
 
 	mc := &cache.MockCache{}
 

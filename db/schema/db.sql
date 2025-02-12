@@ -33,7 +33,7 @@ CREATE TABLE public.account (
     repo text,
     repo_status text DEFAULT 'inactive'::text NOT NULL,
     repo_status_data jsonb,
-    secret text NOT NULL,
+    secret text DEFAULT gen_random_uuid() NOT NULL,
     data jsonb,
     resource_commit_hash text,
     created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,

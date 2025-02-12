@@ -41,30 +41,30 @@ const (
 
 // Valid scopes.
 const (
-	ScopeSuperUser     = "superuser"
-	ScopeAccountRead   = "account:read"
-	ScopeAccountWrite  = "account:write"
-	ScopeAccountAdmin  = "account:admin"
-	ScopeUserRead      = "user:read"
-	ScopeUserWrite     = "user:write"
-	ScopeUserAdmin     = "user:admin"
-	ScopeResourceRead  = "resource:read"
-	ScopeResourceWrite = "resource:write"
-	ScopeResourceAdmin = "resource:admin"
+	ScopeSuperuser      = "superuser"
+	ScopeAccountRead    = "account:read"
+	ScopeAccountWrite   = "account:write"
+	ScopeAccountAdmin   = "account:admin"
+	ScopeUserRead       = "user:read"
+	ScopeUserWrite      = "user:write"
+	ScopeUserAdmin      = "user:admin"
+	ScopeResourcesRead  = "resources:read"
+	ScopeResourcesWrite = "resources:write"
+	ScopeResourcesAdmin = "resources:admin"
 )
 
 // Scopes is a slice of all valid scopes.
 var Scopes = []string{
-	ScopeSuperUser,
+	ScopeSuperuser,
 	ScopeAccountRead,
 	ScopeAccountWrite,
 	ScopeAccountAdmin,
 	ScopeUserRead,
 	ScopeUserWrite,
 	ScopeUserAdmin,
-	ScopeResourceRead,
-	ScopeResourceWrite,
-	ScopeResourceAdmin,
+	ScopeResourcesRead,
+	ScopeResourcesWrite,
+	ScopeResourcesAdmin,
 }
 
 // ValidAccountID checks whether a string is a valid account ID.

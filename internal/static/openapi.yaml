@@ -5,10 +5,10 @@ info:
   description: |
     An application programming interface service.
   license:
-    name: No License
-    url: https://choosealicense.com/no-permission/
+    name: MIT License
+    url: https://choosealicense.com/licenses/mit/
 security:
-  - Authorization: []
+  - OAuth2PasswordBearer: []
 tags:
   - name: account
     description: Account information and services.
@@ -26,6 +26,9 @@ paths:
       operationId: get_account
       summary: Get account
       description: Retrieves details for the current account.
+      security:
+        - OAuth2PasswordBearer:
+            - account:read
       responses:
         '200':
           $ref: '#/components/responses/account'
@@ -39,6 +42,9 @@ paths:
       operationId: update_account
       summary: Update account
       description: Updates details for the current account.
+      security:
+        - OAuth2PasswordBearer:
+            - account:write
       requestBody:
         required: true
         content:
@@ -58,6 +64,9 @@ paths:
       operationId: replace_account
       summary: Replace account
       description: Updates details for the current account.
+      security:
+        - OAuth2PasswordBearer:
+            - account:write
       requestBody:
         required: true
         content:
@@ -78,6 +87,9 @@ paths:
       operationId: get_account_repo
       summary: Get account import repository
       description: Retrieves details for the account import repository.
+      security:
+        - OAuth2PasswordBearer:
+            - account:read
       responses:
         '200':
           $ref: '#/components/responses/account_repo'
@@ -92,6 +104,9 @@ paths:
       summary: Create account import repository
       description: |
         Creates or updates details for the account import repository. Admin access is required to perform this operation.
+      security:
+        - OAuth2PasswordBearer:
+            - account:write
       requestBody:
         required: true
         content:
@@ -118,6 +133,9 @@ paths:
       operationId: search_resources
       summary: Search resources
       description: Retrieves resources based on a search query.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:read
       responses:
         '200':
           $ref: '#/components/responses/resources'
@@ -131,6 +149,9 @@ paths:
       operationId: create_resource
       summary: Create resource
       description: Creates a new resource and associated external access.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       requestBody:
         required: true
         content:
@@ -153,6 +174,9 @@ paths:
       operationId: get_resource
       summary: Get resource
       description: Retrieves details for a specific resource.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:read
       responses:
         '200':
           $ref: '#/components/responses/resource'
@@ -166,6 +190,9 @@ paths:
       operationId: update_resource
       summary: Update resource
       description: Updates details for a specific resource.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       requestBody:
         required: true
         content:
@@ -185,6 +212,9 @@ paths:
       operationId: replace_resource
       summary: Replace resource
       description: Updates details for a specific resource.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       requestBody:
         required: true
         content:
@@ -204,6 +234,9 @@ paths:
       operationId: delete_resource
       summary: Delete resource
       description: Deletes a specific resource.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       responses:
         '204':
           description: No response body.
@@ -218,6 +251,9 @@ paths:
       operationId: create_resources_import
       summary: Import resources
       description: Imports resources from the import repository.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:admin
       responses:
         '204':
           description: No response body.
@@ -234,6 +270,9 @@ paths:
       operationId: create_resource_import
       summary: Import resource
       description: Imports a single resource from the import repository.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:admin
       responses:
         '204':
           description: No response body.
@@ -250,6 +289,9 @@ paths:
       operationId: get_tags
       summary: Get tags
       description: Retrieves tags for a resource.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:read
       responses:
         '200':
           $ref: '#/components/responses/tags'
@@ -263,6 +305,9 @@ paths:
       operationId: create_tags
       summary: Create tags
       description: Adds tags to a resource.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       requestBody:
         required: true
         content:
@@ -282,6 +327,9 @@ paths:
       operationId: delete_tags
       summary: Delete tags
       description: Deletes tags for a specific resource.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       responses:
         '204':
           description: No response body.
@@ -296,6 +344,9 @@ paths:
       operationId: create_tags_multi_assignment
       summary: Create tags_multi_assignment
       description: Creates tags across multiple resources.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       requestBody:
         required: true
         content:
@@ -315,6 +366,9 @@ paths:
       operationId: delete_tags_multi_assignment
       summary: Delete tags_multi_assignment
       description: Deletes tags across multiple resources.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       requestBody:
         required: true
         content:
@@ -335,6 +389,9 @@ paths:
       operationId: get_user
       summary: Get user
       description: Retrieves details for the current user.
+      security:
+        - OAuth2PasswordBearer:
+            - user:read
       responses:
         '200':
           $ref: '#/components/responses/user'
@@ -348,6 +405,9 @@ paths:
       operationId: update_user
       summary: Update user
       description: Updates details for the current user.
+      security:
+        - OAuth2PasswordBearer:
+            - user:write
       requestBody:
         required: true
         content:
@@ -367,6 +427,9 @@ paths:
       operationId: replace_user
       summary: Replace user
       description: Updates details for the current user.
+      security:
+        - OAuth2PasswordBearer:
+            - resource:write
       requestBody:
         required: true
         content:
@@ -382,11 +445,21 @@ paths:
           $ref: '#/components/responses/error'
 components:
   securitySchemes:
-    Authorization:
-      in: header
-      name: Authorization
-      type: apiKey
-      description: A valid authentication token with valid authorization.
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes:
+            account:read: Read the current account.
+            account:write: Write to the current account.
+            account:admin: Administer the current account.
+            resources:read: Read resources.
+            resources:write: Write to resources.
+            resources:admin: Administer resources.
+            user:read: Read the current user.
+            user:write: Write to the current user.
+            user:admin: Administer the current user.
+          tokenUrl: /api/v1/login/token
   parameters:
     search:
       name: search

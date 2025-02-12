@@ -5,6 +5,9 @@ post:
   operationId: create_resources_import
   summary: Import resources
   description: Imports resources from the import repository.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:admin"
   responses:
     "204":
       description: No response body.

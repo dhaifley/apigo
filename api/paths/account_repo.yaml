@@ -5,6 +5,9 @@ get:
   operationId: get_account_repo
   summary: Get account import repository
   description: Retrieves details for the account import repository.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "account:read"
   responses:
     "200":
       $ref: "../components/responses/account_repo.yaml"
@@ -20,6 +23,9 @@ post:
   description: >
     Creates or updates details for the account import repository. Admin access
     is required to perform this operation.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "account:write"
   requestBody:
     required: true
     content:

@@ -65,7 +65,7 @@ func mockAuthContext() context.Context {
 
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, TestUUID)
 
-	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperuser)
 
 	return ctx
 }
@@ -96,7 +96,7 @@ func TestAuthJWT(t *testing.T) {
 		"sub":    TestUser.UserID.Value,
 		"aud":    []string{cfg.ServiceName()},
 		"email":  TestUser.Email.Value,
-		"scopes": request.ScopeSuperUser,
+		"scopes": request.ScopeSuperuser,
 	}
 
 	signMethod := jwt.SigningMethodHS512
@@ -124,22 +124,6 @@ func TestAuthJWT(t *testing.T) {
 
 	mock.ExpectQuery("SELECT (.+) FROM account").
 		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockAccountRows(mock))
-
-	mockTransaction(mock)
-
-	mock.ExpectQuery(`SELECT (.+) FROM "user"`).
-		WithArgs(pgxmock.AnyArg()).WillReturnRows(mockUserRows(mock))
-
-	mockTransaction(mock)
-
-	args := make([]any, 3)
-
-	for i := 0; i < 3; i++ {
-		args[i] = pgxmock.AnyArg()
-	}
-
-	mock.ExpectQuery(`INSERT INTO "user"`).
-		WithArgs(args...).WillReturnRows(mockUserRows(mock))
 
 	c, err := svc.AuthJWT(ctx, authToken, "")
 	if err != nil {
@@ -212,8 +196,8 @@ func TestAuthCreateToken(t *testing.T) {
 	mock.ExpectQuery("SELECT (.+) FROM account").
 		WillReturnRows(mockAccountSecretRows(mock))
 
-	if _, err := svc.CreateToken(ctx, TestID, TestName,
-		now.AddDate(1, 0, 0).Unix(), "superuser"); err != nil {
+	if _, err := svc.CreateToken(ctx, TestName,
+		now.AddDate(1, 0, 0).Unix(), "superuser", ""); err != nil {
 		t.Error(err)
 	}
 
@@ -228,7 +212,7 @@ func TestAuthCreateToken(t *testing.T) {
 		"iss":    "api",
 		"sub":    "0",
 		"aud":    "api",
-		"scopes": request.ScopeSuperUser,
+		"scopes": request.ScopeSuperuser,
 	}
 
 	tok := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)

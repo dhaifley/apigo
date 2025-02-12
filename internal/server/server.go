@@ -248,6 +248,45 @@ func (s *Server) ConnectSQL() {
 
 				s.Unlock()
 
+				ctx = context.WithValue(ctx, request.CtxKeyScopes,
+					request.ScopeSuperuser)
+				ctx = context.WithValue(ctx, request.CtxKeyAccountID,
+					request.SystemAccount)
+
+				aSvc := s.getAuthService(nil)
+
+				if _, err := aSvc.CreateAccount(ctx, &auth.Account{
+					AccountID: request.FieldString{
+						Set: true, Valid: true, Value: s.cfg.ServiceName(),
+					},
+					Name: request.FieldString{
+						Set: true, Valid: true, Value: s.cfg.ServiceName(),
+					},
+				}); err != nil {
+					s.log.Log(ctx, logger.LvlError,
+						"unable to create account",
+						"error", err)
+				}
+
+				if su := os.Getenv("SUPERUSER"); su != "" {
+					if sp := os.Getenv("SUPERUSER_PASSWORD"); sp != "" {
+						if _, err := aSvc.CreateUser(ctx, &auth.User{
+							UserID: request.FieldString{
+								Set: true, Valid: true, Value: su,
+							},
+							Scopes: request.FieldString{
+								Set: true, Valid: true,
+								Value: request.ScopeSuperuser,
+							},
+							Password: &sp,
+						}); err != nil {
+							s.log.Log(ctx, logger.LvlError,
+								"unable to create initial superuser",
+								"error", err)
+						}
+					}
+				}
+
 				break
 			}
 		}(context.Background())
@@ -287,6 +326,7 @@ func (s *Server) initRouter() {
 	r.Mount("/health", s.HealthHandler())
 	r.Mount("/account", s.AccountHandler())
 	r.Mount("/user", s.UserHandler())
+	r.Mount("/login", s.LoginHandler())
 	r.Mount("/resources", s.ResourceHandler())
 
 	s.initStaticRoutes(r)
@@ -653,10 +693,6 @@ func (s *Server) logger(next http.Handler) http.Handler {
 				"unable to format audit event log data",
 				"error", err,
 				"log_data", logData)
-		}
-
-		if lvl == logger.LvlInfo {
-			lvl = logger.LvlDebug
 		}
 
 		s.log.Log(ctx, lvl, "request processed", logData...)

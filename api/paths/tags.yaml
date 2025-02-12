@@ -7,6 +7,9 @@ get:
   operationId: get_tags
   summary: Get tags
   description: Retrieves tags for a resource.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:read"
   responses:
     "200":
       $ref: "../components/responses/tags.yaml"
@@ -20,6 +23,9 @@ post:
   operationId: create_tags
   summary: Create tags
   description: Adds tags to a resource.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   requestBody:
     required: true
     content:
@@ -39,6 +45,9 @@ delete:
   operationId: delete_tags
   summary: Delete tags
   description: Deletes tags for a specific resource.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   responses:
     "204":
       description: No response body.

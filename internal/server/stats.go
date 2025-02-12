@@ -59,7 +59,7 @@ func (s *Server) GetHealthCheck(w http.ResponseWriter, r *http.Request) {
 func (s *Server) PutHealthCheck(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeSuperUser); err != nil {
+	if err := s.checkScope(ctx, request.ScopeSuperuser); err != nil {
 		s.error(err, w, r)
 
 		return

@@ -5,6 +5,9 @@ get:
   operationId: get_account
   summary: Get account
   description: Retrieves details for the current account.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "account:read"
   responses:
     "200":
       $ref: "../components/responses/account.yaml"
@@ -18,6 +21,9 @@ patch:
   operationId: update_account
   summary: Update account
   description: Updates details for the current account.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "account:write"
   requestBody:
     required: true
     content:
@@ -37,6 +43,9 @@ put:
   operationId: replace_account
   summary: Replace account
   description: Updates details for the current account.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "account:write"
   requestBody:
     required: true
     content:

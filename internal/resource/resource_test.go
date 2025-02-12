@@ -120,8 +120,8 @@ func mockAuthContext() context.Context {
 	ctx = context.WithValue(ctx, request.CtxKeyScopes, strings.Join([]string{
 		request.ScopeAccountRead,
 		request.ScopeUserRead,
-		request.ScopeResourceRead,
-		request.ScopeResourceWrite,
+		request.ScopeResourcesRead,
+		request.ScopeResourcesWrite,
 	}, " "))
 
 	return ctx
@@ -134,7 +134,7 @@ func mockAdminAuthContext() context.Context {
 
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, TestID)
 
-	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperuser)
 
 	return ctx
 }

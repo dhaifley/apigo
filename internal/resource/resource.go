@@ -337,7 +337,7 @@ var resourceFields = []*sqldb.Field{{
 	Name:   "created_by",
 	Type:   sqldb.FieldString,
 	Option: "user_details",
-	Table:  "resource",
+	Table:  `"user"`,
 }, {
 	Name:   "updated_at",
 	Type:   sqldb.FieldTime,
@@ -347,7 +347,7 @@ var resourceFields = []*sqldb.Field{{
 	Name:   "updated_by",
 	Type:   sqldb.FieldString,
 	Option: "user_details",
-	Table:  "resource",
+	Table:  `"user"`,
 }}
 
 // GetResources retrieves resources based on a search query.
@@ -1231,7 +1231,7 @@ func (s *Service) UpdateResourceData(ctx context.Context,
 	accountID, resourceID string,
 ) (*Resource, error) {
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
-	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperuser)
 	ctx = context.WithValue(ctx, request.CtxKeyAccountID, accountID)
 
 	r, err := s.GetResource(ctx, resourceID, nil)
@@ -1337,7 +1337,7 @@ func (s *Service) UpdateResourceError(ctx context.Context,
 ) error {
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
 
-	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperuser)
 
 	ctx = context.WithValue(ctx, request.CtxKeyAccountID, accountID)
 
@@ -1373,7 +1373,7 @@ func (s *Service) ImportResource(ctx context.Context,
 	resourceID string,
 ) error {
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
-	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperuser)
 
 	ar, err := authSvc.GetAccountRepo(ctx)
 	if err != nil {
@@ -1445,7 +1445,7 @@ func (s *Service) ImportResources(ctx context.Context,
 	authSvc AuthService,
 ) error {
 	ctx = context.WithValue(ctx, request.CtxKeyUserID, request.SystemUser)
-	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperUser)
+	ctx = context.WithValue(ctx, request.CtxKeyScopes, request.ScopeSuperuser)
 
 	ar, err := authSvc.GetAccountRepo(ctx)
 	if err != nil {
@@ -1923,7 +1923,7 @@ func (s *Service) Update(ctx context.Context,
 						ctx = context.WithValue(ctx, request.CtxKeyUserID,
 							request.SystemUser)
 						ctx = context.WithValue(ctx, request.CtxKeyScopes,
-							request.ScopeSuperUser)
+							request.ScopeSuperuser)
 
 						if tu, err := uuid.NewRandom(); err == nil {
 							ctx = context.WithValue(ctx, request.CtxKeyTraceID,

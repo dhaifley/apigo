@@ -411,7 +411,7 @@ func (s *Service) CreateAccount(ctx context.Context,
 ) (*Account, error) {
 	accountID := ""
 
-	if !request.ContextHasScope(ctx, request.ScopeSuperUser) {
+	if !request.ContextHasScope(ctx, request.ScopeSuperuser) {
 		if !request.ContextHasScope(ctx, request.ScopeAccountAdmin) {
 			return nil, errors.New(errors.ErrForbidden,
 				"unable to create account",
@@ -542,7 +542,7 @@ type AccountRepo struct {
 func (s *Service) GetAccountRepo(ctx context.Context) (*AccountRepo, error) {
 	admin := true
 
-	if !request.ContextHasScope(ctx, request.ScopeSuperUser) &&
+	if !request.ContextHasScope(ctx, request.ScopeSuperuser) &&
 		!request.ContextHasScope(ctx, request.ScopeAccountAdmin) {
 		admin = false
 	}
@@ -590,7 +590,7 @@ func (s *Service) GetAccountRepo(ctx context.Context) (*AccountRepo, error) {
 func (s *Service) SetAccountRepo(ctx context.Context,
 	v *AccountRepo,
 ) error {
-	if !request.ContextHasScope(ctx, request.ScopeSuperUser) &&
+	if !request.ContextHasScope(ctx, request.ScopeSuperuser) &&
 		!request.ContextHasScope(ctx, request.ScopeAccountAdmin) {
 		return errors.New(errors.ErrForbidden,
 			"unable to set account repo",

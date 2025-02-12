@@ -5,19 +5,29 @@ info:
   description: >
     An application programming interface service.
   license:
-    name: No License
-    url: https://choosealicense.com/no-permission/
+    name: MIT License
+    url: https://choosealicense.com/licenses/mit/
 security:
-  - Authorization: []
+  - OAuth2PasswordBearer: []
 paths:
   $ref: "./paths/index.yaml"
 components:
   securitySchemes:
-    Authorization:
-      in: header
-      name: Authorization
-      type: apiKey
-      description: A valid authentication token with valid authorization.
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes:
+            "account:read": "Read the current account."
+            "account:write": "Write to the current account."
+            "account:admin": "Administer the current account."
+            "resources:read": "Read resources."
+            "resources:write": "Write to resources."
+            "resources:admin": "Administer resources."
+            "user:read": "Read the current user."
+            "user:write": "Write to the current user."
+            "user:admin": "Administer the current user."
+          tokenUrl: "/api/v1/login/token"
   parameters:
     $ref: "./components/parameters/index.yaml"
   schemas:

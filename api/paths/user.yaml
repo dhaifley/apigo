@@ -5,6 +5,9 @@ get:
   operationId: get_user
   summary: Get user
   description: Retrieves details for the current user.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "user:read"
   responses:
     "200":
       $ref: "../components/responses/user.yaml"
@@ -18,6 +21,9 @@ patch:
   operationId: update_user
   summary: Update user
   description: Updates details for the current user.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "user:write"
   requestBody:
     required: true
     content:
@@ -37,6 +43,9 @@ put:
   operationId: replace_user
   summary: Replace user
   description: Updates details for the current user.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   requestBody:
     required: true
     content:

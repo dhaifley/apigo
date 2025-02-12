@@ -83,7 +83,7 @@ var TestUser = auth.User{
 	},
 	Scopes: request.FieldString{
 		Set: true, Valid: true,
-		Value: request.ScopeSuperUser,
+		Value: request.ScopeSuperuser,
 	},
 	Data: request.FieldJSON{
 		Set: true, Valid: true,
@@ -108,8 +108,8 @@ func (m *mockAuthService) AuthJWT(ctx context.Context,
 				request.ScopeAccountRead,
 				request.ScopeUserRead,
 				request.ScopeUserWrite,
-				request.ScopeResourceRead,
-				request.ScopeResourceWrite,
+				request.ScopeResourcesRead,
+				request.ScopeResourcesWrite,
 			}, " "),
 		}, nil
 	case "admin":
@@ -117,7 +117,7 @@ func (m *mockAuthService) AuthJWT(ctx context.Context,
 			AccountID:   TestAccount.AccountID.Value,
 			AccountName: TestAccount.Name.Value,
 			UserID:      TestUser.UserID.Value,
-			Scopes:      request.ScopeSuperUser,
+			Scopes:      request.ScopeSuperuser,
 		}, nil
 	default:
 		return nil, errors.New(errors.ErrForbidden, "invalid auth token")
@@ -131,9 +131,9 @@ func (m *mockAuthService) AuthPassword(ctx context.Context,
 }
 
 func (m *mockAuthService) CreateToken(ctx context.Context,
-	accountID, userID string,
+	userID string,
 	expiration int64,
-	scopes string,
+	scopes, tenant string,
 ) (string, error) {
 	return "test", nil
 }
@@ -177,6 +177,11 @@ func (m *mockAuthService) GetUser(ctx context.Context,
 }
 
 func (m *mockAuthService) UpdateUser(ctx context.Context, v *auth.User,
+) (*auth.User, error) {
+	return &TestUser, nil
+}
+
+func (m *mockAuthService) CreateUser(ctx context.Context, v *auth.User,
 ) (*auth.User, error) {
 	return &TestUser, nil
 }

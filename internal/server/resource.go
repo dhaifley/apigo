@@ -131,7 +131,7 @@ func (s *Server) SearchResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesRead); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -177,7 +177,7 @@ func (s *Server) GetResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesRead); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -210,7 +210,7 @@ func (s *Server) PostResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesWrite); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -263,7 +263,7 @@ func (s *Server) PutResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesWrite); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -308,7 +308,7 @@ func (s *Server) DeleteResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesWrite); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -384,7 +384,7 @@ func (s *Server) PostImportResources(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceAdmin); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesAdmin); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -414,7 +414,7 @@ func (s *Server) PostImportResource(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceAdmin); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesAdmin); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -437,7 +437,7 @@ func (s *Server) GetAllResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesRead); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -461,7 +461,7 @@ func (s *Server) GetResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceRead); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesRead); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -487,7 +487,7 @@ func (s *Server) PostResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesWrite); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -531,7 +531,7 @@ func (s *Server) DeleteResourceTags(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesWrite); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -571,7 +571,7 @@ func (s *Server) PostTagsMultiAssignment(w http.ResponseWriter,
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesWrite); err != nil {
 		s.error(err, w, r)
 
 		return
@@ -627,7 +627,7 @@ func (s *Server) DeleteTagsMultiAssignment(w http.ResponseWriter,
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeResourceWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeResourcesWrite); err != nil {
 		s.error(err, w, r)
 
 		return

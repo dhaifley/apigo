@@ -7,6 +7,9 @@ get:
   operationId: get_resource
   summary: Get resource
   description: Retrieves details for a specific resource.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:read"
   responses:
     "200":
       $ref: "../components/responses/resource.yaml"
@@ -20,6 +23,9 @@ patch:
   operationId: update_resource
   summary: Update resource
   description: Updates details for a specific resource.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   requestBody:
     required: true
     content:
@@ -39,6 +45,9 @@ put:
   operationId: replace_resource
   summary: Replace resource
   description: Updates details for a specific resource.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   requestBody:
     required: true
     content:
@@ -58,6 +67,9 @@ delete:
   operationId: delete_resource
   summary: Delete resource
   description: Deletes a specific resource.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   responses:
     "204":
       description: No response body.

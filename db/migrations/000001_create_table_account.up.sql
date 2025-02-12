@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS account (
     repo TEXT,
     repo_status TEXT NOT NULL DEFAULT 'inactive',
     repo_status_data JSONB,
-    secret TEXT NOT NULL,
+    secret TEXT NOT NULL DEFAULT gen_random_uuid(),
     data JSONB,
     resource_commit_hash TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,

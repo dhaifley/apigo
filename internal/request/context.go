@@ -141,7 +141,7 @@ func ContextHasScope(ctx context.Context, scope string) bool {
 	}
 
 	return strings.Contains(scopes, scope) ||
-		strings.Contains(scopes, ScopeSuperUser)
+		strings.Contains(scopes, ScopeSuperuser)
 }
 
 // ContextAccountID extracts the account id from the context.

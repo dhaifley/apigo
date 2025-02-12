@@ -5,6 +5,9 @@ post:
   operationId: create_tags_multi_assignment
   summary: Create tags_multi_assignment
   description: Creates tags across multiple resources.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   requestBody:
     required: true
     content:
@@ -24,6 +27,9 @@ delete:
   operationId: delete_tags_multi_assignment
   summary: Delete tags_multi_assignment
   description: Deletes tags across multiple resources.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   requestBody:
     required: true
     content:

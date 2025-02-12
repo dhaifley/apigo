@@ -34,7 +34,7 @@ $ make test
 To start the test environment containers locally:
 
 ```sh
-$ make test-start
+$ make start
 ```
 
 To run the service locally, for testing:
@@ -46,7 +46,7 @@ $ make run
 Finally, to shutdown and cleanup the test environment:
 
 ```sh
-$ make test-stop
+$ make stop
 ```
 
 ## Documentation

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/dhaifley/apigo/internal/auth"
 	"github.com/dhaifley/apigo/internal/errors"
@@ -25,9 +26,9 @@ type AuthService interface {
 		userID, password, tenant string,
 	) error
 	CreateToken(ctx context.Context,
-		accountID, userID string,
+		userID string,
 		expiration int64,
-		scopes string,
+		scopes, tenant string,
 	) (string, error)
 	GetAccount(ctx context.Context,
 		id string,
@@ -42,6 +43,9 @@ type AuthService interface {
 	GetUser(ctx context.Context,
 		id string,
 		options sqldb.FieldOptions,
+	) (*auth.User, error)
+	CreateUser(ctx context.Context,
+		v *auth.User,
 	) (*auth.User, error)
 	UpdateUser(ctx context.Context,
 		v *auth.User,
@@ -382,6 +386,54 @@ func (s *Server) PutUser(w http.ResponseWriter, r *http.Request) {
 		s.error(err, w, r)
 
 		return
+	}
+
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		s.error(err, w, r)
+	}
+}
+
+// LoginHandler performs routing for login requests.
+func (s *Server) LoginHandler() http.Handler {
+	r := chi.NewRouter()
+
+	r.Use(s.dbAvail)
+
+	r.With(s.Stat, s.Trace).Post("/token", s.PostLoginToken)
+
+	return r
+}
+
+// PostLoginToken is the post handler for password authentication to obtain an
+// API access token.
+func (s *Server) PostLoginToken(w http.ResponseWriter, r *http.Request) {
+	svc := s.getAuthService(r)
+
+	ctx := r.Context()
+
+	tenant := r.Header.Get("securitytenant")
+
+	if err := svc.AuthPassword(ctx,
+		r.FormValue("username"),
+		r.FormValue("password"),
+		tenant); err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
+	tok, err := svc.CreateToken(ctx, r.FormValue("username"),
+		time.Now().Add(s.cfg.AuthTokenExpiresIn()).Unix(),
+		r.FormValue("scope"), tenant)
+	if err != nil {
+		s.error(err, w, r)
+
+		return
+	}
+
+	res := map[string]any{
+		"access_token": tok,
+		"token_type":   "bearer",
 	}
 
 	if err := json.NewEncoder(w).Encode(res); err != nil {

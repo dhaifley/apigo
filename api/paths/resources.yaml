@@ -11,6 +11,9 @@ get:
   operationId: search_resources
   summary: Search resources
   description: Retrieves resources based on a search query.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:read"
   responses:
     "200":
       $ref: "../components/responses/resources.yaml"
@@ -24,6 +27,9 @@ post:
   operationId: create_resource
   summary: Create resource
   description: Creates a new resource and associated external access.
+  security: 
+    -  "OAuth2PasswordBearer":
+       - "resource:write"
   requestBody:
     required: true
     content:

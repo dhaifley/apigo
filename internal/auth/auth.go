@@ -239,10 +239,10 @@ func (s *Service) AuthJWT(ctx context.Context,
 	res.AccountName = s.cfg.ServiceName()
 
 	ca, err := request.ContextAccountID(ctx)
-	if err != nil || ca != request.SystemUser {
+	if err != nil || ca != request.SystemAccount {
 		ctx = context.WithValue(ctx, request.CtxKeyAccountID, res.AccountID)
 		ctx = context.WithValue(ctx, request.CtxKeyScopes,
-			request.ScopeSuperUser)
+			request.ScopeSuperuser)
 
 		oa, err := s.GetAccount(ctx, res.AccountID)
 		if err != nil && !errors.Has(err, errors.ErrNotFound) {
@@ -258,53 +258,16 @@ func (s *Service) AuthJWT(ctx context.Context,
 		}
 
 		if oa == nil {
-			secret := ""
+			s.log.Log(ctx, logger.LvlDebug,
+				"valid authentication token used with invalid "+
+					"account",
+				"error", err,
+				"token", token,
+				"claims", claims)
 
-			if uID, err := uuid.NewRandom(); err != nil {
-				return nil, errors.Wrap(err, errors.ErrServer,
-					"unable to create account secret",
-					"token", token,
-					"tenant", tenant,
-					"claims", claims,
-					"account_id", res.AccountID)
-			} else {
-				secret = uID.String()
-			}
-
-			if _, err := s.CreateAccount(ctx, &Account{
-				AccountID: request.FieldString{
-					Set: true, Valid: true, Value: res.AccountID,
-				},
-				Name: request.FieldString{
-					Set: true, Valid: true, Value: res.AccountName,
-				},
-				Secret: request.FieldString{
-					Set: true, Valid: true, Value: secret,
-				},
-			}); err != nil {
-				if errors.Has(err, errors.ErrForbidden) {
-					s.log.Log(ctx, logger.LvlDebug,
-						"valid authentication token used with invalid "+
-							"account",
-						"error", err,
-						"token", token,
-						"claims", claims)
-
-					return nil, errors.New(errors.ErrUnauthorized,
-						"invalid authentication token",
-						"token", token)
-				}
-
-				s.log.Log(ctx, logger.LvlError,
-					"unable to create account",
-					"error", err,
-					"token", token,
-					"tenant", tenant,
-					"claims", claims,
-					"account_id", res.AccountID)
-
-				return nil, err
-			}
+			return nil, errors.New(errors.ErrUnauthorized,
+				"invalid authentication token",
+				"token", token)
 		}
 	}
 
@@ -312,7 +275,7 @@ func (s *Service) AuthJWT(ctx context.Context,
 
 	sysAdmin := false
 
-	if strings.Contains(res.Scopes, request.ScopeSuperUser) {
+	if strings.Contains(res.Scopes, request.ScopeSuperuser) {
 		sysAdmin = true
 
 		if aID, err := request.ContextAccountID(ctx); err == nil {
@@ -329,7 +292,8 @@ func (s *Service) AuthJWT(ctx context.Context,
 
 	ctx = context.WithValue(ctx, request.CtxKeyAccountID, res.AccountID)
 
-	if uID, ok := claims["sub"].(string); !ok {
+	uID, ok := claims["sub"].(string)
+	if !ok {
 		s.log.Log(ctx, logger.LvlDebug,
 			"unable to get subject from claims",
 			"error", err,
@@ -340,7 +304,9 @@ func (s *Service) AuthJWT(ctx context.Context,
 		return nil, errors.New(errors.ErrUnauthorized,
 			"invalid authentication token",
 			"token", token)
-	} else if !request.ValidUserID(uID) {
+	}
+
+	if !request.ValidUserID(uID) {
 		s.log.Log(ctx, logger.LvlDebug,
 			"invalid subject found in claims",
 			"error", err,
@@ -351,70 +317,9 @@ func (s *Service) AuthJWT(ctx context.Context,
 		return nil, errors.New(errors.ErrUnauthorized,
 			"invalid authentication token",
 			"token", token)
-	} else {
-		u := &User{
-			UserID: request.FieldString{
-				Set: true, Valid: true, Value: uID,
-			},
-			Status: request.FieldString{
-				Set: true, Valid: true, Value: request.StatusActive,
-			},
-		}
-
-		cu, err := request.ContextUserID(ctx)
-		if err != nil || cu != request.SystemUser {
-			ctx = context.WithValue(ctx, request.CtxKeyUserID, u.UserID.Value)
-			ctx = context.WithValue(ctx, request.CtxKeyScopes,
-				request.ScopeSuperUser)
-
-			ou, err := s.GetUser(ctx, u.UserID.Value, nil)
-			if err != nil {
-				if !errors.Has(err, errors.ErrNotFound) {
-					s.log.Log(ctx, logger.LvlError,
-						"unable to retrieve user",
-						"error", err,
-						"token", token,
-						"tenant", tenant,
-						"claims", claims,
-						"user", u)
-
-					return nil, err
-				}
-			}
-
-			if ou == nil || (ou.Email.Value != u.Email.Value ||
-				ou.FirstName.Value != u.FirstName.Value ||
-				ou.LastName.Value != u.LastName.Value ||
-				ou.Status.Value != u.Status.Value) {
-				if _, err := s.CreateUser(ctx, u); err != nil {
-					if errors.Has(err, errors.ErrForbidden) {
-						s.log.Log(ctx, logger.LvlDebug,
-							"valid authentication token used with invalid "+
-								"account",
-							"error", err,
-							"token", token,
-							"claims", claims)
-
-						return nil, errors.New(errors.ErrUnauthorized,
-							"invalid authentication token",
-							"token", token)
-					}
-
-					s.log.Log(ctx, logger.LvlError,
-						"unable to create or update user",
-						"error", err,
-						"token", token,
-						"tenant", tenant,
-						"claims", claims,
-						"user", u)
-
-					return nil, err
-				}
-			}
-		}
-
-		res.UserID = u.UserID.Value
 	}
+
+	res.UserID = uID
 
 	return res, nil
 }
@@ -428,21 +333,24 @@ func (s *Service) AuthPassword(ctx context.Context,
 			"user_id", userID)
 	}
 
-	if !request.ValidAccountName(tenant) {
-		return errors.New(errors.ErrInvalidParameter, "invalid tenant",
-			"tenant", tenant)
+	aID := ""
+
+	if tenant != "" {
+		aCtx := context.WithValue(ctx, request.CtxKeyAccountID, "sys")
+
+		a, err := s.GetAccountByName(aCtx, tenant)
+		if err != nil {
+			return errors.New(errors.ErrUnauthorized,
+				"invalid tenant",
+				"tenant", tenant)
+		}
+
+		aID = a.AccountID.Value
+	} else {
+		aID = s.cfg.ServiceName()
 	}
 
-	aCtx := context.WithValue(ctx, request.CtxKeyAccountID, "sys")
-
-	a, err := s.GetAccountByName(aCtx, tenant)
-	if err != nil {
-		return errors.New(errors.ErrUnauthorized,
-			"invalid tenant",
-			"tenant", tenant)
-	}
-
-	ctx = context.WithValue(ctx, request.CtxKeyAccountID, a.AccountID.Value)
+	ctx = context.WithValue(ctx, request.CtxKeyAccountID, aID)
 
 	base := `SELECT password FROM "user"
 		WHERE "user".user_id = $1`
@@ -724,29 +632,44 @@ func (s *Service) Update(ctx context.Context) context.CancelFunc {
 
 // CreateToken is used to create a JWT token that can be used for tokens.
 func (s *Service) CreateToken(ctx context.Context,
-	accountID, userID string,
+	userID string,
 	expiration int64,
-	scopes string,
+	scopes, tenant string,
 ) (string, error) {
-	if !request.ValidAccountID(accountID) {
-		return "", errors.New(errors.ErrInvalidParameter, "invalid account_id",
-			"account_id", accountID)
+	accountID := ""
+
+	if tenant != "" {
+		aCtx := context.WithValue(ctx, request.CtxKeyAccountID, "sys")
+
+		a, err := s.GetAccountByName(aCtx, tenant)
+		if err != nil {
+			return "", errors.New(errors.ErrUnauthorized,
+				"invalid tenant",
+				"tenant", tenant)
+		}
+
+		accountID = a.AccountID.Value
+	} else {
+		accountID = s.cfg.ServiceName()
 	}
 
 	if !request.ValidUserID(userID) {
-		return "", errors.New(errors.ErrInvalidParameter, "invalid user_id",
+		return "", errors.New(errors.ErrInvalidParameter,
+			"invalid user_id",
 			"user_id", userID)
 	}
 
 	if !request.ValidScopes(scopes) {
-		return "", errors.New(errors.ErrInvalidParameter, "invalid scopes",
+		return "", errors.New(errors.ErrInvalidParameter,
+			"invalid scopes",
 			"scopes", scopes)
 	}
 
 	now := time.Now()
 
 	if now.Unix() >= expiration {
-		return "", errors.New(errors.ErrInvalidParameter, "invalid expiration",
+		return "", errors.New(errors.ErrInvalidParameter,
+			"invalid expiration",
 			"expiration", expiration)
 	}
 
