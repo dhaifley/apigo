@@ -1,7 +1,6 @@
 package migrations_test
 
 import (
-	"os"
 	"testing"
 
 	"github.com/dhaifley/apigo/db/migrations"
@@ -10,24 +9,11 @@ import (
 )
 
 func TestMigrations(t *testing.T) {
-	cfg := config.NewDefault()
-
-	host := os.Getenv("POSTGRES_HOST")
-
-	if host == "" || os.Getenv("INTEGRATION_TESTS") == "" {
-		t.Skip("skipping integration test")
+	if testing.Short() {
+		t.Skip("skipping integration tests")
 	}
 
-	cfg.SetDB(&config.DBConfig{
-		User:            "api-db-user",
-		Password:        "api",
-		Database:        "api-db",
-		MigrateUser:     "postgres",
-		MigratePassword: "postgres",
-		MigrateDatabase: "postgres",
-		Host:            host,
-		Port:            "5432",
-	})
+	cfg := config.NewDefault()
 
 	log := logger.New(cfg.LogOut(), cfg.LogFormat(), cfg.LogLevel())
 

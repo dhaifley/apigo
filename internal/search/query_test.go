@@ -83,8 +83,8 @@ func TestQueryNoSummary(t *testing.T) {
 func TestParseQuery(t *testing.T) {
 	t.Parallel()
 
-	q := "search=test%20(test:test)&from=10&size=10&order=test" +
-		"&ver=v2&search=(test1:test1)&order=-test1&summary=test,test1"
+	q := "search=test%20(test:test)&skip=10&size=10&sort=test" +
+		"&ver=v2&search=(test1:test1)&sort=-test1&summary=test,test1"
 
 	values, err := url.ParseQuery(q)
 	if err != nil {
@@ -111,13 +111,13 @@ func TestParseQuery(t *testing.T) {
 	expI = int64(10)
 
 	if req.Skip != expI {
-		t.Errorf("Expected from: %v, got: %v", expI, req.Skip)
+		t.Errorf("Expected skip: %v, got: %v", expI, req.Skip)
 	}
 
 	expS = "test,-test1"
 
 	if req.Sort != expS {
-		t.Errorf("Expected order: %v, got: %v", expS, req.Sort)
+		t.Errorf("Expected sort: %v, got: %v", expS, req.Sort)
 	}
 
 	expS = "test,test1"

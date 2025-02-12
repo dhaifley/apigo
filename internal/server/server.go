@@ -702,7 +702,7 @@ func (s *Server) logger(next http.Handler) http.Handler {
 // dbAvail wraps request handlers with a check to ensure the database is up.
 func (s *Server) dbAvail(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if s.db == nil {
+		if s.DB() == nil {
 			s.error(errors.New(errors.ErrUnavailable,
 				"The service database is currently unavailable, "+
 					"please try back later"), w, r)
