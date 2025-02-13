@@ -2,7 +2,6 @@ package auth_test
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
@@ -204,34 +203,4 @@ func TestAuthCreateToken(t *testing.T) {
 	if err := mock.ExpectationsWereMet(); err != nil {
 		t.Errorf("Unmet database expectations: %v", err)
 	}
-
-	claims := jwt.MapClaims{
-		"exp":    now.AddDate(1, 0, 0).Unix(),
-		"iat":    now.Unix(),
-		"nbf":    now.Unix(),
-		"iss":    "api",
-		"sub":    "0",
-		"aud":    "api",
-		"scopes": request.ScopeSuperuser,
-	}
-
-	tok := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
-
-	pkb, err := os.ReadFile("../../certs/tls.key")
-	if err != nil || len(pkb) == 0 {
-		t.Error("invalid key", string(pkb))
-		t.Error(err)
-	}
-
-	key, err := jwt.ParseRSAPrivateKeyFromPEM(pkb)
-	if err != nil {
-		t.Error(err)
-	}
-
-	authToken, err := tok.SignedString(key)
-	if err != nil {
-		t.Error(err)
-	}
-
-	t.Log(authToken)
 }

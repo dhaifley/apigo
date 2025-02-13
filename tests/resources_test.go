@@ -12,6 +12,10 @@ import (
 )
 
 func TestResources(t *testing.T) {
+	if testing.Short() {
+		t.Skip("skipping integration tests")
+	}
+
 	data := map[string]any{}
 
 	dataLock := sync.Mutex{}

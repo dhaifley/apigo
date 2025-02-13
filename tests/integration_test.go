@@ -11,6 +11,13 @@ import (
 )
 
 func TestMain(m *testing.M) {
+	for _, arg := range os.Args {
+		if arg == "-test.short=true" {
+			// Skipping integration tests.
+			os.Exit(0)
+		}
+	}
+
 	su := os.Getenv("SUPERUSER")
 	if su == "" {
 		su = "admin"
