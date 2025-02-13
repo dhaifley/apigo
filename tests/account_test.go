@@ -162,7 +162,7 @@ func TestAccount(t *testing.T) {
 		url:    "http://localhost:8080/api/v1/account/repo",
 		method: http.MethodPost,
 		body: map[string]any{
-			"repo":        "git@github.com:test/test.git",
+			"repo":        "https://github.com/test/test.git",
 			"repo_status": "active",
 			"repo_status_data": map[string]any{
 				"test": "test",
