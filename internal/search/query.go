@@ -2,7 +2,6 @@ package search
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/url"
 	"strconv"
 	"strings"
@@ -117,39 +116,6 @@ func (qn *QueryNode) String() string {
 	}
 
 	return string(str)
-}
-
-// Map returns a representation of the AST node in the format used by the UI.
-func (qn *QueryNode) Map() map[string]any {
-	v := map[string]any{}
-
-	v["op"] = qn.Op.String()
-
-	if v["op"] == OpMatch.String() {
-		v["op"] = "literal"
-	}
-
-	v["comp"] = qn.Comp.String()
-
-	if len(qn.Nodes) > 0 {
-		for i, n := range qn.Nodes {
-			v[fmt.Sprintf("param_%d", i)] = n.Map()
-		}
-	}
-
-	if qn.Op == OpMatch {
-		v["key"] = qn.Cat
-		if qn.CatRE != "" {
-			v["key"] = "/" + qn.CatRE + "/"
-		}
-
-		v["value"] = qn.Val
-		if qn.ValRE != "" {
-			v["value"] = "/" + qn.ValRE + "/"
-		}
-	}
-
-	return v
 }
 
 // Eval steps through the AST and executes the provided function on each node

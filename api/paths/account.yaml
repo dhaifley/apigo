@@ -15,15 +15,15 @@ get:
       $ref: "../components/responses/user_error.yaml"
     "500":
       $ref: "../components/responses/error.yaml"
-patch:
+post:
   tags:
-    - account
-  operationId: update_account
-  summary: Update account
-  description: Updates details for the current account.
+    - accounts
+  operationId: create_account
+  summary: Create account
+  description: Creates a new account, or re-creates an existing one.
   security: 
     -  "OAuth2PasswordBearer":
-       - "account:write"
+       - "account:admin"
   requestBody:
     required: true
     content:
@@ -31,29 +31,7 @@ patch:
         schema:
           $ref: "../components/schemas/account.yaml"
   responses:
-    "200":
-      $ref: "../components/responses/account.yaml"
-    "400":
-      $ref: "../components/responses/user_error.yaml"
-    "500":
-      $ref: "../components/responses/error.yaml"
-put:
-  tags:
-    - account
-  operationId: replace_account
-  summary: Replace account
-  description: Updates details for the current account.
-  security: 
-    -  "OAuth2PasswordBearer":
-       - "account:write"
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: "../components/schemas/account.yaml"
-  responses:
-    "200":
+    "201":
       $ref: "../components/responses/account.yaml"
     "400":
       $ref: "../components/responses/user_error.yaml"

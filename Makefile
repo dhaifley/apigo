@@ -34,12 +34,24 @@ apigo.test: apigo Dockerfile tests/docker-compose.yml
 build-docker: apigo.test
 .PHONY: build-docker
 
-start: build build-docker
+certs/tls.key:
+	@sh certs/generate.sh
+
+certs/tls.crt: certs/tls.key
+
+build-certs: certs/tls.crt
+.PHONY: build-certs
+
+clean-certs:
+	@rm -f certs/*.crt certs/*.key certs/*.csr certs/*.srl
+.PHONY: clean-certs
+
+start: build build-docker build-certs
 	docker compose -f tests/docker-compose.yml up -d --force-recreate
 	@echo "Test services started."
 .PHONY: start
 
-stop:
+stop: clean-certs
 	docker compose -f tests/docker-compose.yml down --remove-orphans --volumes
 	@echo "All test services stopped."
 .PHONY: stop

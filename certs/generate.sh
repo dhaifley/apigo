@@ -1,17 +1,16 @@
-rm *.crt
+#!/usr/bin/sh
 
-rm *.key
+# Certificate Authority (CA)
+openssl req -x509 -newkey rsa:4096 -days 365 -nodes \
+    -keyout certs/ca.key -out certs/ca.crt \
+    -subj "/C=US/O=apigo/CN=apigo CA"
 
-openssl req -x509 -newkey rsa:4096 -days 365 -nodes -keyout ca.key -out ca.crt
+# Server certificate request
+openssl req -newkey rsa:4096 -nodes \
+    -keyout certs/tls.key -out certs/tls.csr \
+    -subj "/C=US/O=apigo/CN=localhost"
 
-echo "CA certificate"
-
-openssl x509 -in ca.crt -noout -text
-
-openssl req -newkey rsa:4096 -nodes -keyout tls.key -out tls.csr
-
-openssl x509 -req -in tls.csr -days 365 -CA ca.crt -CAkey ca.key -CAcreateserial -out tls.crt
-
-echo "Signed certificate"
-
-openssl x509 -in tls.crt -noout -text
+# Server certificate signed with the CA
+openssl x509 -req -in certs/tls.csr -days 365 \
+    -CA certs/ca.crt -CAkey certs/ca.key -CAcreateserial \
+    -out certs/tls.crt

@@ -184,7 +184,7 @@ func (s *Server) PostAccount(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 
-	if err := s.checkScope(ctx, request.ScopeAccountWrite); err != nil {
+	if err := s.checkScope(ctx, request.ScopeAccountAdmin); err != nil {
 		s.error(err, w, r)
 
 		return

@@ -60,17 +60,17 @@
           }
         }
       },
-      "patch": {
+      "post": {
         "tags": [
-          "account"
+          "accounts"
         ],
-        "operationId": "update_account",
-        "summary": "Update account",
-        "description": "Updates details for the current account.",
+        "operationId": "create_account",
+        "summary": "Create account",
+        "description": "Creates a new account, or re-creates an existing one.",
         "security": [
           {
             "OAuth2PasswordBearer": [
-              "account:write"
+              "account:admin"
             ]
           }
         ],
@@ -85,43 +85,7 @@
           }
         },
         "responses": {
-          "200": {
-            "$ref": "#/components/responses/account"
-          },
-          "400": {
-            "$ref": "#/components/responses/user_error"
-          },
-          "500": {
-            "$ref": "#/components/responses/error"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "account"
-        ],
-        "operationId": "replace_account",
-        "summary": "Replace account",
-        "description": "Updates details for the current account.",
-        "security": [
-          {
-            "OAuth2PasswordBearer": [
-              "account:write"
-            ]
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/account"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
+          "201": {
             "$ref": "#/components/responses/account"
           },
           "400": {

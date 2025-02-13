@@ -23,7 +23,12 @@ func TestQueryString(t *testing.T) {
 		},
 	}
 
-	exp := `{"root":{"op":"and","args":[{"op":"match","comp":"gt",` +
+	exp := `{"op":"match","comp":"gt","cat":"test","val":"test"}`
+	if qt.Root.Nodes[0].String() != exp {
+		t.Errorf("Expected string: %v, got: %v", exp, qt.Root.Nodes[0].String())
+	}
+
+	exp = `{"root":{"op":"and","args":[{"op":"match","comp":"gt",` +
 		`"cat":"test","val":"test"}]}}`
 	if qt.String() != exp {
 		t.Errorf("Expected string: %v, got: %v", exp, qt.String())

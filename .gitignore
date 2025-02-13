@@ -4,6 +4,10 @@
 *.so
 *.test
 *.out
+*.crt
+*.key
+*.csr
+*.srl
 .DS_Store
 go.work
 go.work.sum

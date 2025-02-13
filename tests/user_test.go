@@ -1,63 +1,17 @@
-package tests_test
+package integration_test
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"sync"
 	"testing"
-	"time"
-
-	"github.com/dhaifley/apigo"
 )
 
-func TestTests(t *testing.T) {
-	if testing.Short() {
-		t.Skip("skipping integration tests")
-	}
-
-	t.Parallel()
-
-	su := os.Getenv("SUPERUSER")
-	if su == "" {
-		su = "admin"
-	}
-
-	sp := os.Getenv("SUPERUSER_PASSWORD")
-	if sp == "" {
-		sp = "admin"
-	}
-
-	os.Setenv("SUPERUSER", su)
-	os.Setenv("SUPERUSER_PASSWORD", sp)
-
-	svc := apigo.New()
-
-	ctx := context.Background()
-
-	errCh := make(chan error, 1)
-
-	go func(ctx context.Context, errCh chan error) {
-		if err := svc.Migrate(ctx); err != nil {
-			t.Error("migrations error", err)
-		}
-
-		if err := svc.Start(ctx); err != nil {
-			t.Error("server error", err)
-		}
-	}(ctx, errCh)
-
-	t.Cleanup(func() {
-		svc.Close(ctx)
-	})
-
-	time.Sleep(time.Second)
-
+func TestUser(t *testing.T) {
 	data := map[string]any{}
 
 	dataLock := sync.Mutex{}
@@ -71,7 +25,7 @@ func TestTests(t *testing.T) {
 		resp   func(t *testing.T, res *http.Response)
 	}{{
 		name:   "unauthorized",
-		url:    "http://localhost:8080/api/v1/account",
+		url:    "http://localhost:8080/api/v1/user",
 		method: http.MethodGet,
 		header: map[string]string{"Authorization": "test"},
 		resp: func(t *testing.T, res *http.Response) {
@@ -142,8 +96,8 @@ func TestTests(t *testing.T) {
 			dataLock.Unlock()
 		},
 	}, {
-		name:   "get account",
-		url:    "http://localhost:8080/api/v1/account",
+		name:   "get user",
+		url:    "http://localhost:8080/api/v1/user",
 		method: http.MethodGet,
 		resp: func(t *testing.T, res *http.Response) {
 			expC := http.StatusOK
@@ -158,7 +112,70 @@ func TestTests(t *testing.T) {
 				t.Errorf("Unexpected response error: %v", err)
 			}
 
-			expB := `"account_id":"`
+			expB := `"user_id":"`
+
+			if !strings.Contains(string(b), expB) {
+				t.Errorf("Expected body to contain: %v, got: %v",
+					expB, string(b))
+			}
+		},
+	}, {
+		name:   "patch user",
+		url:    "http://localhost:8080/api/v1/user",
+		method: http.MethodPatch,
+		body: map[string]any{
+			"data": map[string]any{
+				"test": "test",
+			},
+		},
+		resp: func(t *testing.T, res *http.Response) {
+			expC := http.StatusOK
+
+			if res.StatusCode != expC {
+				t.Errorf("Status code expected: %v, got: %v",
+					expC, res.StatusCode)
+			}
+
+			b, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Errorf("Unexpected response error: %v", err)
+			}
+
+			expB := `"user_id":"`
+
+			if !strings.Contains(string(b), expB) {
+				t.Errorf("Expected body to contain: %v, got: %v",
+					expB, string(b))
+			}
+		},
+	}, {
+		name:   "put user",
+		url:    "http://localhost:8080/api/v1/user",
+		method: http.MethodPut,
+		body: map[string]any{
+			"email":      "test@test.com",
+			"first_name": "Test",
+			"last_name":  "User",
+			"status":     "active",
+			"scopes":     "user:read user:write",
+			"data": map[string]any{
+				"test": "test",
+			},
+		},
+		resp: func(t *testing.T, res *http.Response) {
+			expC := http.StatusOK
+
+			if res.StatusCode != expC {
+				t.Errorf("Status code expected: %v, got: %v",
+					expC, res.StatusCode)
+			}
+
+			b, err := io.ReadAll(res.Body)
+			if err != nil {
+				t.Errorf("Unexpected response error: %v", err)
+			}
+
+			expB := `"user_id":"`
 
 			if !strings.Contains(string(b), expB) {
 				t.Errorf("Expected body to contain: %v, got: %v",

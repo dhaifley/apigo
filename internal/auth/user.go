@@ -79,7 +79,7 @@ func (u *User) Validate() error {
 				"user", u)
 		}
 
-		if !request.ValidScope(u.Scopes.Value) {
+		if !request.ValidScopes(u.Scopes.Value) {
 			return errors.New(errors.ErrInvalidRequest,
 				"invalid scope",
 				"user", u)
