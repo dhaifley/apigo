@@ -2,6 +2,7 @@ package sqldb_test
 
 import (
 	"net/url"
+	"strings"
 	"testing"
 
 	"github.com/dhaifley/apigo/internal/search"
@@ -100,5 +101,100 @@ func TestReturningFields(t *testing.T) {
 
 	if v != exp {
 		t.Errorf("Expected: %v, got: %v", exp, v)
+	}
+}
+
+func TestSummaryData(t *testing.T) {
+	t.Parallel()
+
+	fields := []*sqldb.Field{
+		{
+			Name: "string_field",
+			Type: sqldb.FieldString,
+		},
+		{
+			Name: "int_field",
+			Type: sqldb.FieldInt,
+		},
+		{
+			Name: "float_field",
+			Type: sqldb.FieldFloat,
+		},
+		{
+			Name: "bool_field",
+			Type: sqldb.FieldBool,
+		},
+		{
+			Name: "time_field",
+			Type: sqldb.FieldTime,
+		},
+		{
+			Name: "array_field",
+			Type: sqldb.FieldArray,
+		},
+		{
+			Name: "json_field",
+			Type: sqldb.FieldJSON,
+		},
+	}
+
+	sd := make(sqldb.SummaryData)
+
+	query := &search.Query{
+		Summary: "string_field,int_field,float_field,bool_field," +
+			"time_field,array_field,json_field",
+	}
+
+	dest := sd.ScanDest(fields, query)
+
+	if len(dest) != 8 { // 7 fields + count
+		t.Errorf("Expected 8 scan destinations, got %d", len(dest))
+	}
+
+	// Verify each destination type
+	if _, ok := dest[0].(*string); !ok {
+		t.Error("Expected string destination for string_field")
+	}
+
+	if _, ok := dest[1].(*int64); !ok {
+		t.Error("Expected int64 destination for int_field")
+	}
+
+	if _, ok := dest[2].(*float64); !ok {
+		t.Error("Expected float64 destination for float_field")
+	}
+
+	if _, ok := dest[3].(*bool); !ok {
+		t.Error("Expected bool destination for bool_field")
+	}
+
+	if _, ok := dest[4].(*int64); !ok {
+		t.Error("Expected int64 destination for time_field")
+	}
+
+	if _, ok := dest[5].(*[]any); !ok {
+		t.Error("Expected []any destination for array_field")
+	}
+
+	if _, ok := dest[6].(*map[string]any); !ok {
+		t.Error("Expected map[string]any destination for json_field")
+	}
+
+	if _, ok := dest[7].(*int64); !ok {
+		t.Error("Expected int64 destination for count")
+	}
+}
+
+func TestFieldString(t *testing.T) {
+	t.Parallel()
+
+	f := &sqldb.Field{
+		Name: "test",
+		Type: sqldb.FieldString,
+	}
+
+	str := f.String()
+	if !strings.Contains(str, `"name":"test"`) {
+		t.Errorf("Expected field string to contain name, got %s", str)
 	}
 }

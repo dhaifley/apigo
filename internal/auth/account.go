@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"net/url"
 
 	"github.com/dhaifley/apigo/internal/cache"
 	"github.com/dhaifley/apigo/internal/errors"
@@ -609,6 +610,14 @@ func (s *Service) SetAccountRepo(ctx context.Context,
 	if v == nil {
 		return errors.New(errors.ErrInvalidRequest,
 			"missing repo")
+	}
+
+	if v.Repo.Value != "" {
+		if _, err := url.Parse(v.Repo.Value); err != nil {
+			return errors.New(errors.ErrInvalidRequest,
+				"invalid repo",
+				"repo", v)
+		}
 	}
 
 	if v.RepoStatus.Set {

@@ -160,7 +160,7 @@ func NewClient(repoURL string,
 		cfg.Ref = u.Fragment
 
 		return newTestClient(username, password, cfg, metric, tracer)
-	default:
+	case "git", "ssh", "http", "https", "git+ssh", "git+http", "git+https":
 		gitLock.RLock()
 
 		if gc, ok := gitClients[u.String()]; ok {
@@ -191,6 +191,10 @@ func NewClient(repoURL string,
 		gitLock.Unlock()
 
 		return gc, nil
+	default:
+		return nil, errors.Wrap(err, errors.ErrClient,
+			"invalid repository URL",
+			"url", repoURL)
 	}
 }
 

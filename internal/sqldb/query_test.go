@@ -2,6 +2,7 @@ package sqldb_test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
 	"github.com/dhaifley/apigo/internal/search"
@@ -412,5 +413,92 @@ func TestQueryUpdate(t *testing.T) {
 
 	if _, err := q.QueryRow(context.Background()); err != nil {
 		t.Error(err)
+	}
+}
+
+func TestQueryErrors(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name   string
+		query  *sqldb.Query
+		expErr string
+	}{
+		{
+			name: "invalid field type",
+			query: sqldb.NewQuery(&sqldb.QueryOptions{
+				DB:   &mockSQLConn{},
+				Type: sqldb.QuerySelect,
+				Base: "SELECT * FROM test",
+				Fields: []*sqldb.Field{{
+					Name: "test",
+					Type: "invalid",
+				}},
+				Search: &search.Query{
+					Search: "and(test:value)",
+				},
+			}),
+			expErr: "invalid search field type",
+		},
+		{
+			name: "invalid number parameter",
+			query: sqldb.NewQuery(&sqldb.QueryOptions{
+				DB:   &mockSQLConn{},
+				Type: sqldb.QuerySelect,
+				Base: "SELECT * FROM test",
+				Fields: []*sqldb.Field{{
+					Name: "test",
+					Type: sqldb.FieldInt,
+				}},
+				Search: &search.Query{
+					Search: "and(test:nan)",
+				},
+			}),
+			expErr: "unable to parse integer parameter",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := tc.query.Parse()
+			if err == nil {
+				t.Error("Expected error but got nil")
+			} else if !strings.Contains(err.Error(), tc.expErr) {
+				t.Errorf("Expected error containing %q, got %q", tc.expErr, err)
+			}
+		})
+	}
+}
+
+func TestQueryFieldOperations(t *testing.T) {
+	t.Parallel()
+
+	q := sqldb.NewQuery(&sqldb.QueryOptions{
+		DB:   &mockSQLConn{},
+		Type: sqldb.QuerySelect,
+		Base: "SELECT * FROM test",
+		Fields: []*sqldb.Field{
+			{
+				Name:    "primary",
+				Type:    sqldb.FieldString,
+				Primary: true,
+			},
+			{
+				Name: "secondary",
+				Type: sqldb.FieldString,
+			},
+		},
+	})
+
+	if q.Primary() != "primary" {
+		t.Errorf("Expected primary field 'primary', got %s", q.Primary())
+	}
+
+	if f := q.Field("secondary"); f == nil {
+		t.Error("Expected to find field 'secondary'")
+	}
+
+	if f := q.Field("nonexistent"); f != nil {
+		t.Error("Expected nil for nonexistent field")
 	}
 }

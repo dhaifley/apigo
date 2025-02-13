@@ -514,6 +514,10 @@ func (sc *SQLConn) DB() PGXDB {
 		return sc.mock
 	}
 
+	if sc.pool == nil {
+		return nil
+	}
+
 	return sc.pool
 }
 

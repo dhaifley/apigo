@@ -267,3 +267,83 @@ func TestStat(t *testing.T) {
 			stat.TotalConns())
 	}
 }
+
+func TestMonitor(t *testing.T) {
+	t.Parallel()
+
+	cfg := config.NewDefault()
+	cfg.SetService(&config.ServiceConfig{Name: "test"})
+	cfg.SetDB(&config.DBConfig{
+		Monitor: 1 * time.Second,
+	})
+
+	sc := sqldb.NewSQLConn(cfg, nil, nil, nil)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	sc.Monitor(ctx)
+
+	// Let monitor run for a bit
+	time.Sleep(2 * time.Second)
+}
+
+func TestSQLConnLogFunctions(t *testing.T) {
+	t.Parallel()
+
+	sc := sqldb.NewSQLConn(nil, nil, nil, nil)
+	ctx := context.Background()
+
+	// Test all log levels
+	sc.LogErrorf(ctx, "test", nil, "message %s", "test")
+	sc.LogWarnf(ctx, "test", "message %s", "test")
+	sc.LogInfof(ctx, "test", "message %s", "test")
+	sc.LogDebugf(ctx, "test", "message %s", "test")
+}
+
+func TestSQLConnSetMode(t *testing.T) {
+	t.Parallel()
+
+	sc := sqldb.NewSQLConn(nil, nil, nil, nil)
+
+	mode := 1
+	sc.SetMode(mode)
+
+	if sc.Mode() != mode {
+		t.Errorf("Expected mode %d, got %d", mode, sc.Mode())
+	}
+}
+
+func TestSQLConnAccessors(t *testing.T) {
+	t.Parallel()
+
+	cfg := config.NewDefault()
+
+	cfg.SetService(&config.ServiceConfig{Name: "test"})
+
+	sc := sqldb.NewSQLConn(cfg, nil, nil, nil)
+
+	if sc.DB() != nil {
+		t.Error("Expected nil DB")
+	}
+
+	if sc.Pool() != nil {
+		t.Error("Expected nil Pool")
+	}
+
+	if sc.Svc() != "test" {
+		t.Errorf("Expected service 'test', got %s", sc.Svc())
+	}
+
+	if sc.Log() == nil {
+		t.Error("Expected non-nil Logger")
+	}
+
+	if sc.Metric() != nil {
+		t.Error("Expected nil Metric")
+	}
+
+	if sc.Tracer() != nil {
+		t.Error("Expected nil Tracer")
+	}
+}
