@@ -27,11 +27,11 @@ apigo: $(GO_FILES) Dockerfile tests/docker-compose.yml internal/static/*
 build: apigo
 .PHONY: build
 
-apigo.test: apigo Dockerfile tests/docker-compose.yml
+docker.test: apigo Dockerfile tests/docker-compose.yml
 	docker compose -f tests/docker-compose.yml build
-	touch apigo.test
+	touch docker.test
 
-build-docker: apigo.test
+build-docker: docker.test
 .PHONY: build-docker
 
 certs/tls.key:
@@ -46,13 +46,17 @@ clean-certs:
 	@rm -f certs/*.crt certs/*.key certs/*.csr certs/*.srl
 .PHONY: clean-certs
 
-start: build build-docker build-certs
+start.test: build build-docker build-certs
 	docker compose -f tests/docker-compose.yml up -d --force-recreate
+	@touch start.test
 	@echo "Test services started."
+
+start: start.test
 .PHONY: start
 
 stop: clean-certs
 	docker compose -f tests/docker-compose.yml down --remove-orphans --volumes
+	@rm -f start.test
 	@echo "All test services stopped."
 .PHONY: stop
 
@@ -66,6 +70,6 @@ test-quick:
 	go test -race -cover -short ./...
 .PHONY: test-quick
 
-run: build
+run: build start
 	@echo "set -a && . ./tests/test.env && ./apigo" | ${SHELL}
 .PHONY: run
